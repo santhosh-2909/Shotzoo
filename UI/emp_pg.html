@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Vault - Employees</title>
+    <!-- Typography -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&amp;f[]=satoshi@400,500,600,700&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#fefcff",
+                        "primary-fixed-dim": "#aed367",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f0f3ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed-variant": "#004395",
+                        "outline-variant": "#c4c9b5",
+                        "error-container": "#ffdad6",
+                        "background": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "surface": "#f9f9ff",
+                        "on-tertiary-container": "#6f4500",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-secondary-fixed": "#001a42",
+                        "primary-fixed": "#c9f080",
+                        "outline": "#757968",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-container-highest": "#dce2f3",
+                        "tertiary-container": "#ffb044",
+                        "surface-variant": "#dce2f3",
+                        "secondary": "#0058be",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#2170e4",
+                        "primary-container": "#a8cd62",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#496800",
+                        "tertiary": "#855300",
+                        "surface-dim": "#d3daea",
+                        "on-surface-variant": "#444939",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary": "#496800",
+                        "on-surface": "#151c27",
+                        "on-primary-fixed": "#131f00",
+                        "on-primary-fixed-variant": "#364e00",
+                        "inverse-on-surface": "#ebf1ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary-container": "#3c5600",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#aed367",
+                        "surface-container-high": "#e2e8f8",
+                        "on-background": "#151c27",
+                        "inverse-surface": "#2a313d"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .heading-tight {
+            letter-spacing: -0.02em;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-[#F7F8F4] text-on-surface min-h-screen">
+    <!-- NavigationDrawer -->
+    <nav class="fixed left-0 top-0 flex flex-col py-8 px-6 gap-y-2 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">shield_with_heart</span></div>
+            <div><h2 class="font-bold text-lg tracking-tighter font-headline leading-tight text-white">Admin Panel</h2>
+                <p class="text-[11px] text-white/40 uppercase tracking-widest font-medium font-headline">ShotZoo</p></div>
+        </div>
+        <div class="flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/attendence.html"><span class="material-symbols-outlined">calendar_today</span><span class="font-headline font-medium text-sm">Attendance</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/add_task.html"><span class="material-symbols-outlined">add_task</span><span class="font-headline font-medium text-sm">Add Task</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/my_task_admin.html"><span class="material-symbols-outlined">task_alt</span><span class="font-headline font-medium text-sm">My Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/all_task.html"><span class="material-symbols-outlined">assignment</span><span class="font-headline font-medium text-sm">All Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-150 text-white font-bold bg-[#A8CD62] mx-2 my-1" href="/admin/emp_pg.html"><span class="material-symbols-outlined">group</span><span class="font-headline font-medium text-sm">Employees</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/analytics.html"><span class="material-symbols-outlined">analytics</span><span class="font-headline font-medium text-sm">Analytics</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-headline font-medium text-sm">Dashboard</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/send_noti.html"><span class="material-symbols-outlined">mic</span><span class="font-headline font-medium text-sm">Send Notification</span></a>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/10 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/pfp.html"><span class="material-symbols-outlined">settings</span><span class="font-headline font-medium text-sm">Settings</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-error hover:bg-white/10 mx-2 my-1" href="/"><span class="material-symbols-outlined">logout</span><span class="font-headline font-medium text-sm">Logout</span></a>
+        </div>
+    </nav>
+    <!-- Main Content Canvas -->
+    <main class="ml-72 min-h-screen">
+        <!-- TopAppBar -->
+        <header class="flex justify-between items-center px-8 h-20 w-full sticky top-0 z-40 bg-[#F7F8F4]">
+            <div class="flex items-center gap-4">
+                <h1 class="text-2xl font-headline font-extrabold tracking-tighter text-stone-900">Employees <span
+                        id="emp-count" class="text-stone-400 ml-1 font-mono text-lg">[0]</span></h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="relative">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"
+                        data-icon="search">search</span>
+                    <input id="emp-search"
+                        class="bg-surface-container-low border-none rounded-lg pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary-container outline-none transition-all"
+                        placeholder="Search employees..." type="text" />
+                </div>
+                <a href="/admin/add_employee.html"
+                    class="bg-[#A8CD62] text-white px-6 py-2.5 rounded-lg font-headline font-bold text-sm tracking-tight hover:brightness-95 transition-all shadow-sm inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">person_add</span> Add Employee
+                </a>
+            </div>
+        </header>
+        <div class="p-8 space-y-10">
+            <!-- Top Section: Stats -->
+            <section class="grid grid-cols-4 gap-6">
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] group hover:translate-y-[-2px] transition-all duration-300">
+                    <p class="text-stone-500 text-xs font-label font-semibold uppercase tracking-wider mb-2">Total
+                        Employees</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-headline font-bold text-stone-900">32</h3>
+                        <span class="text-[#A8CD62] bg-[#A8CD62]/10 px-2 py-1 rounded text-[10px] font-mono">ALL
+                            SYSTEMS</span>
+                    </div>
+                </div>
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] group hover:translate-y-[-2px] transition-all duration-300">
+                    <p class="text-stone-500 text-xs font-label font-semibold uppercase tracking-wider mb-2">Active Now
+                    </p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-headline font-bold text-stone-900">18</h3>
+                        <span
+                            class="text-emerald-600 bg-emerald-100 px-2 py-1 rounded text-[10px] font-mono">+5.2%</span>
+                    </div>
+                </div>
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] group hover:translate-y-[-2px] transition-all duration-300">
+                    <p class="text-stone-500 text-xs font-label font-semibold uppercase tracking-wider mb-2">On Leave
+                        Today</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-headline font-bold text-stone-900">06</h3>
+                        <span
+                            class="text-amber-600 bg-amber-100 px-2 py-1 rounded text-[10px] font-mono">EXPECTED</span>
+                    </div>
+                </div>
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] group hover:translate-y-[-2px] transition-all duration-300">
+                    <p class="text-stone-500 text-xs font-label font-semibold uppercase tracking-wider mb-2">Offline</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-headline font-bold text-stone-900">08</h3>
+                        <span class="text-stone-400 bg-stone-100 px-2 py-1 rounded text-[10px] font-mono">IDLE</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Main Content: Two Columns -->
+            <div class="flex gap-8">
+                <!-- Left (60%): Primary employee list -->
+                <section class="w-3/5 space-y-6">
+                    <div
+                        class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_8px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.8)]">
+                        <div class="flex flex-wrap justify-between items-center gap-3 mb-8">
+                            <h2 class="text-xl font-headline font-bold text-stone-900">Personnel Directory</h2>
+                            <div class="flex items-center gap-2">
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[18px] pointer-events-none">search</span>
+                                    <input id="dir-search" type="text" placeholder="Search employees..."
+                                        class="bg-surface-container-low border-none rounded-full pl-9 pr-4 py-2 text-sm font-medium text-stone-700 w-56 focus:ring-2 focus:ring-[#A8CD62] focus:bg-white transition-all" />
+                                </div>
+                                <button id="dir-filter-btn" type="button" class="p-2 rounded-full hover:bg-surface-container-low transition-colors" aria-label="Filter">
+                                    <span class="material-symbols-outlined text-stone-500" data-icon="filter_list">filter_list</span>
+                                </button>
+                                <div class="relative">
+                                    <button id="dir-download-btn" type="button" class="p-2 rounded-full hover:bg-surface-container-low transition-colors" aria-label="Download">
+                                        <span class="material-symbols-outlined text-stone-500" data-icon="download">download</span>
+                                    </button>
+                                    <div id="dir-download-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-stone-100 z-50 overflow-hidden">
+                                        <button id="dir-export-csv" type="button" class="w-full text-left px-4 py-3 text-sm font-semibold text-stone-700 hover:bg-surface-container-low transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px] text-stone-500">description</span> Export as CSV
+                                        </button>
+                                        <button id="dir-export-xlsx" type="button" class="w-full text-left px-4 py-3 text-sm font-semibold text-stone-700 hover:bg-surface-container-low transition-colors flex items-center gap-2 border-t border-stone-100">
+                                            <span class="material-symbols-outlined text-[18px] text-stone-500">table_view</span> Export as Excel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="dir-toast" class="hidden mb-4 px-4 py-2 rounded-lg bg-stone-900 text-white text-xs font-bold inline-flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[16px] text-[#A8CD62]">info</span>
+                            <span id="dir-toast-text"></span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-separate border-spacing-y-4">
+                                <thead>
+                                    <tr class="text-stone-400 text-xs font-label uppercase tracking-widest">
+                                        <th class="px-4 py-2 font-semibold">Employee</th>
+                                        <th class="px-4 py-2 font-semibold">ID Code</th>
+                                        <th class="px-4 py-2 font-semibold text-center">Status</th>
+                                        <th class="px-4 py-2 font-semibold text-right">Load</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Row 1 -->
+                                    <tr class="group cursor-pointer">
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50 rounded-l-xl group-hover:bg-[#F0F3FF] transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <img alt="Portrait"
+                                                    class="w-10 h-10 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                    data-alt="Professional portrait of a male employee with a clean background, soft lighting, and neutral expression"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdjQRokBYIRL2ZM19HucJyHFGlXDataSRL4Td-kLnQfkzZphefBRe2ygHpfn-YH9QhAOhMIdysH92h0vrhYPlREPmtNVrumorx9H4Rlao-ceETlUwPC8W7jjj3jSmoXr00_2sgylrf_vuBF6VlxEmYa2LqF5QJgN_lhQFE5f9jU5mK5HNEBb6qKvs_pHcTpQ7Jz3lUy-tWWsU1eLURcrv5KHlx9ur87lFCVktvF4-DMmmke6Hu1jDCTx8WnISp4MMlb6KF4e8WOdEq" />
+                                                <div>
+                                                    <p class="text-stone-900 font-bold text-sm leading-tight">Alexander
+                                                        Chen</p>
+                                                    <p class="text-stone-500 text-xs mt-0.5">Senior Security Architect
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors">
+                                            <span
+                                                class="font-mono text-xs text-stone-600 bg-white/80 px-2 py-1 rounded">VLT-8821</span>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A8CD62]/20 text-[#496800] uppercase tracking-tighter">Active</span>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50  group-hover:bg-[#F0F3FF] transition-colors text-right">
+                                            <span class="font-mono text-sm font-bold text-stone-900">04 Tasks</span>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 2 -->
+                                    <tr class="group cursor-pointer">
+                                        <td
+                                            class="px-4 py-3 bg-transparent rounded-l-xl group-hover:bg-[#F0F3FF] transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <img alt="Portrait"
+                                                    class="w-10 h-10 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                    data-alt="Modern close-up portrait of a woman with stylish glasses in a workspace setting, bright natural lighting"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfth7FYg75o_ary81HX7mc7Z6nxIQ_fCe0l4uKgnV1JbUCEZ25OodYufnjEAPLrcQVCS_RpsJGsu51WRvb3jaSMbFZRn-VevEUtIdsiOYBI-KPARnJ9HVAH64VluxvIIeex6WjA3Ug9xLAda-OrI3Auxxz0xKMM9-Do_CtZ-zOJ1sjsrkmi_RFxIayPMqSKZXifVvmieaDLxVcgH9z5WP4hqdrZk7Ls2SxEwRH0ojgoB8ckKlYd3XgZEy3z3Ripzo5ggAXySx_VqHQ" />
+                                                <div>
+                                                    <p class="text-stone-900 font-bold text-sm leading-tight">Elena
+                                                        Rodriguez</p>
+                                                    <p class="text-stone-500 text-xs mt-0.5">Lead Field Inspector</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 group-hover:bg-[#F0F3FF] transition-colors">
+                                            <span
+                                                class="font-mono text-xs text-stone-600 bg-white/80 px-2 py-1 rounded">VLT-9104</span>
+                                        </td>
+                                        <td class="px-4 py-3 group-hover:bg-[#F0F3FF] transition-colors text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-tighter">On
+                                                Leave</span>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3  group-hover:bg-[#F0F3FF] transition-colors text-right">
+                                            <span class="font-mono text-sm font-bold text-stone-900">00 Tasks</span>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 3 -->
+                                    <tr class="group cursor-pointer">
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50 rounded-l-xl group-hover:bg-[#F0F3FF] transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <img alt="Portrait"
+                                                    class="w-10 h-10 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                    data-alt="Corporate headshot of a middle-aged man with a professional smile, warm interior office lighting"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhoyy6cJGlhae6pr-_1bRUr_7pvY30oMXBlGaQRtJCf4FU8inE8RYbvb2Og7tsgXWCwl5OrV9Mhqh3fpURfIDEYziT19XSKYWfwaebg11hcDSLlUxetx59roDkIqQ_8k2HdWGCNr-P4rJw4KCQ6ovijG3JmFzm8s-9b-Y0UJiAypVCSXf49rj9QqOMd0hXxgiQiXTYs2ShQzXFnSBiIdf8SID4ukk-yKLE5R6x0DLXMe5rwYsG7tN9wES9uFnW1uC4VSce6EI-3pYD" />
+                                                <div>
+                                                    <p class="text-stone-900 font-bold text-sm leading-tight">Marcus
+                                                        Thorne</p>
+                                                    <p class="text-stone-500 text-xs mt-0.5">Network Administrator</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors">
+                                            <span
+                                                class="font-mono text-xs text-stone-600 bg-white/80 px-2 py-1 rounded">VLT-1156</span>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A8CD62]/20 text-[#496800] uppercase tracking-tighter">Active</span>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3 bg-[#F0F3FF]/50  group-hover:bg-[#F0F3FF] transition-colors text-right">
+                                            <span class="font-mono text-sm font-bold text-stone-900">07 Tasks</span>
+                                        </td>
+                                    </tr>
+                                    <!-- Row 4 -->
+                                    <tr class="group cursor-pointer">
+                                        <td
+                                            class="px-4 py-3 bg-transparent rounded-l-xl group-hover:bg-[#F0F3FF] transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <img alt="Portrait"
+                                                    class="w-10 h-10 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                    data-alt="Candid headshot of a woman with dark hair, minimal makeup, looking confidently at camera, neutral background"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQJn0Qt-wTDZ6s8lMAteIB32QkAsVgtu0UPGBLDqKrvjdmrTBpeh8l1aosTa8KR1HHk_9Vzhp98CJTbIPEpHdgTjFsbThKFK2FcqWdTigvPmyaXjgmUzemEBK0tv12LsdgPEAqek_jiSGohTxLBTwNy0q3ioKT7Boq6Hgvr4szA12Set1DNhytYMHFgp67NLhqsq8SNgYfWHV6rBswGGmqppfDjWcVGA0i58kFUiP67fr-0JpGwFFSUZfFJG3QxsnN9HYJN93iT2Mg" />
+                                                <div>
+                                                    <p class="text-stone-900 font-bold text-sm leading-tight">Sarah
+                                                        Jenkins</p>
+                                                    <p class="text-stone-500 text-xs mt-0.5">Systems Analyst</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 group-hover:bg-[#F0F3FF] transition-colors">
+                                            <span
+                                                class="font-mono text-xs text-stone-600 bg-white/80 px-2 py-1 rounded">VLT-4402</span>
+                                        </td>
+                                        <td class="px-4 py-3 group-hover:bg-[#F0F3FF] transition-colors text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-500 uppercase tracking-tighter">Offline</span>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3  group-hover:bg-[#F0F3FF] transition-colors text-right">
+                                            <span class="font-mono text-sm font-bold text-stone-900">12 Tasks</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-8 flex justify-center">
+                            <button
+                                class="text-stone-400 font-headline font-bold text-xs uppercase tracking-widest hover:text-[#A8CD62] transition-colors">View
+                                All Personnel</button>
+                        </div>
+                    </div>
+                </section>
+                <!-- Right (40%): Secondary panel -->
+                <aside class="w-2/5 space-y-8">
+                    <!-- Attendance Chart Card -->
+                    <div class="bg-[#F0F3FF] rounded-xl p-8">
+                        <h3 class="text-lg font-headline font-bold text-white mb-6">Team Attendance</h3>
+                        <div class="relative flex justify-center items-center py-4">
+                            <svg class="w-48 h-48 transform -rotate-90">
+                                <circle class="text-stone-200" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-width="18"></circle>
+                                <circle id="donut-present" class="text-[#A8CD62]" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="502" stroke-width="18"></circle>
+                                <circle id="donut-absent" class="text-error" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="502" stroke-width="18"></circle>
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span id="donut-pct" class="font-headline font-extrabold text-4xl text-[#6BBF3E] leading-none">—</span>
+                                <span class="text-[10px] font-label font-bold text-white/30 uppercase tracking-widest mt-1">Attendance</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 space-y-3">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#A8CD62]"></span> Present</span>
+                                <span id="legend-present" class="font-mono text-white font-bold">—</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-stone-300"></span> Absent</span>
+                                <span id="legend-absent" class="font-mono text-white font-bold">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+    <!-- Contextual FAB (Suppressed as per rules for Details/Settings/Transactional, but enabled here for Employee management) -->
+    <div class="fixed bottom-8 right-8 z-50">
+        <button
+            class="w-14 h-14 bg-stone-900 text-[#A8CD62] rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-transform">
+            <span class="material-symbols-outlined text-3xl" data-icon="chat_bubble">chat_bubble</span>
+        </button>
+    </div>
+    <!-- Action Tray (Selection state) -->
+    <div
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-fit bg-white/80 backdrop-blur-md px-6 py-4 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.12)] flex items-center gap-8 border border-white/50 z-50 opacity-0 pointer-events-none translate-y-10 transition-all">
+        <p class="text-xs font-headline font-bold text-stone-500"><span class="text-stone-900 font-mono">03</span>
+            Selected</p>
+        <div class="flex gap-2">
+            <button class="bg-[#A8CD62] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm">Assign
+                Task</button>
+            <button class="bg-stone-100 text-stone-600 px-4 py-2 rounded-lg text-xs font-bold">Edit Status</button>
+            <button class="bg-error/10 text-error px-4 py-2 rounded-lg text-xs font-bold">Terminate</button>
+        </div>
+    </div>
+<script>
+(function () {
+    var API = 'http://localhost:5000/api';
+    var token = localStorage.getItem('shotzoo_token');
+    if (!token) return;
+    var auth = { 'Authorization': 'Bearer ' + token };
+    function apiFetch(url) { return fetch(API + url, { headers: auth }).then(function (r) { return r.json(); }); }
+
+    var allEmployees = [];
+
+    // Update stat cards
+    Promise.all([apiFetch('/admin/stats'), apiFetch('/admin/attendance')]).then(function (results) {
+        var stats = results[0].stats || {};
+        var att = results[1] || {};
+        var total = stats.totalEmployees || 0;
+        var present = att.present || 0;
+        var absent = att.absent || 0;
+        var h3s = document.querySelectorAll('section.grid.grid-cols-4 h3');
+        if (h3s[0]) h3s[0].textContent = total;
+        if (h3s[1]) h3s[1].textContent = present;
+        if (h3s[2]) h3s[2].textContent = absent;
+        if (h3s[3]) h3s[3].textContent = Math.max(0, total - present - absent);
+
+        // Update donut chart
+        var pct = total > 0 ? Math.round((present / total) * 100) : 0;
+        var circumference = 502;
+        var presentOffset = circumference - (circumference * pct / 100);
+        var absentPct = total > 0 ? Math.round((absent / total) * 100) : 0;
+        var absentOffset = circumference - (circumference * absentPct / 100);
+
+        var el;
+        el = document.getElementById('donut-pct'); if (el) el.textContent = pct + '%';
+        el = document.getElementById('donut-present'); if (el) el.setAttribute('stroke-dashoffset', presentOffset);
+        el = document.getElementById('donut-absent'); if (el) el.setAttribute('stroke-dashoffset', absentOffset);
+        el = document.getElementById('legend-present'); if (el) el.textContent = String(present).padStart(2, '0');
+        el = document.getElementById('legend-absent'); if (el) el.textContent = String(absent).padStart(2, '0');
+    }).catch(function () {});
+
+    function buildRow(emp) {
+        var initials = (emp.fullName || '?').split(' ').map(function (w) { return w[0]; }).join('').toUpperCase().slice(0, 2);
+        var loadVal = (emp.employeeType === 'Home') ? 'Remote' : 'Office';
+        return '<tr class="group cursor-pointer">' +
+            '<td class="px-4 py-3 bg-[#F0F3FF]/50 rounded-l-xl group-hover:bg-[#F0F3FF] transition-colors">' +
+            '<div class="flex items-center gap-4">' +
+            '<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center font-bold text-on-primary-container text-sm">' + initials + '</div>' +
+            '<div><p class="font-bold text-sm leading-tight" style="color:#111827">' + (emp.fullName || '—') + '</p>' +
+            '<p class="text-stone-500 text-xs mt-0.5">' + (emp.role || 'Employee') + '</p></div></div></td>' +
+            '<td class="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors">' +
+            '<span class="font-mono text-xs font-bold px-2 py-1 rounded" style="color:#374151;background:#ffffff">' + (emp.employeeId || '—') + '</span></td>' +
+            '<td class="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors text-center">' +
+            '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-tighter" style="background:#A8CD62;color:#1F2937">Active</span></td>' +
+            '<td class="px-4 py-3 bg-[#F0F3FF]/50 rounded-r-xl group-hover:bg-[#F0F3FF] transition-colors text-right">' +
+            '<span class="font-mono text-sm font-bold" style="color:#111827">' + loadVal + '</span></td></tr>';
+    }
+
+    function renderEmployees(list) {
+        var tbody = document.querySelector('tbody');
+        if (!tbody) return;
+        if (!list.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-12 text-center text-stone-400 text-sm">No employees found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = list.map(buildRow).join('');
+    }
+
+    // Load employees
+    apiFetch('/admin/employees').then(function (d) {
+        if (!d.success) return;
+        allEmployees = d.employees || [];
+        // Update header count
+        var countEl = document.getElementById('emp-count');
+        if (countEl) countEl.textContent = '[' + allEmployees.length + ']';
+        renderEmployees(allEmployees);
+    }).catch(function () {});
+
+    // Real-time search
+    var searchTimeout;
+    var searchInput = document.getElementById('emp-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            var self = this;
+            searchTimeout = setTimeout(function () {
+                var q = self.value.trim().toLowerCase();
+                if (!q) { renderEmployees(allEmployees); return; }
+                var filtered = allEmployees.filter(function (emp) {
+                    return (emp.fullName || '').toLowerCase().includes(q) ||
+                        (emp.employeeId || '').toLowerCase().includes(q) ||
+                        (emp.role || '').toLowerCase().includes(q) ||
+                        (emp.employeeType || '').toLowerCase().includes(q) ||
+                        (emp.email || '').toLowerCase().includes(q);
+                });
+                renderEmployees(filtered);
+            }, 200);
+        });
+    }
+
+    // ========================================================
+    // Personnel Directory card — search + export
+    // ========================================================
+
+    // Card-scoped toast
+    function dirToast(msg) {
+        var t = document.getElementById('dir-toast');
+        var txt = document.getElementById('dir-toast-text');
+        if (!t || !txt) return;
+        txt.textContent = msg;
+        t.classList.remove('hidden');
+        setTimeout(function () { t.classList.add('hidden'); }, 2500);
+    }
+
+    // ----- FIX 2 — card-header search -----
+    // Lives in addition to the existing top-bar #emp-search. Either input
+    // filters the same `allEmployees` array via `renderEmployees(filtered)`.
+    var dirSearch = document.getElementById('dir-search');
+    var dirSearchTimer;
+    if (dirSearch) {
+        dirSearch.addEventListener('input', function () {
+            clearTimeout(dirSearchTimer);
+            var self = this;
+            dirSearchTimer = setTimeout(function () {
+                var q = self.value.trim().toLowerCase();
+                if (!q) { renderEmployees(allEmployees); return; }
+                var filtered = allEmployees.filter(function (emp) {
+                    // Spec: filter by employee name OR employee ID, case-insensitive partial.
+                    return (emp.fullName || '').toLowerCase().indexOf(q) >= 0 ||
+                           (emp.employeeId || '').toLowerCase().indexOf(q) >= 0;
+                });
+                renderEmployees(filtered);
+            }, 150);
+        });
+    }
+
+    // ----- FIX 1 — download button + dropdown -----
+    var dirDlBtn = document.getElementById('dir-download-btn');
+    var dirDlMenu = document.getElementById('dir-download-menu');
+    if (dirDlBtn && dirDlMenu) {
+        dirDlBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dirDlMenu.classList.toggle('hidden');
+        });
+        // Close on outside click
+        document.addEventListener('click', function (e) {
+            if (!dirDlMenu.classList.contains('hidden') &&
+                !dirDlMenu.contains(e.target) &&
+                e.target !== dirDlBtn && !dirDlBtn.contains(e.target)) {
+                dirDlMenu.classList.add('hidden');
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') dirDlMenu.classList.add('hidden');
+        });
+    }
+
+    // Helpers shared by CSV + XLSX exporters
+    function dirEscapeCsv(v) {
+        if (v == null) return '';
+        var s = String(v);
+        if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+    }
+    function dirFmtJoined(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    function dirTodayStamp() { return new Date().toISOString().slice(0, 10); }
+    var DIR_HEADERS = ['Full Name', 'Employee ID', 'Role', 'Status', 'Email', 'Phone', 'Joined'];
+    function dirBuildRows() {
+        return (allEmployees || []).map(function (e) {
+            return [
+                e.fullName || '',
+                e.employeeId || '',
+                e.role || 'Employee',
+                'Active', // matches the visible Status column on the page
+                e.email || '',
+                e.phone || '',
+                dirFmtJoined(e.createdAt)
+            ];
+        });
+    }
+
+    // CSV exporter
+    var dirCsvBtn = document.getElementById('dir-export-csv');
+    if (dirCsvBtn) {
+        dirCsvBtn.addEventListener('click', function () {
+            dirDlMenu.classList.add('hidden');
+            if (!allEmployees || !allEmployees.length) {
+                dirToast('No employee data to export');
+                return;
+            }
+            var rows = dirBuildRows();
+            var csv = DIR_HEADERS.map(dirEscapeCsv).join(',') + '\r\n' +
+                      rows.map(function (r) { return r.map(dirEscapeCsv).join(','); }).join('\r\n');
+            // BOM so Excel opens UTF-8 cleanly
+            var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'shotzoo-employees-' + dirTodayStamp() + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    // XLSX exporter (SheetJS)
+    var dirXlsxBtn = document.getElementById('dir-export-xlsx');
+    if (dirXlsxBtn) {
+        dirXlsxBtn.addEventListener('click', function () {
+            dirDlMenu.classList.add('hidden');
+            if (!allEmployees || !allEmployees.length) {
+                dirToast('No employee data to export');
+                return;
+            }
+            if (typeof XLSX === 'undefined') {
+                dirToast('Excel library failed to load');
+                return;
+            }
+            var rows = dirBuildRows();
+            var aoa = [DIR_HEADERS].concat(rows);
+            var ws = XLSX.utils.aoa_to_sheet(aoa);
+
+            // Bold header row with green background
+            var range = XLSX.utils.decode_range(ws['!ref']);
+            for (var c = range.s.c; c <= range.e.c; c++) {
+                var addr = XLSX.utils.encode_cell({ r: 0, c: c });
+                if (ws[addr]) {
+                    ws[addr].s = {
+                        font: { bold: true, color: { rgb: '131F00' } },
+                        fill: { fgColor: { rgb: 'A8CD62' } },
+                        alignment: { horizontal: 'left', vertical: 'center' }
+                    };
+                }
+            }
+
+            // Auto column widths (max content length per column, capped 12-50)
+            ws['!cols'] = DIR_HEADERS.map(function (h, i) {
+                var max = h.length;
+                for (var r = 0; r < rows.length; r++) {
+                    var v = rows[r][i] == null ? '' : String(rows[r][i]);
+                    if (v.length > max) max = v.length;
+                }
+                return { wch: Math.min(Math.max(max + 2, 12), 50) };
+            });
+
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+            XLSX.writeFile(wb, 'shotzoo-employees-' + dirTodayStamp() + '.xlsx');
+        });
+    }
+})();
+</script>
+<script src="/admin/admin-guard.js"></script>
+</body>
+
+</html>

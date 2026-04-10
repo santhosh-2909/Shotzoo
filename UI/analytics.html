@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo Admin - Analytics</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#a8cd62", "primary": "#496800", "on-primary": "#ffffff",
+                        "on-primary-container": "#3c5600", "surface": "#f9f9ff", "on-surface": "#151c27",
+                        "on-surface-variant": "#444939", "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f0f3ff", "surface-container": "#e7eefe",
+                        "surface-container-high": "#e2e8f8", "error": "#ba1a1a", "error-container": "#ffdad6",
+                        "tertiary-container": "#ffb044", "secondary": "#0058be", "outline": "#757968"
+                    },
+                    "fontFamily": { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Manrope"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #F7F8F4; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .stat-bar { height: 8px; border-radius: 4px; background: #e2e8f8; overflow: hidden; }
+        .stat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+    </style>
+</head>
+<body class="text-on-surface">
+    <!-- Sidebar -->
+    <nav class="fixed left-0 top-0 flex flex-col py-8 px-6 gap-y-2 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">shield_with_heart</span></div>
+            <div><h2 class="font-bold text-lg tracking-tighter font-headline leading-tight text-white">Admin Panel</h2>
+                <p class="text-[11px] text-white/40 uppercase tracking-widest font-medium font-headline">ShotZoo</p></div>
+        </div>
+        <div class="flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/attendence.html"><span class="material-symbols-outlined">calendar_today</span><span class="font-headline font-medium text-sm">Attendance</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/add_task.html"><span class="material-symbols-outlined">add_task</span><span class="font-headline font-medium text-sm">Add Task</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/my_task_admin.html"><span class="material-symbols-outlined">task_alt</span><span class="font-headline font-medium text-sm">My Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/all_task.html"><span class="material-symbols-outlined">assignment</span><span class="font-headline font-medium text-sm">All Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/emp_pg.html"><span class="material-symbols-outlined">group</span><span class="font-headline font-medium text-sm">Employees</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-150 text-white font-bold bg-[#A8CD62] mx-2 my-1" href="/admin/analytics.html"><span class="material-symbols-outlined">analytics</span><span class="font-headline font-medium text-sm">Analytics</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-headline font-medium text-sm">Dashboard</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/send_noti.html"><span class="material-symbols-outlined">mic</span><span class="font-headline font-medium text-sm">Send Notification</span></a>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/10 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/pfp.html"><span class="material-symbols-outlined">settings</span><span class="font-headline font-medium text-sm">Settings</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-error hover:bg-white/10 mx-2 my-1" href="/"><span class="material-symbols-outlined">logout</span><span class="font-headline font-medium text-sm">Logout</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="ml-72 min-h-screen p-12">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-bold tracking-tight font-headline text-black">Analytics</h1>
+                <p class="text-stone-500 mt-1 font-body">Company performance metrics and insights.</p>
+            </div>
+            <div class="flex items-center gap-3" data-admin-name>
+                <span class="text-sm font-bold text-stone-600">Admin</span>
+            </div>
+        </header>
+
+        <!-- Summary Stats -->
+        <section class="grid grid-cols-4 gap-6 mb-12">
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-3">
+                <span class="material-symbols-outlined text-primary-container text-3xl">group</span>
+                <p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Total Employees</p>
+                <h3 id="stat-employees" class="text-3xl font-bold font-headline">0</h3>
+            </div>
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-3">
+                <span class="material-symbols-outlined text-secondary text-3xl">assignment_turned_in</span>
+                <p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Tasks Completed Today</p>
+                <h3 id="stat-completed" class="text-3xl font-bold font-headline">0</h3>
+            </div>
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-3">
+                <span class="material-symbols-outlined text-tertiary-container text-3xl">pending_actions</span>
+                <p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Open Tasks</p>
+                <h3 id="stat-open" class="text-3xl font-bold font-headline">0</h3>
+            </div>
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-3">
+                <span class="material-symbols-outlined text-error text-3xl">warning</span>
+                <p class="text-stone-400 text-xs font-medium uppercase tracking-wider">Overdue Tasks</p>
+                <h3 id="stat-overdue" class="text-3xl font-bold font-headline text-error">0</h3>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-12 gap-8">
+            <!-- Task Status Breakdown -->
+            <div class="col-span-7 bg-white rounded-xl p-8">
+                <h2 class="text-xl font-bold font-headline mb-6">Task Status Breakdown</h2>
+                <div id="task-breakdown" class="space-y-5">
+                    <p class="text-stone-400 text-sm">Loading...</p>
+                </div>
+            </div>
+            <!-- Attendance Today -->
+            <div class="col-span-5 bg-white rounded-xl p-8">
+                <h2 class="text-xl font-bold font-headline mb-6">Attendance Today</h2>
+                <div id="attendance-summary" class="space-y-6">
+                    <p class="text-stone-400 text-sm">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee List -->
+        <section class="mt-8 bg-white rounded-xl p-8">
+            <h2 class="text-xl font-bold font-headline mb-6">Employee Overview</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-stone-100">
+                            <th class="px-4 py-3 text-xs font-bold text-stone-400 uppercase tracking-wider">Employee</th>
+                            <th class="px-4 py-3 text-xs font-bold text-stone-400 uppercase tracking-wider">ID</th>
+                            <th class="px-4 py-3 text-xs font-bold text-stone-400 uppercase tracking-wider">Role</th>
+                            <th class="px-4 py-3 text-xs font-bold text-stone-400 uppercase tracking-wider">Type</th>
+                            <th class="px-4 py-3 text-xs font-bold text-stone-400 uppercase tracking-wider text-right">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emp-tbody" class="divide-y divide-stone-50">
+                        <tr><td colspan="5" class="px-4 py-8 text-center text-stone-400 text-sm">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+<script>
+(function () {
+    var API = 'http://localhost:5000/api';
+    var token = localStorage.getItem('shotzoo_token');
+    if (!token) return;
+    var auth = { 'Authorization': 'Bearer ' + token };
+    function apiFetch(url) { return fetch(API + url, { headers: auth }).then(function (r) { return r.json(); }); }
+
+    // Stats
+    apiFetch('/admin/stats').then(function (d) {
+        if (!d.success) return;
+        var s = d.stats;
+        document.getElementById('stat-employees').textContent = s.totalEmployees || 0;
+        document.getElementById('stat-completed').textContent = s.completedToday || 0;
+        document.getElementById('stat-open').textContent = s.openTasks || 0;
+        document.getElementById('stat-overdue').textContent = s.overdueCount || 0;
+    }).catch(function () {});
+
+    // Task breakdown
+    apiFetch('/admin/tasks').then(function (d) {
+        if (!d.success) return;
+        var tasks = d.tasks || [];
+        var counts = { Pending: 0, 'In Progress': 0, Completed: 0, Overdue: 0 };
+        tasks.forEach(function (t) { counts[t.status] = (counts[t.status] || 0) + 1; });
+        var total = tasks.length || 1;
+        var colors = { Pending: '#0058be', 'In Progress': '#ffb044', Completed: '#A8CD62', Overdue: '#ba1a1a' };
+        var el = document.getElementById('task-breakdown');
+        if (!tasks.length) { el.innerHTML = '<p class="text-stone-400 text-sm">No tasks yet.</p>'; return; }
+        el.innerHTML = Object.keys(counts).map(function (status) {
+            var pct = Math.round((counts[status] / total) * 100);
+            return '<div class="flex items-center justify-between mb-1"><span class="text-sm font-medium text-stone-700">' + status + '</span>' +
+                '<span class="text-sm font-bold" style="color:' + colors[status] + '">' + counts[status] + ' (' + pct + '%)</span></div>' +
+                '<div class="stat-bar"><div class="stat-bar-fill" style="width:' + pct + '%;background:' + colors[status] + '"></div></div>';
+        }).join('');
+    }).catch(function () {});
+
+    // Attendance
+    apiFetch('/admin/attendance').then(function (d) {
+        if (!d.success) return;
+        var el = document.getElementById('attendance-summary');
+        var presentPct = d.totalEmployees ? Math.round((d.present / d.totalEmployees) * 100) : 0;
+        el.innerHTML =
+            '<div class="text-center mb-6"><div class="text-6xl font-extrabold font-headline text-primary-container">' + presentPct + '%</div>' +
+            '<p class="text-stone-400 text-sm mt-1">Attendance Rate</p></div>' +
+            '<div class="grid grid-cols-3 gap-4 text-center">' +
+            '<div class="bg-[#A8CD62]/10 rounded-lg p-4"><p class="text-2xl font-bold text-primary">' + d.present + '</p><p class="text-xs text-stone-500 mt-1">Present</p></div>' +
+            '<div class="bg-error-container/30 rounded-lg p-4"><p class="text-2xl font-bold text-error">' + d.absent + '</p><p class="text-xs text-stone-500 mt-1">Absent</p></div>' +
+            '<div class="bg-surface-container rounded-lg p-4"><p class="text-2xl font-bold text-stone-700">' + d.totalEmployees + '</p><p class="text-xs text-stone-500 mt-1">Total</p></div></div>';
+    }).catch(function () {});
+
+    // Employees table
+    apiFetch('/admin/employees').then(function (d) {
+        if (!d.success) return;
+        var tbody = document.getElementById('emp-tbody');
+        if (!d.employees.length) { tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-stone-400">No employees registered.</td></tr>'; return; }
+        tbody.innerHTML = d.employees.map(function (emp) {
+            var joined = emp.createdAt ? new Date(emp.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+            return '<tr class="hover:bg-stone-50 transition-colors">' +
+                '<td class="px-4 py-3"><div class="flex items-center gap-3">' +
+                '<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container">' +
+                (emp.fullName || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() + '</div>' +
+                '<span class="text-sm font-bold text-stone-900">' + (emp.fullName || '—') + '</span></div></td>' +
+                '<td class="px-4 py-3"><span class="font-mono text-xs text-stone-500">' + (emp.employeeId || '—') + '</span></td>' +
+                '<td class="px-4 py-3 text-sm text-stone-600">' + (emp.role || 'Employee') + '</td>' +
+                '<td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-container/20 text-primary uppercase">' + (emp.employeeType || 'Office') + '</span></td>' +
+                '<td class="px-4 py-3 text-right text-sm text-stone-400">' + joined + '</td></tr>';
+        }).join('');
+    }).catch(function () {});
+})();
+</script>
+<script src="/admin/admin-guard.js"></script>
+</body>
+</html>

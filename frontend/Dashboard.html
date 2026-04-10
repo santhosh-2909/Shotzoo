@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo Employee Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Manrope:wght@200..800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="base.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#f7f8f4",
+                        "surface-dim": "#d8dace",
+                        "surface-bright": "#f7f8f4",
+                        "surface-container": "#eceee6",
+                        "surface-container-low": "#f2f4ec",
+                        "surface-container-high": "#e6e9e0",
+                        "surface-container-highest": "#dfe1d8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e1e4d5",
+                        "on-surface": "#1a1c15",
+                        "on-surface-variant": "#444939",
+                        "background": "#f7f8f4",
+                        "on-background": "#1a1c15",
+                        "primary": "#496800",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#add366",
+                        "on-primary-container": "#131f00",
+                        "primary-fixed": "#c9f080",
+                        "primary-fixed-dim": "#add366",
+                        "on-primary-fixed": "#131f00",
+                        "on-primary-fixed-variant": "#364e00",
+                        "secondary": "#55633a",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d8e9b4",
+                        "on-secondary-container": "#131f00",
+                        "secondary-fixed": "#d8e9b4",
+                        "secondary-fixed-dim": "#bccd9a",
+                        "on-secondary-fixed": "#141f00",
+                        "on-secondary-fixed-variant": "#3e4b24",
+                        "tertiary": "#8a438a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#ffd6f8",
+                        "on-tertiary-container": "#37003b",
+                        "tertiary-fixed": "#ffd6f8",
+                        "tertiary-fixed-dim": "#feaaf9",
+                        "on-tertiary-fixed": "#37003b",
+                        "on-tertiary-fixed-variant": "#6f2a70",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#410002",
+                        "outline": "#757968",
+                        "outline-variant": "#c4c9b5",
+                        "inverse-surface": "#2f3129",
+                        "inverse-on-surface": "#f0f1e8",
+                        "inverse-primary": "#add366",
+                        "surface-tint": "#496800"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.25rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .clay-card {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .clay-button {
+            box-shadow: inset 0px 2px 0px rgba(255, 255, 255, 0.2), 0px 8px 24px rgba(173, 211, 102, 0.15);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .sidebar-mask {
+            background: linear-gradient(180deg, #2A2A2A 0%, #121212 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container animate-fade-in">
+    <!-- SideNavBar Integration -->
+    <aside
+        class="h-screen w-72 fixed left-0 top-0 bg-[#2A2A2A] shadow-[40px_0_40px_rgba(240,240,240,0.06)] z-50 flex flex-col p-6 font-headline tracking-tighter">
+        <div class="text-2xl font-bold text-[#add366] mb-8">
+            <a href="/dashboard" class="flex items-center gap-2">
+                <img alt="ShotZoo Logo" class="w-8 h-8 object-contain" src="/company_logo.jpeg" />
+                <span>ShotZoo</span>
+            </a>
+        </div>
+        <div class="flex flex-col gap-1 mb-10 px-4">
+            <div class="w-14 h-14 rounded-2xl overflow-hidden mb-3 ring-2 ring-[#add366]/20">
+                <img alt="User avatar" class="w-full h-full object-cover" data-user-photo src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8cHZZCiK4qJkz0_dUPBFHB2OfTBIcIYXcl_liRMhpG4R7A-J2DWHmbQMlIF_Y-LvWkdr8mJwEPx7NYJ1TV6aPsDiZc4rNxorhXZ6gweR6JcWIxl94XQ7Zn_4wGf9PizjlihjSHpEwtt0-4d1GV6O22xb6VDuIWeY9C5-u1jBtUDT6B0FVQ7PAbMBF20aTnPq8CDENYh3WUlok-v2iCvDDYzsKIWaK99hggZG0UUJVF32oPdrl6AhID0iedv41_gYiL0sIAMTbePM" />
+            </div>
+            <h2 class="text-white text-lg font-bold" data-user-name>Arun</h2>
+            <p class="text-white/40 text-xs tracking-widest uppercase" data-user-id>ID: SZ-2024-089</p>
+        </div>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a class="sidebar-item" href="/attendance">
+                <span class="material-symbols-outlined">event_available</span>
+                <span>Attendance</span>
+            </a>
+            <a class="sidebar-item" href="/add-task">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Add Task</span>
+            </a>
+            <a class="sidebar-item" href="/daily-reports"><span class="material-symbols-outlined">description</span><span>Daily Reports</span></a>
+            <a class="sidebar-item" href="/my-tasks">
+                <span class="material-symbols-outlined">assignment</span>
+                <span>My Tasks</span>
+            </a>
+            <a class="sidebar-item" href="/notifications">
+                <span class="material-symbols-outlined">notifications</span>
+                <span>Notifications</span>
+            </a>
+            <a class="sidebar-item active" href="/dashboard">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="sidebar-item" href="/profile">
+                <span class="material-symbols-outlined">person</span>
+                <span>My Profile</span>
+            </a>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-black/5 flex flex-col gap-2">
+            <a class="sidebar-item" href="#" data-logout>
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+    <!-- Main Canvas -->
+    <main class="ml-72 min-h-screen p-10 bg-background relative overflow-x-hidden">
+        <!-- TopAppBar Integration -->
+        <header class="flex items-center justify-between mb-12 h-20 px-4 w-full">
+            <div class="flex-grow max-w-md">
+                <div
+                    class="bg-surface-container-high rounded-full px-6 py-3 flex items-center gap-3 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                    <span class="material-symbols-outlined text-on-surface-variant">search</span>
+                    <input class="bg-transparent border-none focus:ring-0 text-on-surface w-full font-['Manrope'] placeholder:text-on-surface-variant"
+                        placeholder="Search tasks, docs..." type="text" />
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <button class="text-on-surface-variant hover:text-on-surface transition-opacity">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <a class="relative text-on-surface-variant hover:text-on-surface transition-opacity" href="/notifications">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span data-notif-badge style="display:none" class="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-[#EF4444] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center"></span>
+                </a>
+                <a class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-surface-container-highest flex" href="/profile">
+                    <img alt="Profile" class="w-full h-full object-cover" data-user-photo
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8cHZZCiK4qJkz0_dUPBFHB2OfTBIcIYXcl_liRMhpG4R7A-J2DWHmbQMlIF_Y-LvWkdr8mJwEPx7NYJ1TV6aPsDiZc4rNxorhXZ6gweR6JcWIxl94XQ7Zn_4wGf9PizjlihjSHpEwtt0-4d1GV6O22xb6VDuIWeY9C5-u1jBtUDT6B0FVQ7PAbMBF20aTnPq8CDENYh3WUlok-v2iCvDDYzsKIWaK99hggZG0UUJVF32oPdrl6AhID0iedv41_gYiL0sIAMTbePM" />
+                </a>
+            </div>
+        </header>
+        <!-- Section A: Welcome Card & Attendance -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            <div
+                class="lg:col-span-2 bg-surface-container-low p-10 rounded-3xl clay-card relative overflow-hidden flex flex-col justify-between min-h-[300px]">
+                <div class="relative z-10">
+                    <h1 class="font-headline text-5xl font-bold tracking-tighter mb-2" id="greeting">Good morning, Arun &#9728;&#65039;</h1>
+                    <p class="text-on-surface-variant font-medium text-lg" id="current-date">Thursday, 24 October 2024</p>
+                </div>
+                <div class="relative z-10 mt-8">
+                    <button id="start-day-btn"
+                        class="bg-primary-container text-on-primary-container px-10 py-5 rounded-2xl font-bold text-xl clay-button hover:translate-y-[-2px] transition-all active:scale-95 flex items-center gap-3">
+                        <span class="material-symbols-outlined"
+                            class="material-symbols-filled">play_circle</span>
+                        Start My Day
+                    </button>
+                </div>
+                <!-- Decorative Abstract Element -->
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px]"></div>
+            </div>
+            <div class="bg-surface-container-low p-8 rounded-3xl clay-card flex flex-col gap-6">
+                <h3 class="font-headline text-xl font-bold tracking-tight">Weekly Attendance</h3>
+                <div id="weekly-dots" class="flex justify-between items-center px-2">
+                </div>
+                <div class="mt-auto pt-6 border-t border-black/5">
+                    <p class="text-sm text-on-surface-variant leading-relaxed" id="weekly-msg">Loading attendance data...</p>
+                </div>
+            </div>
+        </section>
+        <!-- Section B: Stats Cards (Bento style) -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div
+                class="bg-surface-container-highest/50 p-6 rounded-3xl hover:bg-surface-container-highest transition-colors flex flex-col gap-4">
+                <span class="material-symbols-outlined text-primary text-3xl">task_alt</span>
+                <div>
+                    <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">Total Tasks</h4>
+                    <p class="font-headline text-4xl font-bold mt-1" id="stat-total">0</p>
+                </div>
+            </div>
+            <div
+                class="bg-surface-container-highest/50 p-6 rounded-3xl hover:bg-surface-container-highest transition-colors flex flex-col gap-4">
+                <span class="material-symbols-outlined text-tertiary text-3xl">pending_actions</span>
+                <div>
+                    <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">Pending</h4>
+                    <p class="font-headline text-4xl font-bold mt-1" id="stat-pending">0</p>
+                </div>
+            </div>
+            <div
+                class="bg-surface-container-highest/50 p-6 rounded-3xl hover:bg-surface-container-highest transition-colors flex flex-col gap-4">
+                <span class="material-symbols-outlined text-primary text-3xl">verified</span>
+                <div>
+                    <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">Completed Today</h4>
+                    <p class="font-headline text-4xl font-bold mt-1" id="stat-completed">0</p>
+                </div>
+            </div>
+            <div
+                class="bg-surface-container-highest/50 p-6 rounded-3xl hover:bg-surface-container-highest transition-colors flex flex-col gap-4">
+                <span class="material-symbols-outlined text-error text-3xl">error_outline</span>
+                <div>
+                    <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">Overdue</h4>
+                    <p class="font-headline text-4xl font-bold mt-1 text-error" id="stat-overdue">0</p>
+                </div>
+            </div>
+        </section>
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-10">
+            <!-- Section C: Report (Admin Report Management) -->
+            <div class="xl:col-span-2 flex flex-col gap-6">
+                <!-- Header -->
+                <div class="flex items-center justify-between">
+                    <h2 class="font-headline text-2xl font-bold">Report</h2>
+                    <label for="report-date" class="sr-only">Report date</label>
+                    <input id="report-date" type="date" title="Select report date"
+                        class="bg-surface-container-high rounded-2xl px-4 py-2 text-sm font-body text-on-surface border-0 focus:ring-2 focus:ring-primary/20 outline-none" />
+                </div>
+
+                <!-- Admin Self-Report Card -->
+                <div class="bg-surface-container-lowest rounded-3xl clay-card p-8 flex flex-col gap-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-headline text-lg font-bold tracking-tight">My Daily Report</h3>
+                        <span id="admin-report-status" class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Not Submitted</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- BOD -->
+                        <div class="bg-surface-container-highest/50 p-5 rounded-3xl flex flex-col gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-2xl">wb_twilight</span>
+                                <div>
+                                    <h4 class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">BOD</h4>
+                                    <p class="text-on-surface-variant text-xs">9:00 AM – 1:00 PM</p>
+                                </div>
+                            </div>
+                            <textarea id="admin-bod" rows="3" placeholder="What did you work on this morning?"
+                                class="bg-surface-container-high rounded-2xl px-4 py-3 w-full resize-none text-on-surface text-sm font-body border-0 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-on-surface-variant/60"></textarea>
+                        </div>
+                        <!-- MOD -->
+                        <div class="bg-surface-container-highest/50 p-5 rounded-3xl flex flex-col gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-2xl">light_mode</span>
+                                <div>
+                                    <h4 class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">MOD</h4>
+                                    <p class="text-on-surface-variant text-xs">2:00 PM – 6:00 PM</p>
+                                </div>
+                            </div>
+                            <textarea id="admin-mod" rows="3" placeholder="What did you work on this afternoon?"
+                                class="bg-surface-container-high rounded-2xl px-4 py-3 w-full resize-none text-on-surface text-sm font-body border-0 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-on-surface-variant/60"></textarea>
+                        </div>
+                        <!-- EOD -->
+                        <div class="bg-surface-container-highest/50 p-5 rounded-3xl flex flex-col gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-2xl">nightlight</span>
+                                <div>
+                                    <h4 class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">EOD</h4>
+                                    <p class="text-on-surface-variant text-xs">After 6:00 PM</p>
+                                </div>
+                            </div>
+                            <textarea id="admin-eod" rows="3" placeholder="What did you accomplish today?"
+                                class="bg-surface-container-high rounded-2xl px-4 py-3 w-full resize-none text-on-surface text-sm font-body border-0 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-on-surface-variant/60"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" id="report-save-btn"
+                            class="bg-primary-container text-on-primary-container px-8 py-3 rounded-2xl font-bold text-sm clay-button hover:translate-y-[-1px] transition-all active:scale-95 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">save</span>
+                            Submit Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Employee Reports Table -->
+                <div class="flex flex-col gap-4">
+                    <!-- Controls -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div class="flex-grow max-w-xs bg-surface-container-high rounded-full px-4 py-2.5 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-on-surface-variant text-base">search</span>
+                            <input id="report-search" type="text" placeholder="Search employee..."
+                                class="bg-transparent border-none focus:ring-0 text-on-surface text-sm w-full font-body placeholder:text-on-surface-variant outline-none" />
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" class="report-filter-btn px-4 py-2 rounded-full text-xs font-bold transition-colors bg-primary-container text-on-primary-container" data-filter="All">All</button>
+                            <button type="button" class="report-filter-btn px-4 py-2 rounded-full text-xs font-bold transition-colors bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-highest" data-filter="Completed">Submitted</button>
+                            <button type="button" class="report-filter-btn px-4 py-2 rounded-full text-xs font-bold transition-colors bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-highest" data-filter="Partial">Partial</button>
+                            <button type="button" class="report-filter-btn px-4 py-2 rounded-full text-xs font-bold transition-colors bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-highest" data-filter="Not Submitted">Pending</button>
+                        </div>
+                    </div>
+                    <!-- Table -->
+                    <div class="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
+                        <div class="overflow-x-auto max-h-80 overflow-y-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 z-10">
+                                    <tr class="bg-surface-container-highest/30">
+                                        <th class="px-6 py-5 font-headline text-sm font-bold text-on-surface-variant">Employee</th>
+                                        <th class="px-6 py-5 font-headline text-sm font-bold text-on-surface-variant">BOD</th>
+                                        <th class="px-6 py-5 font-headline text-sm font-bold text-on-surface-variant">MOD</th>
+                                        <th class="px-6 py-5 font-headline text-sm font-bold text-on-surface-variant">EOD</th>
+                                        <th class="px-6 py-5 font-headline text-sm font-bold text-on-surface-variant text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-tbody">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-on-surface-variant text-sm">Loading reports...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Sidebar Components -->
+            <div class="flex flex-col gap-10">
+                <!-- Section D: Upcoming Deadlines -->
+                <div class="flex flex-col gap-6">
+                    <h2 class="font-headline text-2xl font-bold">Upcoming</h2>
+                    <div id="upcoming-list"
+                        class="flex flex-col gap-4 relative before:absolute before:left-4 before:top-4 before:bottom-4 before:w-[2px] before:bg-black/5">
+                        <p class="text-on-surface-variant text-sm pl-12">No upcoming deadlines</p>
+                    </div>
+                </div>
+                <!-- Section E: Notifications - REMOVED -->
+            </div>
+        </div>
+    </main>
+    <script src="api.js?v=2"></script>
+    <script>
+        if (!api.requireAuth()) { document.body.style.display = 'none'; }
+
+        var user = api.getUser();
+        api.updateSidebar();
+
+        // Greeting
+        (function () {
+            var h1 = document.getElementById('greeting');
+            var dateEl = document.getElementById('current-date');
+            if (h1 && user) {
+                var hour = new Date().getHours();
+                var g = 'Good evening';
+                if (hour < 12) g = 'Good morning';
+                else if (hour < 17) g = 'Good afternoon';
+                h1.textContent = g + ', ' + (user.fullName ? user.fullName.split(' ')[0] : 'there') + ' \u2600\uFE0F';
+            }
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            }
+        })();
+
+        // Load async data (wrapped in async IIFE to avoid top-level await)
+        (async function () {
+            // Stats
+            try {
+                var statsData = await api.getTaskStats();
+                var s = statsData.stats;
+                var el;
+                el = document.getElementById('stat-total'); if (el) el.textContent = String(s.total).padStart(2, '0');
+                el = document.getElementById('stat-pending'); if (el) el.textContent = String(s.pending).padStart(2, '0');
+                el = document.getElementById('stat-completed'); if (el) el.textContent = String(s.completedToday).padStart(2, '0');
+                el = document.getElementById('stat-overdue'); if (el) el.textContent = String(s.overdue).padStart(2, '0');
+            } catch (e) { console.error('Stats:', e); }
+
+            // Upcoming deadlines
+            try {
+                var upData = await api.getUpcomingDeadlines();
+                var container = document.getElementById('upcoming-list');
+                if (container && upData.tasks.length) {
+                    container.innerHTML = '';
+                    upData.tasks.slice(0, 4).forEach(function (task, i) {
+                        var opacity = 'opacity-40';
+                        if (i === 0) opacity = '';
+                        else if (i === 1) opacity = 'opacity-60';
+                        var dotBg = i === 0 ? 'bg-primary' : 'bg-on-surface-variant/20';
+                        var dl = task.deadline ? new Date(task.deadline).toLocaleDateString('en-US', { weekday: 'long', hour: '2-digit', minute: '2-digit' }) : '';
+                        container.innerHTML += '<div class="relative pl-12 ' + opacity + '"><div class="absolute left-[13px] top-1 w-2.5 h-2.5 rounded-full ' + dotBg + ' ring-4 ring-background"></div><h4 class="font-bold text-sm">' + escapeHtml(task.title) + '</h4><p class="text-xs text-on-surface-variant mt-1">' + escapeHtml(dl) + '</p></div>';
+                    });
+                }
+            } catch (e) { console.error('Upcoming:', e); }
+
+            // Start My Day — once per day via backend
+            var startBtn = document.getElementById('start-day-btn');
+            if (startBtn) {
+                try {
+                    var attData = await api.getAttendanceToday();
+                    if (attData.attendance?.dayStarted) {
+                        startBtn.innerHTML = '<span class="material-symbols-outlined material-symbols-filled">check_circle</span> Day Started!';
+                        startBtn.disabled = true;
+                        startBtn.style.opacity = '0.6';
+                    }
+                } catch (e) { console.debug('Attendance check:', e.message); }
+
+                startBtn.addEventListener('click', async function () {
+                    try {
+                        startBtn.textContent = 'Starting...';
+                        startBtn.disabled = true;
+                        await api.startDay();
+                        startBtn.innerHTML = '<span class="material-symbols-outlined material-symbols-filled">check_circle</span> Day Started!';
+                        startBtn.style.opacity = '0.6';
+                    } catch (err) {
+                        if (err.message?.includes('already')) {
+                            startBtn.innerHTML = '<span class="material-symbols-outlined material-symbols-filled">check_circle</span> Day Started!';
+                            startBtn.style.opacity = '0.6';
+                        } else {
+                            alert(err.message);
+                            startBtn.innerHTML = '<span class="material-symbols-outlined material-symbols-filled">play_circle</span> Start My Day';
+                            startBtn.disabled = false;
+                        }
+                    }
+                });
+            }
+        })();
+
+        // Weekly Attendance dots
+        (function () {
+            var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            var LETTERS = ['S','M','T','W','T','F','S'];
+            var container = document.getElementById('weekly-dots');
+            var msgEl = document.getElementById('weekly-msg');
+            if (!container) return;
+
+            // Find start of this week (Monday)
+            var now = new Date();
+            var dayOfWeek = now.getDay(); // 0=Sun
+            var mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            var monday = new Date(now); monday.setDate(now.getDate() + mondayOffset); monday.setHours(0,0,0,0);
+
+            api.getAttendanceHistory().then(function (data) {
+                console.log('Attendance data received:', data);
+                if (!data) {
+                    if (msgEl) msgEl.textContent = 'Session expired. Please log in again.';
+                    return;
+                }
+                
+                var records = data.records || [];
+                
+                // If no records, show helper message
+                if (records.length === 0) {
+                    if (msgEl) msgEl.textContent = 'No attendance records yet. Start your day to begin tracking!';
+                    return;
+                }
+                
+                // Build set of dates with attendance
+                var presentDates = {};
+                records.forEach(function (r) {
+                    var d = new Date(r.date);
+                    presentDates[d.toDateString()] = r.status;
+                });
+
+                var weekDays = []; // Mon-Sun order
+                for (var i = 0; i < 7; i++) {
+                    var d = new Date(monday); d.setDate(monday.getDate() + i);
+                    var dayIdx = d.getDay();
+                    var isToday = d.toDateString() === now.toDateString();
+                    var isPast = d < now && !isToday;
+                    var isFuture = d > now && !isToday;
+                    var status = presentDates[d.toDateString()];
+                    weekDays.push({ letter: LETTERS[dayIdx], label: DAYS[dayIdx], isToday: isToday, isPast: isPast, isFuture: isFuture, present: !!status });
+                }
+
+                var presentCount = weekDays.filter(function (d) { return d.present; }).length;
+                var pastDays = weekDays.filter(function (d) { return d.isPast || d.isToday; }).length;
+
+                container.innerHTML = weekDays.map(function (d) {
+                    var circleClass, labelClass, wrapperClass;
+                    if (d.present) {
+                        circleClass = 'bg-primary-container text-on-primary-container';
+                        labelClass = 'text-on-surface-variant';
+                        wrapperClass = '';
+                    } else if (d.isToday) {
+                        circleClass = 'ring-2 ring-primary-container text-primary';
+                        labelClass = 'text-primary';
+                        wrapperClass = '';
+                    } else {
+                        circleClass = 'bg-surface-container-highest';
+                        labelClass = '';
+                        wrapperClass = 'opacity-40';
+                    }
+                    return '<div class="flex flex-col items-center gap-3 ' + wrapperClass + '">' +
+                        '<div class="w-10 h-10 rounded-full ' + circleClass + ' flex items-center justify-center font-bold text-xs">' + d.letter + '</div>' +
+                        '<span class="text-[10px] uppercase font-bold ' + labelClass + '">' + d.label + '</span></div>';
+                }).join('');
+
+                if (msgEl) {
+                    if (pastDays === 0) msgEl.textContent = 'Your attendance week starts today!';
+                    else if (presentCount === pastDays) msgEl.innerHTML = 'You\'ve maintained <span class="text-primary font-bold">100% attendance</span> this week. Keep up the momentum!';
+                    else msgEl.innerHTML = '<span class="text-primary font-bold">' + presentCount + '/' + pastDays + ' days</span> attended this week.';
+                }
+            }).catch(function (err) {
+                console.error('Attendance error:', err);
+                if (container) container.innerHTML = '<p class="text-on-surface-variant text-sm">Unable to load attendance data. ' + (err.message || 'Please try again later.') + '</p>';
+                if (msgEl) msgEl.textContent = 'Check console (F12) for error details or visit /api/attendance/debug for more info.';
+            });
+        })();
+
+        // ── Report Management ──────────────────────────────────────────────
+        (function () {
+            var allEmployeeReports = [];
+            var activeFilter = 'All';
+            var searchQuery = '';
+
+            // Set date input default to today
+            var dateInput = document.getElementById('report-date');
+            var today = new Date().toISOString().split('T')[0];
+            if (dateInput) dateInput.value = today;
+
+            function truncate(str, len) {
+                if (!str) return '—';
+                return str.length > len ? str.slice(0, len) + '…' : str;
+            }
+
+            function cellHtml(report) {
+                if (!report) return '<span class="text-on-surface-variant text-xs">—</span>';
+                return '<span class="text-sm font-medium" title="' + escapeHtml(report.title) + '">' + escapeHtml(truncate(report.title, 28)) + '</span>';
+            }
+
+            function renderTable() {
+                var tbody = document.getElementById('report-tbody');
+                if (!tbody) return;
+                var rows = allEmployeeReports.filter(function (e) {
+                    var matchFilter = activeFilter === 'All' || e.status === activeFilter;
+                    var matchSearch = !searchQuery || e.user.fullName.toLowerCase().includes(searchQuery);
+                    return matchFilter && matchSearch;
+                });
+                if (!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-on-surface-variant text-sm">No reports found.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = rows.map(function (e) {
+                    var rowBg = e.status === 'Not Submitted' ? 'bg-error-container/20' : '';
+                    var statusColors = {
+                        'Completed': 'bg-primary-container text-on-primary-container',
+                        'Partial': 'bg-secondary-container text-on-secondary-container',
+                        'Not Submitted': 'bg-error-container text-on-error-container'
+                    };
+                    var sc = statusColors[e.status] || 'bg-surface-container-highest text-on-surface-variant';
+                    return '<tr class="border-t border-black/5 hover:bg-black/[0.03] transition-colors ' + rowBg + '">' +
+                        '<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-xs font-bold text-primary">' +
+                        escapeHtml((e.user.fullName || '?')[0].toUpperCase()) + '</div><div><p class="font-bold text-sm">' + escapeHtml(e.user.fullName) +
+                        '</p><p class="text-xs text-on-surface-variant">' + escapeHtml(e.user.employeeId || '') + '</p></div></div></td>' +
+                        '<td class="px-6 py-4">' + cellHtml(e.bod) + '</td>' +
+                        '<td class="px-6 py-4">' + cellHtml(e.mod) + '</td>' +
+                        '<td class="px-6 py-4">' + cellHtml(e.eod) + '</td>' +
+                        '<td class="px-6 py-4 text-right"><span class="px-3 py-1 rounded-full text-xs font-bold ring-1 ring-black/10 ' + sc + '">' + escapeHtml(e.status) + '</span></td></tr>';
+                }).join('');
+            }
+
+            function loadEmployeeReports(date) {
+                var tbody = document.getElementById('report-tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-on-surface-variant text-sm">Loading...</td></tr>';
+                api.request('/daily-reports/all-today' + (date ? '?date=' + date : '')).then(function (data) {
+                    allEmployeeReports = data.employees || [];
+                    renderTable();
+                }).catch(function () {
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-on-surface-variant text-sm">Could not load reports.</td></tr>';
+                });
+            }
+
+            function loadAdminReport(date) {
+                var statusEl = document.getElementById('admin-report-status');
+                var saveBtn = document.getElementById('report-save-btn');
+                api.request('/daily-reports/today' + (date ? '?date=' + date : '')).then(function (data) {
+                    var reports = data.reports || [];
+                    var bod = reports.find(function (r) { return r.type === 'BOD'; });
+                    var mod = reports.find(function (r) { return r.type === 'MOD'; });
+                    var eod = reports.find(function (r) { return r.type === 'EOD'; });
+                    var bodEl = document.getElementById('admin-bod');
+                    var modEl = document.getElementById('admin-mod');
+                    var eodEl = document.getElementById('admin-eod');
+                    if (bodEl) bodEl.value = bod ? bod.description || bod.title : '';
+                    if (modEl) modEl.value = mod ? mod.description || mod.title : '';
+                    if (eodEl) eodEl.value = eod ? eod.description || eod.title : '';
+                    var count = [bod, mod, eod].filter(Boolean).length;
+                    if (statusEl) {
+                        if (count === 3) { statusEl.textContent = 'Completed'; statusEl.className = 'text-xs font-bold uppercase tracking-wider text-primary'; }
+                        else if (count > 0) { statusEl.textContent = 'Partial (' + count + '/3)'; statusEl.className = 'text-xs font-bold uppercase tracking-wider text-secondary'; }
+                        else { statusEl.textContent = 'Not Submitted'; statusEl.className = 'text-xs font-bold uppercase tracking-wider text-on-surface-variant'; }
+                    }
+                    if (saveBtn) saveBtn.querySelector('span + *') || (saveBtn.lastChild.textContent = count > 0 ? ' Update Report' : ' Submit Report');
+                    if (saveBtn) { saveBtn.childNodes[saveBtn.childNodes.length - 1].textContent = count > 0 ? ' Update Report' : ' Submit Report'; }
+                }).catch(function () {});
+            }
+
+            async function saveReport() {
+                var saveBtn = document.getElementById('report-save-btn');
+                var bod = (document.getElementById('admin-bod') || {}).value || '';
+                var mod = (document.getElementById('admin-mod') || {}).value || '';
+                var eod = (document.getElementById('admin-eod') || {}).value || '';
+                if (!bod && !mod && !eod) { alert('Please fill in at least one report field.'); return; }
+                if (saveBtn) { saveBtn.disabled = true; saveBtn.childNodes[saveBtn.childNodes.length - 1].textContent = ' Saving…'; }
+                var errors = [];
+                var saved = 0;
+                var pairs = [['BOD', bod], ['MOD', mod], ['EOD', eod]];
+                for (var i = 0; i < pairs.length; i++) {
+                    var type = pairs[i][0], text = pairs[i][1].trim();
+                    if (!text) continue;
+                    try {
+                        await api.request('/daily-reports/submit', { method: 'PUT', body: JSON.stringify({ type: type, title: text, description: text }) });
+                        saved++;
+                    } catch (e) { errors.push(type + ': ' + e.message); }
+                }
+                if (saveBtn) { saveBtn.disabled = false; }
+                if (errors.length) { alert('Some reports failed:\n' + errors.join('\n')); }
+                else {
+                    loadAdminReport();
+                    loadEmployeeReports(dateInput ? dateInput.value : null);
+                }
+            }
+
+            // Filter buttons
+            document.querySelectorAll('.report-filter-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    activeFilter = btn.dataset.filter;
+                    document.querySelectorAll('.report-filter-btn').forEach(function (b) {
+                        b.className = b.className.replace('bg-primary-container text-on-primary-container', 'bg-surface-container-highest text-on-surface-variant');
+                    });
+                    btn.className = btn.className.replace('bg-surface-container-highest text-on-surface-variant', 'bg-primary-container text-on-primary-container');
+                    renderTable();
+                });
+            });
+
+            // Search
+            var searchInput = document.getElementById('report-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    searchQuery = searchInput.value.toLowerCase();
+                    renderTable();
+                });
+            }
+
+            // Date change
+            if (dateInput) {
+                dateInput.addEventListener('change', function () {
+                    loadAdminReport(dateInput.value);
+                    loadEmployeeReports(dateInput.value);
+                });
+            }
+
+            // Save button
+            var saveBtn = document.getElementById('report-save-btn');
+            if (saveBtn) saveBtn.addEventListener('click', saveReport);
+
+            // Initial load
+            loadAdminReport();
+            loadEmployeeReports();
+        })();
+
+        // Logout
+        document.querySelectorAll('[data-logout]').forEach(function (a) {
+            a.addEventListener('click', function (e) { e.preventDefault(); api.logout(); });
+        });
+    </script>
+</body>
+
+</html>

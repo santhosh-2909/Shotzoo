@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo - Add Tasks</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="base.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#f7f8f4",
+                        "surface-dim": "#d8dace",
+                        "surface-bright": "#f7f8f4",
+                        "surface-container": "#eceee6",
+                        "surface-container-low": "#f2f4ec",
+                        "surface-container-high": "#e6e9e0",
+                        "surface-container-highest": "#dfe1d8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e1e4d5",
+                        "on-surface": "#1a1c15",
+                        "on-surface-variant": "#444939",
+                        "background": "#f7f8f4",
+                        "on-background": "#1a1c15",
+                        "primary": "#496800",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#add366",
+                        "on-primary-container": "#131f00",
+                        "primary-fixed": "#c9f080",
+                        "primary-fixed-dim": "#add366",
+                        "on-primary-fixed": "#131f00",
+                        "on-primary-fixed-variant": "#364e00",
+                        "secondary": "#55633a",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d8e9b4",
+                        "on-secondary-container": "#131f00",
+                        "secondary-fixed": "#d8e9b4",
+                        "secondary-fixed-dim": "#bccd9a",
+                        "on-secondary-fixed": "#141f00",
+                        "on-secondary-fixed-variant": "#3e4b24",
+                        "tertiary": "#8a438a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#ffd6f8",
+                        "on-tertiary-container": "#37003b",
+                        "tertiary-fixed": "#ffd6f8",
+                        "tertiary-fixed-dim": "#feaaf9",
+                        "on-tertiary-fixed": "#37003b",
+                        "on-tertiary-fixed-variant": "#6f2a70",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#410002",
+                        "outline": "#757968",
+                        "outline-variant": "#c4c9b5",
+                        "inverse-surface": "#2f3129",
+                        "inverse-on-surface": "#f0f1e8",
+                        "inverse-primary": "#add366",
+                        "surface-tint": "#496800"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .clay-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 40px 40px rgba(0, 0, 0, 0.04), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .clay-button-primary {
+            background: linear-gradient(135deg, #60811d, #add366);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(96, 129, 29, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+            color: #131f00;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* !important needed because Tailwind's forms plugin sets a white background
+           on [type='text'] / [type='number'] / [type='date'] with higher specificity. */
+        .soft-input {
+            background-color: #F0F2EA !important;
+            border-radius: 12px !important;
+            height: 48px;
+            border: none !important;
+            transition: all 0.3s ease;
+            font-family: 'Manrope', sans-serif;
+            color: #000000 !important;
+            box-shadow: none !important;
+        }
+
+        .soft-input::placeholder {
+            color: #6b7280 !important;
+        }
+
+        .soft-input:focus {
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 2px #add366 !important;
+            outline: none;
+        }
+
+        /* Defang autofill — Chrome paints white over the bg otherwise. */
+        .soft-input:-webkit-autofill,
+        .soft-input:-webkit-autofill:hover,
+        .soft-input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #F0F2EA inset !important;
+            -webkit-text-fill-color: #000 !important;
+        }
+
+        .soft-textarea {
+            background-color: #F0F2EA;
+            border-radius: 12px;
+            border: none;
+            transition: all 0.3s ease;
+            font-family: 'Manrope', sans-serif;
+            color: #000000 !important;
+            min-height: 120px;
+            padding: 1rem;
+        }
+
+        .soft-textarea::placeholder {
+            color: #6b7280 !important;
+        }
+
+        .soft-textarea:focus {
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px #add366;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="bg-[#F7F8F4] font-body text-on-surface antialiased animate-fade-in">
+    <!-- SideNavBar Shell -->
+    <aside
+        class="h-screen w-72 fixed left-0 top-0 bg-[#2A2A2A] shadow-[40px_0_40px_rgba(240,240,240,0.06)] z-50 flex flex-col p-6 font-headline tracking-tighter">
+        <div class="text-2xl font-bold text-[#add366] mb-8">
+            <a href="/dashboard" class="flex items-center gap-2">
+                <img alt="ShotZoo Logo" class="w-8 h-8 object-contain" src="/company_logo.jpeg" />
+                <span>ShotZoo</span>
+            </a>
+        </div>
+        <div class="flex flex-col gap-1 mb-10 px-4">
+            <div class="w-14 h-14 rounded-2xl overflow-hidden mb-3 ring-2 ring-[#add366]/20">
+                <img alt="User avatar" class="w-full h-full object-cover" data-user-photo src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8cHZZCiK4qJkz0_dUPBFHB2OfTBIcIYXcl_liRMhpG4R7A-J2DWHmbQMlIF_Y-LvWkdr8mJwEPx7NYJ1TV6aPsDiZc4rNxorhXZ6gweR6JcWIxl94XQ7Zn_4wGf9PizjlihjSHpEwtt0-4d1GV6O22xb6VDuIWeY9C5-u1jBtUDT6B0FVQ7PAbMBF20aTnPq8CDENYh3WUlok-v2iCvDDYzsKIWaK99hggZG0UUJVF32oPdrl6AhID0iedv41_gYiL0sIAMTbePM" />
+            </div>
+            <h2 class="text-white text-lg font-bold" data-user-name>Arun</h2>
+            <p class="text-white/40 text-xs tracking-widest uppercase" data-user-id>ID: SZ-2024-089</p>
+        </div>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a class="sidebar-item" href="/attendance">
+                <span class="material-symbols-outlined">event_available</span>
+                <span>Attendance</span>
+            </a>
+            <a class="sidebar-item active" href="/add-task">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Add Task</span>
+            </a>
+            <a class="sidebar-item" href="/daily-reports"><span class="material-symbols-outlined">description</span><span>Daily Reports</span></a>
+            <a class="sidebar-item" href="/my-tasks">
+                <span class="material-symbols-outlined">assignment</span>
+                <span>My Tasks</span>
+            </a>
+            <a class="sidebar-item" href="/notifications">
+                <span class="material-symbols-outlined">notifications</span>
+                <span>Notifications</span>
+            </a>
+            <a class="sidebar-item" href="/dashboard">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="sidebar-item" href="/profile">
+                <span class="material-symbols-outlined">person</span>
+                <span>My Profile</span>
+            </a>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-black/5 flex flex-col gap-2">
+            <a class="sidebar-item" href="#" data-logout>
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="ml-72 min-h-screen pt-24 pb-20 px-12 max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="mb-12">
+            <h2 class="text-5xl font-headline font-bold text-on-surface tracking-tighter mb-2">
+                Log a New Task</h2>
+            <p class="text-[13px] text-[#6B7280] font-medium mb-2">This task will be assigned to you</p>
+            <p class="text-on-surface-variant/80 font-medium max-w-lg">Fill in the details below to define
+                your next workforce objective. Precision leads to efficiency.</p>
+        </header>
+        <div class="space-y-8">
+            <!-- Card 1: What -->
+            <section class="clay-card p-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container text-sm"
+                           >edit_note</span>
+                    </div>
+                    <h3 class="text-xl font-headline font-bold text-on-surface">What are you
+                        doing?</h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex flex-col space-y-2">
+                        <label for="task-title" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Task Title</label>
+                        <input id="task-title" class="soft-input px-4 w-full" placeholder="e.g. Weekly Inventory Audit" type="text" required />
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="task-description" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Brief Description</label>
+                        <textarea id="task-description" class="soft-textarea w-full" placeholder="Outline the core objective..."></textarea>
+                    </div>
+                </div>
+            </section>
+            <!-- Card 2: Why -->
+            <section class="clay-card p-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container text-sm"
+                           >question_mark</span>
+                    </div>
+                    <h3 class="text-xl font-headline font-bold text-on-surface">Why are you doing
+                        it?</h3>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="task-context" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Context &amp; Justification</label>
+                    <textarea id="task-context" class="soft-textarea w-full"
+                        placeholder="Describe the impact or necessity of this task..."></textarea>
+                </div>
+            </section>
+            <!-- Card 3: How -->
+            <section class="clay-card p-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container text-sm"
+                           >reorder</span>
+                    </div>
+                    <h3 class="text-xl font-headline font-bold text-on-surface">How are you doing
+                        it?</h3>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="task-steps" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Execution Steps</label>
+                    <textarea id="task-steps" class="soft-textarea w-full"
+                        placeholder="List the methodology or required tools..."></textarea>
+                </div>
+            </section>
+            <!-- Priority Level -->
+            <section class="clay-card p-8">
+                <h3 class="text-lg font-headline font-bold text-on-surface mb-4">Priority Level</h3>
+                <div class="flex flex-wrap gap-3">
+                    <button data-priority="Low"
+                        class="priority-btn px-4 py-2 rounded-full border border-surface-container-high/10 text-xs font-bold uppercase tracking-widest text-on-surface-variant/80 hover:bg-surface-container-high/5 transition-colors"
+                        type="button">Low</button>
+                    <button data-priority="Medium"
+                        class="priority-btn px-4 py-2 rounded-full border border-surface-container-high/10 text-xs font-bold uppercase tracking-widest text-on-surface-variant/80 hover:bg-surface-container-high/5 transition-colors"
+                        type="button">Medium</button>
+                    <button data-priority="High"
+                        class="priority-btn px-4 py-2 rounded-full bg-[#add366] text-[#131f00] text-xs font-extrabold uppercase tracking-widest shadow-lg shadow-[#add366]/20 priority-active"
+                        type="button">High</button>
+                    <button data-priority="Urgent"
+                        class="priority-btn px-4 py-2 rounded-full border border-error/20 text-xs font-bold uppercase tracking-widest text-error/80 hover:bg-error/5 transition-colors"
+                        type="button">Urgent</button>
+                </div>
+            </section>
+            <!-- Card 4: Time & Deadline -->
+            <section class="clay-card p-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container text-sm"
+                           >schedule</span>
+                    </div>
+                    <h3 class="text-xl font-headline font-bold text-on-surface">Time &amp;
+                        Deadline</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex flex-col space-y-2">
+                        <label for="task-hours" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Estimated Hours</label>
+                        <input id="task-hours" class="soft-input px-4 w-full" type="number" value="0" min="0" />
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="task-minutes" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Minutes</label>
+                        <input id="task-minutes" class="soft-input px-4 w-full" type="number" value="30" min="0" max="59" />
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="task-deadline" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">Deadline Date</label>
+                        <div class="relative">
+                            <input id="task-deadline" class="soft-input px-4 w-full appearance-none" type="date" />
+                            <span
+                                class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 pointer-events-none"
+                               >calendar_month</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <!-- Sticky Footer Actions -->
+        <footer class="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 pb-20">
+            <div class="flex items-center space-x-8">
+                <button id="btn-cancel" type="button"
+                    class="text-on-surface-variant/80 font-bold text-sm uppercase tracking-widest hover:text-on-surface transition-colors">
+                    Cancel
+                </button>
+            </div>
+            <div class="flex items-center space-x-4 w-full md:w-auto">
+                <button id="btn-save-another" type="button"
+                    class="flex-1 md:flex-none px-8 h-[56px] border-2 border-surface-container-lowest/10 rounded-[20px] font-bold text-on-surface hover:bg-surface-container-lowest/5 transition-all">
+                    Save &amp; Add Another
+                </button>
+                <button id="btn-save-task" type="button"
+                    class="flex-1 md:flex-none clay-button-primary px-12 h-[56px] font-extrabold text-sm uppercase tracking-wider flex items-center justify-center space-x-2">
+                    <span>Save Task</span>
+                    <span class="material-symbols-outlined"
+                        class="material-symbols-filled">check_circle</span>
+                </button>
+            </div>
+        </footer>
+    </main>
+    <!-- Aesthetic Decorative Elements -->
+    <div class="fixed top-0 right-0 w-1/3 h-screen pointer-events-none z-[-1] overflow-hidden opacity-30">
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#add366] blur-[120px] rounded-full"></div>
+    </div>
+    <script src="api.js?v=2"></script>
+    <script>
+        if (!api.requireAuth()) { document.body.style.display = 'none'; }
+        api.updateSidebar();
+
+        // Priority selection
+        var selectedPriority = 'High';
+        var INACTIVE = 'priority-btn px-4 py-2 rounded-full border border-surface-container-high/10 text-xs font-bold uppercase tracking-widest text-on-surface-variant/80 hover:bg-surface-container-high/5 transition-colors';
+        var ACTIVE = 'priority-btn px-4 py-2 rounded-full bg-[#add366] text-[#131f00] text-xs font-extrabold uppercase tracking-widest shadow-lg shadow-[#add366]/20 priority-active';
+
+        document.querySelectorAll('.priority-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                selectedPriority = btn.dataset.priority;
+                document.querySelectorAll('.priority-btn').forEach(function (b) { b.className = INACTIVE; });
+                btn.className = ACTIVE;
+            });
+        });
+
+        async function saveTask(andAnother) {
+            var title = document.getElementById('task-title').value.trim();
+            if (!title) { alert('Task title is required.'); return; }
+
+            var taskData = {
+                title: title,
+                description: document.getElementById('task-description').value || '',
+                context: document.getElementById('task-context').value || '',
+                executionSteps: document.getElementById('task-steps').value || '',
+                priority: selectedPriority,
+                tags: [],
+                estimatedHours: Number.parseInt(document.getElementById('task-hours').value, 10) || 0,
+                estimatedMinutes: Number.parseInt(document.getElementById('task-minutes').value, 10) || 0,
+                deadline: document.getElementById('task-deadline').value || undefined
+            };
+
+            try {
+                await api.createTask(taskData);
+                if (andAnother) {
+                    alert('Task saved! You can add another.');
+                    ['task-title','task-description','task-context','task-steps'].forEach(function (id) {
+                        var el = document.getElementById(id); if (el) el.value = '';
+                    });
+                } else {
+                    globalThis.location.href = '/my-tasks';
+                }
+            } catch (err) {
+                alert(err.message || 'Failed to save task.');
+            }
+        }
+
+        document.getElementById('btn-cancel').addEventListener('click', function () { globalThis.location.href = '/dashboard'; });
+        document.getElementById('btn-save-another').addEventListener('click', function () { saveTask(true); });
+        document.getElementById('btn-save-task').addEventListener('click', function () { saveTask(false); });
+
+        // Logout
+        document.querySelectorAll('[data-logout]').forEach(function (a) {
+            a.addEventListener('click', function (e) { e.preventDefault(); api.logout(); });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo Admin - Sign In</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#151c27",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9ff",
+                        "on-surface-variant": "#444939",
+                        "surface": "#f9f9ff",
+                        "secondary": "#0058be",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "inverse-primary": "#aed367",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#a8cd62",
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-dim": "#d3daea",
+                        "surface-container": "#e7eefe",
+                        "on-background": "#151c27",
+                        "tertiary-container": "#ffb044",
+                        "on-primary-container": "#3c5600",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e2e8f8",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#496800",
+                        "outline": "#757968",
+                        "inverse-surface": "#2a313d",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#ebf1ff",
+                        "primary-fixed": "#c9f080",
+                        "surface-variant": "#dce2f3",
+                        "on-primary-fixed": "#131f00",
+                        "secondary-container": "#2170e4",
+                        "surface-bright": "#f9f9ff",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#496800",
+                        "error": "#ba1a1a",
+                        "tertiary": "#855300",
+                        "on-tertiary-container": "#6f4500",
+                        "primary-fixed-dim": "#aed367",
+                        "outline-variant": "#c4c9b5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-low": "#f0f3ff",
+                        "on-primary-fixed-variant": "#364e00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .font-cabinet {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .font-satoshi {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .shadow-panel {
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .shadow-card {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .ghost-border {
+            border-bottom: 1.5px solid rgba(196, 201, 181, 0.3);
+        }
+
+        .ghost-border:focus-within {
+            border-bottom: 2px solid #A8CD62;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#F7F8F4] text-on-surface min-h-screen flex items-center justify-center p-6 selection:bg-primary-container selection:text-on-primary-container">
+    <!-- Auth Layout Wrapper -->
+    <main class="w-full max-w-[420px] flex flex-col items-center">
+        <!-- Brand Identity -->
+        <div class="mb-12 text-center">
+            <div class="inline-flex items-center justify-center mb-6">
+                <!-- Branding from JSON Identity -->
+                <span class="text-3xl font-headline font-extrabold tracking-tighter text-on-surface">
+                    Shot<span class="text-primary-container">Zoo</span>
+                </span>
+            </div>
+            <h1 class="text-[2.25rem] font-cabinet font-bold leading-none tracking-tight text-on-surface mb-3">
+                Welcome back
+            </h1>
+            <p class="font-satoshi text-on-surface-variant font-medium text-sm">
+                Sign in to your admin dashboard
+            </p>
+        </div>
+        <!-- Auth Card -->
+        <div class="w-full bg-surface-container-lowest rounded-[14px] p-10 shadow-card">
+            <!-- Error banner -->
+            <div id="err-banner" class="hidden mb-4 px-4 py-3 rounded-lg bg-error-container text-on-error-container text-sm font-semibold"></div>
+            <form id="admin-login-form" class="space-y-6">
+                <!-- Email Field -->
+                <div class="space-y-1">
+                    <label
+                        class="block font-label text-[0.75rem] font-semibold text-on-surface-variant uppercase tracking-wider"
+                        for="email">
+                        Email Address
+                    </label>
+                    <div class="ghost-border transition-all duration-300">
+                        <input
+                            class="w-full bg-transparent border-none focus:ring-0 px-0 py-3 font-satoshi text-on-surface placeholder:text-outline/50"
+                            id="email" placeholder="admin@shotzoo.io" required="" type="email" />
+                    </div>
+                </div>
+                <!-- Password Field -->
+                <div class="space-y-1">
+                    <label
+                        class="block font-label text-[0.75rem] font-semibold text-on-surface-variant uppercase tracking-wider"
+                        for="password">
+                        Password
+                    </label>
+                    <div class="ghost-border flex items-center transition-all duration-300">
+                        <input
+                            class="w-full bg-transparent border-none focus:ring-0 px-0 py-3 font-satoshi text-on-surface placeholder:text-outline/50"
+                            id="password" placeholder="••••••••" required="" type="password" />
+                        <button class="text-outline hover:text-primary-container transition-colors" id="toggle-pwd" type="button">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Utilities Row -->
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2 group cursor-pointer">
+                        <div class="relative flex items-center">
+                            <input id="remember-me"
+                                class="peer appearance-none w-5 h-5 rounded-[4px] border-2 border-outline-variant checked:bg-primary-container checked:border-primary-container transition-all cursor-pointer"
+                                type="checkbox" />
+                            <span
+                                class="material-symbols-outlined absolute text-[16px] text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+                                style="left: 2px;">check</span>
+                        </div>
+                        <span
+                            class="font-satoshi text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Remember
+                            me</span>
+                    </label>
+                    <a class="font-satoshi text-sm font-semibold text-primary-container hover:text-primary-fixed-variant transition-colors"
+                        href="#">
+                        Forgot password?
+                    </a>
+                </div>
+                <!-- Primary CTA -->
+                <div class="pt-4">
+                    <button id="signin-btn"
+                        class="w-full bg-primary-container text-on-primary-container font-cabinet font-bold py-4 rounded-xl transition-all duration-200 active:scale-[0.98] hover:shadow-lg hover:shadow-primary-container/20 flex items-center justify-center gap-2"
+                        type="submit">
+                        Sign In
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- Footer Link -->
+        <p class="mt-8 font-satoshi text-sm text-on-surface-variant text-center">
+            Don't have a company account?
+            <a class="text-primary-container font-bold hover:underline underline-offset-4 ml-1 transition-all"
+                href="/admin/creatacc.html">
+                Register
+            </a>
+        </p>
+    </main>
+
+    <script>
+        var API = 'http://localhost:5000/api';
+
+        // Password visibility toggle
+        document.getElementById('toggle-pwd').addEventListener('click', function () {
+            var inp = document.getElementById('password');
+            var icon = this.querySelector('.material-symbols-outlined');
+            if (inp.type === 'password') { inp.type = 'text'; icon.textContent = 'visibility_off'; }
+            else { inp.type = 'password'; icon.textContent = 'visibility'; }
+        });
+
+        // Login form submit
+        document.getElementById('admin-login-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var btn = document.getElementById('signin-btn');
+            var banner = document.getElementById('err-banner');
+            banner.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Signing in...';
+
+            try {
+                var res = await fetch(API + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value.trim(),
+                        password: document.getElementById('password').value
+                    })
+                });
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Login failed');
+
+                // Store token
+                localStorage.setItem('shotzoo_token', data.token);
+                localStorage.setItem('shotzoo_user', JSON.stringify(data.user));
+                localStorage.setItem('shotzoo_admin', 'true');
+
+                // Redirect to admin dashboard
+                globalThis.location.href = '/admin/dashboard.html';
+            } catch (err) {
+                banner.textContent = err.message || 'Login failed. Please try again.';
+                banner.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = 'Sign In <span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
+            }
+        });
+
+        // Redirect if already logged in as admin
+        if (localStorage.getItem('shotzoo_admin') === 'true' && localStorage.getItem('shotzoo_token')) {
+            globalThis.location.href = '/admin/dashboard.html';
+        }
+    </script>
+    <!-- Background Atmospheric Texture -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary-container/5 blur-[120px]">
+        </div>
+        <div
+            class="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] rounded-full bg-secondary-container/5 blur-[100px]">
+        </div>
+    </div>
+</body>
+
+</html>

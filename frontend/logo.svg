@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8e04a"/>
+      <stop offset="100%" stop-color="#8ab83a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="120" height="120" rx="20" fill="#1a1a1a"/>
+  <!-- Trees behind -->
+  <polygon points="18,75 25,45 32,75" fill="#2a2a2a"/>
+  <polygon points="82,70 92,35 102,70" fill="#2a2a2a"/>
+  <polygon points="95,75 103,50 111,75" fill="#252525"/>
+  <!-- SZ letterform -->
+  <path d="M32,30 L78,30 C82,30 85,33 85,37 L85,42 C85,46 82,49 78,49 L45,49 L45,52 L78,52 C82,52 85,55 85,59 L85,80 C85,84 82,87 78,87 L32,87 C28,87 25,84 25,80 L25,75 C25,71 28,68 32,68 L68,68 L68,65 L32,65 C28,65 25,62 25,58 L25,37 C25,33 28,30 32,30 Z"
+        fill="#1a1a1a" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Reflection -->
+  <ellipse cx="60" cy="102" rx="35" ry="4" fill="#2a2a2a" opacity="0.6"/>
+  <ellipse cx="60" cy="102" rx="20" ry="2" fill="#333" opacity="0.4"/>
+</svg>

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Attendance | ShotZoo Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#496800", "primary-container": "#a8cd62",
+                        "on-primary-container": "#3c5600", "surface": "#f7f8f4",
+                        "on-surface": "#151c27", "on-surface-variant": "#444939",
+                        "surface-container": "#e7eefe", "surface-container-low": "#f0f3ff",
+                        "surface-container-high": "#e2e8f8", "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a", "error-container": "#ffdad6"
+                    },
+                    fontFamily: { "headline": ["Space Grotesk"], "body": ["Manrope"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #F7F8F4; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .clay-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.05), inset 0 -2px 4px rgba(0,0,0,0.04);
+        }
+        .toast {
+            position: fixed; top: 1.5rem; right: 1.5rem; background: #2A313D; color: #fff;
+            padding: 12px 22px; border-radius: 14px; box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+            display: flex; align-items: center; gap: 10px; z-index: 999;
+            opacity: 0; transform: translateY(-20px); transition: all 0.3s ease;
+            pointer-events: none; font-weight: 700; font-size: 14px;
+        }
+    </style>
+</head>
+<body class="text-on-surface bg-[#F7F8F4]">
+    <!-- Sidebar -->
+    <nav class="fixed left-0 top-0 flex flex-col py-8 px-6 gap-y-2 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">shield_with_heart</span></div>
+            <div><h2 class="font-bold text-lg tracking-tighter font-headline leading-tight text-white">Admin Panel</h2>
+                <p class="text-[11px] text-white/40 uppercase tracking-widest font-medium font-headline">ShotZoo</p></div>
+        </div>
+        <div class="flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-150 text-white font-bold bg-[#A8CD62] mx-2 my-1" href="/admin/attendence.html"><span class="material-symbols-outlined">calendar_today</span><span class="font-headline font-medium text-sm">Attendance</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/add_task.html"><span class="material-symbols-outlined">add_task</span><span class="font-headline font-medium text-sm">Add Task</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/my_task_admin.html"><span class="material-symbols-outlined">task_alt</span><span class="font-headline font-medium text-sm">My Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/all_task.html"><span class="material-symbols-outlined">assignment</span><span class="font-headline font-medium text-sm">All Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/emp_pg.html"><span class="material-symbols-outlined">group</span><span class="font-headline font-medium text-sm">Employees</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/analytics.html"><span class="material-symbols-outlined">analytics</span><span class="font-headline font-medium text-sm">Analytics</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-headline font-medium text-sm">Dashboard</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/send_noti.html"><span class="material-symbols-outlined">mic</span><span class="font-headline font-medium text-sm">Send Notification</span></a>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/10 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/pfp.html"><span class="material-symbols-outlined">settings</span><span class="font-headline font-medium text-sm">Settings</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-error hover:bg-white/10 mx-2 my-1" href="/"><span class="material-symbols-outlined">logout</span><span class="font-headline font-medium text-sm">Logout</span></a>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="ml-72 min-h-screen pb-20">
+        <header class="flex justify-between items-center px-12 py-8 w-full bg-[#F7F8F4] sticky top-0 z-40">
+            <div>
+                <h1 class="font-bold tracking-tight text-3xl text-stone-900">Attendance</h1>
+                <p class="text-stone-500 text-sm font-medium mt-1">Your check-in plus today's team overview</p>
+            </div>
+        </header>
+
+        <div class="px-12 space-y-10">
+
+            <!-- ===== SECTION A: Admin's own attendance ===== -->
+            <section class="clay-card p-8">
+                <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary-container text-3xl">how_to_reg</span>
+                        <div>
+                            <h2 class="text-2xl font-extrabold tracking-tighter">My Attendance</h2>
+                            <p class="text-[#6B7280] text-sm font-medium" id="my-date"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="my-status-pill" class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-500">Not Checked In</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-[#F0F2EA] rounded-2xl p-5">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280] mb-2">Check In</p>
+                        <p id="my-checkin" class="text-2xl font-extrabold font-mono tracking-tight">—</p>
+                    </div>
+                    <div class="bg-[#F0F2EA] rounded-2xl p-5">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280] mb-2">Check Out</p>
+                        <p id="my-checkout" class="text-2xl font-extrabold font-mono tracking-tight">—</p>
+                    </div>
+                    <div class="bg-[#F0F2EA] rounded-2xl p-5">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280] mb-2">Hours Worked</p>
+                        <p id="my-hours" class="text-2xl font-extrabold font-mono tracking-tight">0.00</p>
+                    </div>
+                    <div class="bg-[#F0F2EA] rounded-2xl p-5">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280] mb-2">Total Break</p>
+                        <p id="my-break-total" class="text-2xl font-extrabold font-mono tracking-tight">0 mins</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button id="btn-checkin" type="button"
+                        class="flex-1 min-w-[180px] bg-[#A8CD62] hover:brightness-110 active:scale-[0.99] transition-all text-[#131F00] font-extrabold text-sm uppercase tracking-wider px-8 h-[56px] rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#A8CD62]/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined">login</span> Check In
+                    </button>
+                    <button id="btn-break" type="button"
+                        class="flex-1 min-w-[180px] bg-white border-2 border-[#A8CD62] hover:bg-[#F0F2EA] active:scale-[0.99] transition-all text-[#3C5600] font-extrabold text-sm uppercase tracking-wider px-8 h-[56px] rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined">free_breakfast</span> <span id="btn-break-label">Log Break</span>
+                    </button>
+                    <button id="btn-resume" type="button"
+                        class="flex-1 min-w-[180px] bg-[#A8CD62] hover:brightness-110 active:scale-[0.99] transition-all text-[#131F00] font-extrabold text-sm uppercase tracking-wider px-8 h-[56px] rounded-2xl items-center justify-center gap-2 shadow-lg shadow-[#A8CD62]/30 disabled:opacity-50 disabled:cursor-not-allowed hidden">
+                        <span class="material-symbols-outlined">play_arrow</span> Resume
+                    </button>
+                    <button id="btn-checkout" type="button"
+                        class="flex-1 min-w-[180px] bg-[#2A313D] hover:brightness-110 active:scale-[0.99] transition-all text-white font-extrabold text-sm uppercase tracking-wider px-8 h-[56px] rounded-2xl flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined">logout</span> Check Out
+                    </button>
+                </div>
+                <p id="my-last-break" class="mt-3 text-xs font-semibold text-[#6B7280]"></p>
+            </section>
+
+            <!-- ===== SECTION B: Team Attendance ===== -->
+            <section class="clay-card p-8">
+                <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary-container text-3xl">groups</span>
+                        <h2 class="text-2xl font-extrabold tracking-tighter">Team Attendance</h2>
+                    </div>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <label for="team-date" class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">Date</label>
+                        <input id="team-date" type="date"
+                            class="bg-[#F0F2EA] border-none rounded-xl text-sm font-bold text-on-surface focus:ring-2 focus:ring-[#A8CD62] px-4 h-[42px]" />
+                        <button id="btn-export-xlsx" type="button"
+                            class="bg-[#A8CD62] hover:brightness-110 transition-all text-[#131F00] font-extrabold text-xs uppercase tracking-wider px-5 h-[42px] rounded-xl flex items-center gap-2 shadow-md shadow-[#A8CD62]/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined text-base">table_view</span> Export Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div class="bg-[#DCFCE7] rounded-xl p-4">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#166534]">Present</p>
+                        <p id="stat-present" class="text-2xl font-extrabold font-mono mt-1 text-[#166534]">0</p>
+                    </div>
+                    <div class="bg-[#FEE2E2] rounded-xl p-4">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#991B1B]">Absent</p>
+                        <p id="stat-absent" class="text-2xl font-extrabold font-mono mt-1 text-[#991B1B]">0</p>
+                    </div>
+                    <div class="bg-[#FEF3C7] rounded-xl p-4">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#92400E]">Late</p>
+                        <p id="stat-late" class="text-2xl font-extrabold font-mono mt-1 text-[#92400E]">0</p>
+                    </div>
+                    <div class="bg-[#F0F2EA] rounded-xl p-4">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">Total</p>
+                        <p id="stat-total" class="text-2xl font-extrabold font-mono mt-1">0</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-[#F0F2EA]">
+                    <table class="w-full text-left">
+                        <thead class="bg-[#F0F2EA] text-[10px] uppercase tracking-widest text-[#6B7280] font-bold">
+                            <tr>
+                                <th class="px-6 py-4">Employee Name</th>
+                                <th class="px-6 py-4">Employee ID</th>
+                                <th class="px-6 py-4">Check In</th>
+                                <th class="px-6 py-4">Check Out</th>
+                                <th class="px-6 py-4">Hours</th>
+                                <th class="px-6 py-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="team-tbody" class="divide-y divide-[#F0F2EA] text-sm">
+                            <tr><td colspan="6" class="px-6 py-12 text-center text-[#6B7280] text-sm">Loading attendance…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"><span class="material-symbols-outlined text-primary-container">check_circle</span><span id="toast-text">Done</span></div>
+
+<script>
+(function () {
+    var API = 'http://localhost:5000/api';
+    var token = localStorage.getItem('shotzoo_token');
+    if (!token) { globalThis.location.href = '/admin'; return; }
+    var auth = { 'Authorization': 'Bearer ' + token };
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        document.getElementById('toast-text').textContent = msg;
+        t.style.opacity = '1'; t.style.transform = 'translateY(0)';
+        setTimeout(function () { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 2500);
+    }
+    function escapeHtml(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+    function fmtTime(iso) {
+        if (!iso) return '—';
+        return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+    function fmtTodayLong() {
+        return new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    function isoDateToday() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function dateForFile(iso) {
+        var d = new Date(iso + 'T00:00:00');
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+
+    document.getElementById('my-date').textContent = fmtTodayLong();
+
+    // ===========================================================
+    // SECTION A — Admin's own attendance
+    // ===========================================================
+
+    // Total break minutes across every session today, summing { startTime, endTime }
+    // pairs and using "now" for any open break that's still in progress.
+    function totalBreakMinutes(att) {
+        if (!att || !att.sessions) return 0;
+        var totalMs = 0;
+        for (var i = 0; i < att.sessions.length; i++) {
+            var s = att.sessions[i];
+            if (!s.breaks) continue;
+            for (var j = 0; j < s.breaks.length; j++) {
+                var b = s.breaks[j];
+                if (!b.startTime) continue;
+                var end = b.endTime ? new Date(b.endTime) : new Date();
+                totalMs += end - new Date(b.startTime);
+            }
+        }
+        return Math.max(0, Math.round(totalMs / 60000));
+    }
+    function fmtMinutes(mins) { return mins + ' min' + (mins === 1 ? '' : 's'); }
+
+    function applyMyState(att) {
+        var checkinEl = document.getElementById('my-checkin');
+        var checkoutEl = document.getElementById('my-checkout');
+        var hoursEl = document.getElementById('my-hours');
+        var breakTotalEl = document.getElementById('my-break-total');
+        var lastBreakEl = document.getElementById('my-last-break');
+        var pill = document.getElementById('my-status-pill');
+        var btnIn = document.getElementById('btn-checkin');
+        var btnOut = document.getElementById('btn-checkout');
+        var btnBreak = document.getElementById('btn-break');
+        var btnBreakLabel = document.getElementById('btn-break-label');
+        var btnResume = document.getElementById('btn-resume');
+
+        var firstSession = (att && att.sessions && att.sessions[0]) || null;
+        var lastSession = (att && att.sessions && att.sessions[att.sessions.length - 1]) || null;
+        var openSession = lastSession && !lastSession.checkOutTime ? lastSession : null;
+        var openBreak = openSession && openSession.breaks ? openSession.breaks.find(function (b) { return !b.endTime; }) : null;
+
+        checkinEl.textContent = firstSession ? fmtTime(firstSession.checkInTime) : '—';
+        checkoutEl.textContent = lastSession && lastSession.checkOutTime ? fmtTime(lastSession.checkOutTime) : '—';
+        hoursEl.textContent = (att && typeof att.hoursWorked === 'number') ? att.hoursWorked.toFixed(2) : '0.00';
+        breakTotalEl.textContent = fmtMinutes(totalBreakMinutes(att));
+
+        // ----- Status pill -----
+        if (openBreak) {
+            pill.textContent = 'On Break';
+            pill.className = 'px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FEF3C7] text-[#92400E]';
+        } else if (openSession) {
+            pill.textContent = 'Checked In';
+            pill.className = 'px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-[#DCFCE7] text-[#166534]';
+        } else if (firstSession) {
+            pill.textContent = 'Checked Out';
+            pill.className = 'px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-[#F0F2EA] text-[#3C5600]';
+        } else {
+            pill.textContent = 'Not Checked In';
+            pill.className = 'px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-stone-100 text-stone-500';
+        }
+
+        // ----- Button enablement / visibility -----
+        // Rules:
+        //   - Cannot log break before checking in (no openSession)
+        //   - Cannot log break after checking out (lastSession exists but openSession is null)
+        //   - While on break: hide Log Break, show Resume
+        //   - Otherwise (checked in, not on break): show Log Break, hide Resume
+        if (openSession) {
+            btnIn.disabled = true;
+            btnOut.disabled = !!openBreak; // can't check out while on break — must Resume first
+            if (openBreak) {
+                // On break — hide Log Break, show Resume, label shows since-time
+                btnBreak.classList.add('hidden');
+                btnBreak.classList.remove('flex');
+                btnResume.classList.remove('hidden');
+                btnResume.classList.add('flex');
+                btnBreakLabel.textContent = 'On Break since ' + fmtTime(openBreak.startTime);
+            } else {
+                // Checked in, not on break — show Log Break, hide Resume
+                btnBreak.classList.remove('hidden');
+                btnBreak.classList.add('flex');
+                btnResume.classList.add('hidden');
+                btnResume.classList.remove('flex');
+                btnBreakLabel.textContent = 'Log Break';
+                btnBreak.disabled = false;
+            }
+        } else if (firstSession) {
+            // Checked out — break controls visible but disabled
+            btnIn.disabled = false;
+            btnOut.disabled = true;
+            btnBreak.classList.remove('hidden');
+            btnBreak.classList.add('flex');
+            btnResume.classList.add('hidden');
+            btnResume.classList.remove('flex');
+            btnBreakLabel.textContent = 'Log Break';
+            btnBreak.disabled = true;
+        } else {
+            // Not checked in yet — break controls visible but disabled
+            btnIn.disabled = false;
+            btnOut.disabled = true;
+            btnBreak.classList.remove('hidden');
+            btnBreak.classList.add('flex');
+            btnResume.classList.add('hidden');
+            btnResume.classList.remove('flex');
+            btnBreakLabel.textContent = 'Log Break';
+            btnBreak.disabled = true;
+        }
+
+        // ----- Last completed break summary line ("Break: 15 mins") -----
+        var lastClosedBreak = null;
+        if (att && att.sessions) {
+            for (var si = att.sessions.length - 1; si >= 0 && !lastClosedBreak; si--) {
+                var brks = att.sessions[si].breaks || [];
+                for (var bi = brks.length - 1; bi >= 0; bi--) {
+                    if (brks[bi].endTime) { lastClosedBreak = brks[bi]; break; }
+                }
+            }
+        }
+        if (lastClosedBreak) {
+            var mins = Math.max(1, Math.round((new Date(lastClosedBreak.endTime) - new Date(lastClosedBreak.startTime)) / 60000));
+            lastBreakEl.textContent = 'Last break: ' + fmtMinutes(mins);
+        } else {
+            lastBreakEl.textContent = '';
+        }
+    }
+
+    function loadMyAttendance() {
+        return fetch(API + '/attendance/today', { headers: auth })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d.success) { applyMyState(null); return; }
+                applyMyState(d.attendance);
+            })
+            .catch(function () { applyMyState(null); });
+    }
+
+    document.getElementById('btn-checkin').addEventListener('click', function () {
+        var btn = this; btn.disabled = true;
+        fetch(API + '/attendance/checkin', { method: 'POST', headers: Object.assign({}, auth, { 'Content-Type': 'application/json' }), body: '{}' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d.success) { showToast(d.message || 'Check-in failed'); btn.disabled = false; return; }
+                applyMyState(d.attendance);
+                showToast('Checked in successfully');
+                loadTeam(); // refresh the team table so admin appears immediately
+            })
+            .catch(function () { showToast('Network error'); btn.disabled = false; });
+    });
+
+    document.getElementById('btn-checkout').addEventListener('click', function () {
+        var btn = this; btn.disabled = true;
+        fetch(API + '/attendance/checkout', { method: 'POST', headers: Object.assign({}, auth, { 'Content-Type': 'application/json' }), body: '{}' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d.success) { showToast(d.message || 'Check-out failed'); btn.disabled = false; return; }
+                applyMyState(d.attendance);
+                showToast('Checked out successfully');
+                loadTeam();
+            })
+            .catch(function () { showToast('Network error'); btn.disabled = false; });
+    });
+
+    // Log Break / Resume both hit the same toggle endpoint — the backend
+    // either opens a new break or closes the open one based on current state.
+    function toggleBreakRequest(label) {
+        return fetch(API + '/attendance/break', { method: 'POST', headers: Object.assign({}, auth, { 'Content-Type': 'application/json' }), body: '{}' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d.success) { showToast(d.message || (label + ' failed')); return; }
+                applyMyState(d.attendance);
+                showToast(label);
+            })
+            .catch(function () { showToast('Network error'); });
+    }
+    document.getElementById('btn-break').addEventListener('click', function () {
+        if (this.disabled) return;
+        this.disabled = true;
+        toggleBreakRequest('Break started').finally(function () {
+            // applyMyState reset disabled state already; no-op
+        });
+    });
+    document.getElementById('btn-resume').addEventListener('click', function () {
+        this.disabled = true;
+        toggleBreakRequest('Resumed work').finally(function () {
+            document.getElementById('btn-resume').disabled = false;
+        });
+    });
+
+    // ===========================================================
+    // SECTION B — Team Attendance
+    // ===========================================================
+    var teamRows = []; // normalized rows shown in the table; same shape used by export
+
+    function classifyStatus(rec) {
+        // No record → Absent. Has check-in but late (after 09:30 local) → Late. Otherwise Present.
+        if (!rec || !rec.sessions || !rec.sessions.length) return 'Absent';
+        var first = rec.sessions[0];
+        if (!first.checkInTime) return 'Absent';
+        var d = new Date(first.checkInTime);
+        var minutes = d.getHours() * 60 + d.getMinutes();
+        if (minutes > 9 * 60 + 30) return 'Late';
+        return 'Present';
+    }
+
+    function badgeForStatus(s) {
+        if (s === 'Present') return '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style="background:#DCFCE7;color:#166534">Present</span>';
+        if (s === 'Late')    return '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style="background:#FEF3C7;color:#92400E">Late</span>';
+        return '<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style="background:#FEE2E2;color:#991B1B">Absent</span>';
+    }
+
+    function renderTeam() {
+        var tbody = document.getElementById('team-tbody');
+        if (!teamRows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-[#6B7280] text-sm">No employees found for this date.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = teamRows.map(function (r) {
+            var statusBadge = badgeForStatus(r.status);
+            return '<tr class="hover:bg-[#F7F8F4] transition-colors">' +
+                '<td class="px-6 py-4 font-bold" style="color:#111827">' + escapeHtml(r.name) + '</td>' +
+                '<td class="px-6 py-4 font-mono text-xs font-bold" style="color:#374151">' + escapeHtml(r.employeeId || '—') + '</td>' +
+                '<td class="px-6 py-4 font-mono text-xs">' + escapeHtml(r.checkInDisplay) + '</td>' +
+                '<td class="px-6 py-4 font-mono text-xs">' + escapeHtml(r.checkOutDisplay) + '</td>' +
+                '<td class="px-6 py-4 font-mono text-xs font-bold">' + r.hours.toFixed(2) + '</td>' +
+                '<td class="px-6 py-4">' + statusBadge + '</td>' +
+                '</tr>';
+        }).join('');
+
+        // Stats
+        var present = teamRows.filter(function (r) { return r.status === 'Present'; }).length;
+        var late = teamRows.filter(function (r) { return r.status === 'Late'; }).length;
+        var absent = teamRows.filter(function (r) { return r.status === 'Absent'; }).length;
+        document.getElementById('stat-present').textContent = present;
+        document.getElementById('stat-late').textContent = late;
+        document.getElementById('stat-absent').textContent = absent;
+        document.getElementById('stat-total').textContent = teamRows.length;
+    }
+
+    function loadTeam() {
+        var date = document.getElementById('team-date').value || isoDateToday();
+        // Fetch the team attendance for the selected date AND the full employee list
+        // in parallel, so we can render rows for absent employees too.
+        Promise.all([
+            fetch(API + '/admin/attendance?date=' + date, { headers: auth }).then(function (r) { return r.json(); }),
+            fetch(API + '/admin/employees', { headers: auth }).then(function (r) { return r.json(); })
+        ]).then(function (results) {
+            var attData = results[0];
+            var empData = results[1];
+            if (!empData.success) { showToast('Failed to load employees'); return; }
+
+            // Map records by user id
+            var recordByUserId = {};
+            (attData.records || []).forEach(function (rec) {
+                if (rec.user && rec.user._id) recordByUserId[rec.user._id] = rec;
+            });
+
+            // Build a row per employee (admin + employees) — absent if no record
+            teamRows = (empData.employees || []).map(function (emp) {
+                var rec = recordByUserId[emp._id] || null;
+                var first = rec && rec.sessions && rec.sessions[0];
+                var last = rec && rec.sessions && rec.sessions[rec.sessions.length - 1];
+                var status = classifyStatus(rec);
+                return {
+                    userId: emp._id,
+                    name: emp.fullName || '—',
+                    employeeId: emp.employeeId || '',
+                    role: emp.role || 'Employee',
+                    checkIn: first ? first.checkInTime : null,
+                    checkOut: last && last.checkOutTime ? last.checkOutTime : null,
+                    checkInDisplay: first ? fmtTime(first.checkInTime) : '—',
+                    checkOutDisplay: last && last.checkOutTime ? fmtTime(last.checkOutTime) : '—',
+                    hours: (rec && typeof rec.hoursWorked === 'number') ? rec.hoursWorked : 0,
+                    status: status
+                };
+            });
+
+            // Sort by check-in time ascending; absentees (null check-in) drop to the bottom
+            teamRows.sort(function (a, b) {
+                if (!a.checkIn && !b.checkIn) return a.name.localeCompare(b.name);
+                if (!a.checkIn) return 1;
+                if (!b.checkIn) return -1;
+                return new Date(a.checkIn) - new Date(b.checkIn);
+            });
+
+            renderTeam();
+        }).catch(function () {
+            document.getElementById('team-tbody').innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-[#6B7280] text-sm">Failed to load attendance.</td></tr>';
+        });
+    }
+
+    document.getElementById('team-date').addEventListener('change', loadTeam);
+
+    // ===========================================================
+    // SECTION C — Excel export
+    // ===========================================================
+    document.getElementById('btn-export-xlsx').addEventListener('click', function () {
+        if (typeof XLSX === 'undefined') { showToast('Excel library failed to load'); return; }
+        if (!teamRows.length) { showToast('No data to export'); return; }
+        var date = document.getElementById('team-date').value || isoDateToday();
+
+        var headers = ['Employee Name', 'Employee ID', 'Check In', 'Check Out', 'Hours Worked', 'Status'];
+        var rows = teamRows.map(function (r) {
+            return [r.name, r.employeeId, r.checkInDisplay, r.checkOutDisplay, Number(r.hours.toFixed(2)), r.status];
+        });
+        var aoa = [headers].concat(rows);
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+
+        // Bold headers with green background
+        var range = XLSX.utils.decode_range(ws['!ref']);
+        for (var c = range.s.c; c <= range.e.c; c++) {
+            var addr = XLSX.utils.encode_cell({ r: 0, c: c });
+            if (ws[addr]) {
+                ws[addr].s = {
+                    font: { bold: true, color: { rgb: '131F00' } },
+                    fill: { fgColor: { rgb: 'A8CD62' } },
+                    alignment: { horizontal: 'left', vertical: 'center' }
+                };
+            }
+        }
+
+        // Status-row tinting: present rows green, absent rows red
+        for (var i = 0; i < rows.length; i++) {
+            var status = rows[i][5];
+            var fillRgb = null;
+            if (status === 'Present') fillRgb = 'E8F5D0';
+            else if (status === 'Absent') fillRgb = 'FEE2E2';
+            if (!fillRgb) continue;
+            for (var col = 0; col < headers.length; col++) {
+                var cellAddr = XLSX.utils.encode_cell({ r: i + 1, c: col });
+                if (!ws[cellAddr]) continue;
+                ws[cellAddr].s = ws[cellAddr].s || {};
+                ws[cellAddr].s.fill = { fgColor: { rgb: fillRgb } };
+            }
+        }
+
+        // Auto column widths
+        ws['!cols'] = headers.map(function (h, i) {
+            var max = h.length;
+            for (var r = 0; r < rows.length; r++) {
+                var v = rows[r][i] == null ? '' : String(rows[r][i]);
+                if (v.length > max) max = v.length;
+            }
+            return { wch: Math.min(Math.max(max + 2, 12), 40) };
+        });
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Attendance');
+        XLSX.writeFile(wb, 'shotzoo-attendance-' + dateForFile(date) + '.xlsx');
+    });
+
+    // ===========================================================
+    // Init
+    // ===========================================================
+    document.getElementById('team-date').value = isoDateToday();
+    loadMyAttendance();
+    loadTeam();
+})();
+</script>
+<script src="/admin/admin-guard.js"></script>
+</body>
+</html>

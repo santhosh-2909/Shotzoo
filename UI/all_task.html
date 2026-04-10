@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#151c27",
+                    "on-secondary": "#ffffff",
+                    "background": "#f9f9ff",
+                    "on-surface-variant": "#444939",
+                    "surface": "#f9f9ff",
+                    "secondary": "#0058be",
+                    "on-secondary-fixed-variant": "#004395",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "inverse-primary": "#aed367",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#a8cd62",
+                    "on-secondary-container": "#fefcff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-dim": "#d3daea",
+                    "surface-container": "#e7eefe",
+                    "on-background": "#151c27",
+                    "tertiary-container": "#ffb044",
+                    "on-primary-container": "#3c5600",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e2e8f8",
+                    "on-secondary-fixed": "#001a42",
+                    "surface-container-highest": "#dce2f3",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#496800",
+                    "outline": "#757968",
+                    "inverse-surface": "#2a313d",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#ebf1ff",
+                    "primary-fixed": "#c9f080",
+                    "surface-variant": "#dce2f3",
+                    "on-primary-fixed": "#131f00",
+                    "secondary-container": "#2170e4",
+                    "surface-bright": "#f9f9ff",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#496800",
+                    "error": "#ba1a1a",
+                    "tertiary": "#855300",
+                    "on-tertiary-container": "#6f4500",
+                    "primary-fixed-dim": "#aed367",
+                    "outline-variant": "#c4c9b5",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-container-low": "#f0f3ff",
+                    "on-primary-fixed-variant": "#364e00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "14px",
+                    "xl": "18px",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .shadow-panel { box-shadow: 0 0 40px rgba(0,0,0,0.12); }
+        .shadow-card { box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8); }
+        body { font-family: 'Manrope', sans-serif; background-color: #F7F8F4; color: #151c27; }
+        .font-editorial-header { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+<!-- Navigation Drawer (Shared) -->
+<nav class="fixed left-0 top-0 flex flex-col py-8 px-6 gap-y-2 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">shield_with_heart</span></div>
+            <div><h2 class="font-bold text-lg tracking-tighter font-headline leading-tight text-white">Admin Panel</h2>
+                <p class="text-[11px] text-white/40 uppercase tracking-widest font-medium font-headline">ShotZoo</p></div>
+        </div>
+        <div class="flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/attendence.html"><span class="material-symbols-outlined">calendar_today</span><span class="font-headline font-medium text-sm">Attendance</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/add_task.html"><span class="material-symbols-outlined">add_task</span><span class="font-headline font-medium text-sm">Add Task</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/my_task_admin.html"><span class="material-symbols-outlined">task_alt</span><span class="font-headline font-medium text-sm">My Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-150 text-white font-bold bg-[#A8CD62] mx-2 my-1" href="/admin/all_task.html"><span class="material-symbols-outlined">assignment</span><span class="font-headline font-medium text-sm">All Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/emp_pg.html"><span class="material-symbols-outlined">group</span><span class="font-headline font-medium text-sm">Employees</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/analytics.html"><span class="material-symbols-outlined">analytics</span><span class="font-headline font-medium text-sm">Analytics</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-headline font-medium text-sm">Dashboard</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/send_noti.html"><span class="material-symbols-outlined">mic</span><span class="font-headline font-medium text-sm">Send Notification</span></a>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/10 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/pfp.html"><span class="material-symbols-outlined">settings</span><span class="font-headline font-medium text-sm">Settings</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-error hover:bg-white/10 mx-2 my-1" href="/"><span class="material-symbols-outlined">logout</span><span class="font-headline font-medium text-sm">Logout</span></a>
+        </div>
+    </nav>
+<!-- Main Content -->
+<main class="ml-72 pt-10 px-8 pb-24 min-h-screen">
+<!-- Editorial Header Section -->
+<div class="max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<div class="flex items-center gap-4 mb-2">
+<h2 class="text-4xl md:text-5xl font-editorial-header font-bold text-on-surface">All Tasks</h2>
+<span id="task-count-badge" class="bg-primary-container/20 text-on-primary-container px-3 py-1 rounded-full font-mono text-lg font-bold">…</span>
+</div>
+<p class="text-on-surface-variant font-medium text-lg opacity-80">Managing institutional workflow and editorial assignments.</p>
+</div>
+<div class="flex gap-3">
+<button id="btn-remind-overdue" class="bg-error/10 text-error px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-error/20 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">notification_important</span>
+                        Remind All Overdue
+                    </button>
+<button id="btn-export" class="bg-[#A8CD62]/10 text-primary-fixed-dim bg-primary-container text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 hover:bg-[#96B856] transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                        Export
+                    </button>
+</div>
+<!-- Toast -->
+<div id="export-toast" class="fixed top-6 right-6 bg-[#2A313D] text-white px-6 py-3 rounded-xl shadow-xl flex items-center gap-2 z-[999] opacity-0 translate-y-[-20px] transition-all duration-300 pointer-events-none">
+    <span class="material-symbols-outlined text-primary-container">check_circle</span>
+    <span class="font-bold text-sm">Tasks exported successfully</span>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="bg-surface-container-low p-4 mb-8 flex flex-col lg:flex-row items-center gap-6 rounded-xl transition-all">
+<div class="flex-1 overflow-x-auto w-full no-scrollbar">
+<label class="block text-[10px] uppercase tracking-wider font-bold text-on-surface-variant mb-1 ml-1">Status View</label>
+<div class="flex items-center gap-2 whitespace-nowrap">
+<button class="bg-primary-container text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">All</button>
+<button class="bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-surface-container-highest transition-colors">Pending</button>
+<button class="bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-surface-container-highest transition-colors">In Progress</button>
+<button class="bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-surface-container-highest transition-colors">Completed</button>
+<button class="bg-error-container text-error px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1">Overdue <span id="overdue-count-badge" class="text-[10px] bg-error text-white px-1.5 rounded-full hidden"></span></button>
+</div>
+</div>
+<div class="w-full lg:w-40">
+<label for="priority-filter" class="block text-[10px] uppercase tracking-wider font-bold text-on-surface-variant mb-1 ml-1">Priority</label>
+<select id="priority-filter" class="w-full bg-white border-none rounded-lg text-sm font-semibold text-on-surface focus:ring-2 focus:ring-[#A8CD62]">
+<option value="">Any Priority</option>
+<option value="High">High</option>
+<option value="Medium">Medium</option>
+<option value="Low">Low</option>
+<option value="Urgent">Urgent</option>
+</select>
+</div>
+<div class="w-full lg:w-64 relative">
+<label for="task-search" class="block text-[10px] uppercase tracking-wider font-bold text-on-surface-variant mb-1 ml-1">Search Tasks</label>
+<input id="task-search" class="w-full pl-10 bg-white border-none rounded-lg text-sm font-semibold text-on-surface focus:ring-2 focus:ring-[#A8CD62]" placeholder="ID, Title, or Tag..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-[30px] text-stone-400 text-[20px]">search</span>
+</div>
+</div>
+<!-- Task Table Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Assignee</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Task Detail</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Priority</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Deadline</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Time Remaining</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant text-center">Status</th>
+<th class="px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Row 1: OVERDUE -->
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-error">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Portrait of a creative professional male with glasses smiling in a modern office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADVrgoP1O6TnroD9FOKbPV6DjmTjOB5cgp75anTvAEXQhfTa-OEqPSvrzZDwol8RFmnsUv25bmk9GowePKS15KgVrOWgLJuyzLrCRNyk_p9iN0xp0v2kAcv__UCF7HM832mMPbEBP529Z8JP3TlBUiDndv02218nlk3xNbun0ZBs1vvTZnJYOYhtb8z22RUiAXoSJ6Ex1lc5FAIYDaHoUfktQlB8ZD7eqpXA8vSULGLJCVjLd2YefLNIOq5h3LexT2e3dQNockXk9p"/>
+</div>
+<span class="text-sm font-bold text-on-surface">Alex Rivera</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="max-w-xs">
+<p class="text-sm font-bold text-on-surface truncate">Quarterly Financial Review Phase 1</p>
+<p class="text-[11px] text-on-surface-variant uppercase font-mono">ID: TSK-8821</p>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-xs font-bold text-error uppercase">High</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-medium text-on-surface">Oct 12, 2023</span>
+</td>
+<td class="px-6 py-4">
+<span class="font-mono text-xs font-bold text-error">- 2d 14h</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">Overdue</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-end gap-2">
+<button class="material-symbols-outlined text-stone-400 hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/10">visibility</button>
+<button class="material-symbols-outlined text-error hover:scale-110 transition-transform p-1.5 rounded-md hover:bg-error/10">notifications_active</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: In Progress -->
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Headshot of a confident young woman with a warm smile professional setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAddpewT7hhcdpU6l62Tidgs1k2qItHdiihs4ced-DKEkzVghgo_dCpoIq0iqGSi-J1uVXISH0XqmvNHjDkC4AshK8oMPAQIejsvPaN6UtygEOPKNrh7LxPvFDj-EbraKzvDD0PKruYvdv4oZim_EoIjddxUdh-CG2mKjBFXh8eTqruCITjhQZcUYsQvuTiav0LcJOqyLxmplJ2bkah_qBRnQQ4OQXLj1Bh7xdRS_H3TnqBlliHDpYtxmgTkdctbiJL0Ai7z_Tg9G4Q"/>
+</div>
+<span class="text-sm font-bold text-on-surface">Sarah Chen</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="max-w-xs">
+<p class="text-sm font-bold text-on-surface truncate">API Documentation Revamp</p>
+<p class="text-[11px] text-on-surface-variant uppercase font-mono">ID: TSK-8902</p>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+<span class="text-xs font-bold text-tertiary-container uppercase">Medium</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-medium text-on-surface">Oct 16, 2023</span>
+</td>
+<td class="px-6 py-4">
+<span class="font-mono text-xs font-bold text-tertiary-container">1d 08h</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">In Progress</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-end gap-2">
+<button class="material-symbols-outlined text-stone-400 hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/10">visibility</button>
+<button class="material-symbols-outlined text-stone-400 hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/10">notifications</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Completed -->
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young male professional against a soft grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCR5tp7snrl9qwlzFyOXibQ6eEUDkHfv6EwVgbgDJCsxjhM3AXWdrG7h4hpQ1ih8beisrqyKoL_rHwkFWczwK2FV8F4_jJ9RYT39Btotxvw63ClsBdeLlydnsPJZNo5roqPzrkjFtKBr54QyJVlwjFo2PPUntGxuglNmO0ygoL5g-cTfLDd-ET_PZbvXq5K83k4djRBoSaZ-Z8ZuiJ5aE6SocHU33oLaivnxf_JaZRY-i8ydWxn-oQWjd2U5ChPqrEokfHh_fU8te8v"/>
+</div>
+<span class="text-sm font-bold text-on-surface">Leo Hudson</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="max-w-xs">
+<p class="text-sm font-bold text-on-surface truncate opacity-50 line-through">Security Patch Deployment</p>
+<p class="text-[11px] text-on-surface-variant uppercase font-mono">ID: TSK-8812</p>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-xs font-bold text-error uppercase">High</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-medium text-on-surface">Oct 11, 2023</span>
+</td>
+<td class="px-6 py-4">
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">Completed</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-end gap-2">
+<button class="material-symbols-outlined text-stone-400 hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/10">visibility</button>
+<button class="material-symbols-outlined text-stone-300 cursor-not-allowed p-1.5" disabled="">notifications_off</button>
+</div>
+</td>
+</tr>
+<!-- More rows (Simulated) -->
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-error">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Elena Rossi</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Client Presentation Deck</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8920</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error"></span><span class="text-xs font-bold text-error uppercase">High</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 13, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-error">- 1d 04h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase">Overdue</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-error p-1.5">notifications_active</button></td>
+</tr>
+<!-- Repeated data structure for 12 rows... -->
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">David Park</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Newsletter Drafting</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8933</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary-container"></span><span class="text-xs font-bold text-primary-container uppercase">Low</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 20, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-on-surface-variant">5d 12h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase">Pending</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-stone-400 p-1.5">visibility</button></td>
+</tr>
+<!-- (Continuing rows logic until 12 items...) -->
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Nina Vo</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Internal Wiki Updates</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8941</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-tertiary-container"></span><span class="text-xs font-bold text-tertiary-container uppercase">Medium</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 17, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-on-surface-variant">2d 02h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase">In Progress</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-stone-400 p-1.5">visibility</button></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-error">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Marco Polo</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Contract Renewal Review</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8810</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error"></span><span class="text-xs font-bold text-error uppercase">High</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 10, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-error">- 4d 01h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase">Overdue</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-error p-1.5">notifications_active</button></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Ingrid Berg</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">User Interview Synthesis</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8955</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-tertiary-container"></span><span class="text-xs font-bold text-tertiary-container uppercase">Medium</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 19, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-on-surface-variant">4d 06h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase">In Progress</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-stone-400 p-1.5">visibility</button></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Kobe Bean</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Asset Management Setup</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8960</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary-container"></span><span class="text-xs font-bold text-primary-container uppercase">Low</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 25, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-on-surface-variant">10d 0h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase">Pending</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-stone-400 p-1.5">visibility</button></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-error">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Zack Light</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Database Optimization</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8801</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error"></span><span class="text-xs font-bold text-error uppercase">High</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 08, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-error">- 6d 22h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase">Overdue</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-error p-1.5">notifications_active</button></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Aria Song</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">Feature Roadmap Sync</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8971</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-tertiary-container"></span><span class="text-xs font-bold text-tertiary-container uppercase">Medium</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 18, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-on-surface-variant">3d 11h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase">In Progress</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-stone-400 p-1.5">visibility</button></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors border-l-4 border-transparent">
+<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-surface-container-high"></div><span class="text-sm font-bold text-on-surface">Miles Morales</span></div></td>
+<td class="px-6 py-4"><div class="max-w-xs"><p class="text-sm font-bold text-on-surface truncate">System Integration Testing</p><p class="text-[11px] text-on-surface-variant font-mono">TSK-8999</p></div></td>
+<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary-container"></span><span class="text-xs font-bold text-primary-container uppercase">Low</span></div></td>
+<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">Oct 28, 2023</span></td>
+<td class="px-6 py-4"><span class="font-mono text-xs font-bold text-on-surface-variant">13d 04h</span></td>
+<td class="px-6 py-4 text-center"><span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase">Pending</span></td>
+<td class="px-6 py-4 text-right"><button class="material-symbols-outlined text-stone-400 p-1.5">visibility</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-surface-container-low/30 flex items-center justify-between border-t border-surface-container-low">
+<p class="text-xs font-medium text-on-surface-variant">Showing 12 of 128 results</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high text-stone-400 hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary-container text-white font-mono text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-on-surface-variant font-mono text-xs transition-colors">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-on-surface-variant font-mono text-xs transition-colors">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-surface-container-high text-stone-400 hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile only) -->
+<nav class="fixed bottom-0 w-full flex justify-around items-center h-16 z-50 md:hidden bg-[#FFFFFF]/80 dark:bg-stone-900/80 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl">
+<button class="text-stone-400 flex flex-col items-center gap-1 active:bg-[#A8CD62]/5 p-2 rounded-lg">
+<span class="material-symbols-outlined">dashboard</span>
+</button>
+<button class="text-[#A8CD62] scale-110 flex flex-col items-center gap-1 active:bg-[#A8CD62]/5 p-2 rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment</span>
+</button>
+<button class="text-stone-400 flex flex-col items-center gap-1 active:bg-[#A8CD62]/5 p-2 rounded-lg">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<button class="text-stone-400 flex flex-col items-center gap-1 active:bg-[#A8CD62]/5 p-2 rounded-lg">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+<button class="text-stone-400 flex flex-col items-center gap-1 active:bg-[#A8CD62]/5 p-2 rounded-lg">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</nav>
+<script>
+(function () {
+    var API = 'http://localhost:5000/api';
+    var token = localStorage.getItem('shotzoo_token');
+    if (!token) return;
+    var auth = { 'Authorization': 'Bearer ' + token };
+
+    function priorityColor(p) {
+        if (p === 'High' || p === 'Urgent') return 'text-error';
+        if (p === 'Medium') return 'text-tertiary';
+        return 'text-on-surface-variant';
+    }
+    function statusClass(s) {
+        if (s === 'Overdue') return 'bg-error/10 text-error border-error';
+        if (s === 'Completed') return 'bg-primary/10 text-primary border-transparent';
+        if (s === 'In Progress') return 'bg-secondary/10 text-secondary border-transparent';
+        return 'bg-surface-container text-on-surface-variant border-transparent';
+    }
+    function timeRemaining(deadline) {
+        if (!deadline) return '—';
+        var diff = new Date(deadline) - Date.now();
+        if (diff < 0) return '- ' + Math.floor(Math.abs(diff) / 86400000) + 'd';
+        var days = Math.floor(diff / 86400000);
+        var hrs = Math.floor((diff % 86400000) / 3600000);
+        return days + 'd ' + hrs + 'h';
+    }
+
+    var lastLoadedTasks = [];     // entire dataset from server
+    var currentStatus = 'All';
+    var currentPriority = '';     // '' = any
+    var currentSearch = '';       // '' = no search
+
+    // Recompute the live overdue badge from the loaded dataset, regardless
+    // of which filter is currently selected. Hidden when count is 0.
+    function updateOverdueBadge() {
+        var badge = document.getElementById('overdue-count-badge');
+        if (!badge) return;
+        var now = Date.now();
+        var count = lastLoadedTasks.filter(function (t) {
+            if (t.status === 'Completed') return false;
+            if (t.status === 'Overdue') return true;
+            return t.deadline && (new Date(t.deadline).getTime() < now);
+        }).length;
+        if (count > 0) {
+            badge.textContent = count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
+    function rowHtml(t) {
+        var emp = t.user ? t.user.fullName : 'Unassigned';
+        var empId = t.user ? t.user.employeeId : '';
+        var dl = t.deadline ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+        var border = t.status === 'Overdue' ? 'border-error' : 'border-transparent';
+        return '<tr class="hover:bg-surface-container-low transition-colors border-l-4 ' + border + '">' +
+            '<td class="px-6 py-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container">' +
+            emp.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() + '</div>' +
+            '<div><span class="text-sm font-bold text-on-surface">' + emp + '</span><br><span class="text-[11px] text-on-surface-variant font-mono">' + empId + '</span></div></div></td>' +
+            '<td class="px-6 py-4"><p class="text-sm font-bold text-on-surface truncate max-w-[200px]">' + t.title + '</p>' +
+            '<p class="text-[11px] text-on-surface-variant font-mono">' + t.priority + '</p></td>' +
+            '<td class="px-6 py-4"><span class="text-xs font-bold ' + priorityColor(t.priority) + ' uppercase">' + t.priority + '</span></td>' +
+            '<td class="px-6 py-4"><span class="text-sm font-medium text-on-surface">' + dl + '</span></td>' +
+            '<td class="px-6 py-4"><span class="font-mono text-xs font-bold ' + (t.status === 'Overdue' ? 'text-error' : 'text-on-surface-variant') + '">' + timeRemaining(t.deadline) + '</span></td>' +
+            '<td class="px-6 py-4 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight ' + statusClass(t.status) + '">' + t.status + '</span></td>' +
+            '<td class="px-6 py-4"><div class="flex justify-end gap-2">' +
+            '<button type="button" class="material-symbols-outlined text-stone-400 hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/10">visibility</button></div></td></tr>';
+    }
+
+    // Render the currently-loaded dataset through all three filters in memory.
+    // Status, Priority, and Search all stack — clearing one restores the rest.
+    function applyFilters() {
+        var q = currentSearch.toLowerCase();
+        var filtered = lastLoadedTasks.filter(function (t) {
+            if (currentStatus !== 'All' && t.status !== currentStatus) return false;
+            if (currentPriority && t.priority !== currentPriority) return false;
+            if (q) {
+                var title = (t.title || '').toLowerCase();
+                var tags = (t.tags || []).join(' ').toLowerCase();
+                var idTail = (t._id || '').toLowerCase().slice(-6);
+                if (title.indexOf(q) < 0 && tags.indexOf(q) < 0 && idTail.indexOf(q) < 0) return false;
+            }
+            return true;
+        });
+        var tbody = document.querySelector('tbody');
+        if (!tbody) return;
+        if (!filtered.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-on-surface-variant">No tasks found.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = filtered.map(rowHtml).join('');
+    }
+
+    function loadTasks() {
+        // Always pull the full set; client-side filters do the rest.
+        fetch(API + '/admin/tasks', { headers: auth }).then(function (r) { return r.json(); }).then(function (d) {
+            if (!d.success) return;
+            lastLoadedTasks = d.tasks || [];
+            var badge = document.getElementById('task-count-badge');
+            if (badge) badge.textContent = lastLoadedTasks.length;
+            updateOverdueBadge();
+            applyFilters();
+        }).catch(function () {});
+    }
+
+    loadTasks();
+
+    // Status pill buttons
+    document.querySelectorAll('button').forEach(function (btn) {
+        var labels = ['All', 'Pending', 'In Progress', 'Completed', 'Overdue'];
+        if (labels.indexOf(btn.textContent.trim()) !== -1) {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('button').forEach(function (b) {
+                    if (labels.indexOf(b.textContent.trim()) !== -1) {
+                        b.classList.remove('bg-primary-container', 'text-white', 'shadow-sm');
+                        b.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+                    }
+                });
+                btn.classList.add('bg-primary-container', 'text-white', 'shadow-sm');
+                btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+                currentStatus = btn.textContent.trim();
+                applyFilters();
+            });
+        }
+    });
+
+    // Priority dropdown — real-time client-side filter
+    var prioritySelect = document.getElementById('priority-filter');
+    if (prioritySelect) {
+        prioritySelect.addEventListener('change', function () {
+            currentPriority = this.value;
+            applyFilters();
+        });
+    }
+
+    // Search input — real-time client-side filter (title / tags / id-tail)
+    var searchInput = document.getElementById('task-search');
+    if (searchInput) {
+        var searchDebounce;
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchDebounce);
+            var self = this;
+            searchDebounce = setTimeout(function () {
+                currentSearch = self.value.trim();
+                applyFilters();
+            }, 150);
+        });
+    }
+
+    // ===== Remind All Overdue =====
+    document.getElementById('btn-remind-overdue').addEventListener('click', function () {
+        var overdue = lastLoadedTasks.filter(function (t) { return t.status === 'Overdue'; });
+        if (!overdue.length) { alert('No overdue tasks found.'); return; }
+        var userIds = overdue.map(function (t) { return t.user ? t.user._id || t.user : null; }).filter(Boolean);
+        var unique = userIds.filter(function (v, i, a) { return a.indexOf(v) === i; });
+        fetch(API + '/admin/notify', {
+            method: 'POST',
+            headers: Object.assign({}, auth, { 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ userIds: unique, title: 'Overdue Task Reminder', message: 'You have ' + overdue.length + ' overdue task(s). Please update your progress immediately.', type: 'Overdue' })
+        }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d.success) {
+                var toast = document.getElementById('export-toast');
+                toast.querySelector('span:last-child').textContent = 'Reminder sent to ' + d.sent + ' employee(s)';
+                toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
+                setTimeout(function () { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; toast.querySelector('span:last-child').textContent = 'Tasks exported successfully'; }, 3000);
+            } else { alert(d.message || 'Failed to send reminders.'); }
+        }).catch(function () { alert('Network error.'); });
+    });
+
+    // ===== Export to Excel =====
+    document.getElementById('btn-export').addEventListener('click', function () {
+        if (!lastLoadedTasks.length) { alert('No tasks to export.'); return; }
+
+        var today = new Date();
+        var dateStr = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + today.getFullYear();
+
+        var rows = lastLoadedTasks.map(function (t) {
+            var emp = t.user ? t.user.fullName : 'Unassigned';
+            var empId = t.user ? t.user.employeeId : '—';
+            var dl = t.deadline ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+            return {
+                'Assignee Name': emp,
+                'Employee ID': empId,
+                'Task Title': t.title || '—',
+                'Task ID': t._id ? t._id.slice(-6).toUpperCase() : '—',
+                'Priority': t.priority || '—',
+                'Deadline': dl,
+                'Time Remaining': timeRemaining(t.deadline),
+                'Status': t.status || '—'
+            };
+        });
+
+        var ws = XLSX.utils.json_to_sheet(rows);
+        ws['!cols'] = [{ wch: 20 }, { wch: 14 }, { wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 14 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'All Tasks');
+        XLSX.writeFile(wb, 'ShotZoo_AllTasks_' + dateStr + '.xlsx');
+
+        var toast = document.getElementById('export-toast');
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function () {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+        }, 3000);
+    });
+})();
+</script>
+<script src="/admin/admin-guard.js"></script>
+</body></html>

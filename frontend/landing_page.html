@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo - Manage Tasks. Track Time. Grow Teams.</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Space Grotesk & Manrope -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@800&amp;family=Manrope:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="base.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#757968",
+                        "primary-fixed-dim": "#aed367",
+                        "on-primary-fixed-variant": "#364e00",
+                        "tertiary-fixed-dim": "#feaaf9",
+                        "error": "#ba1a1a",
+                        "primary-container": "#a8cd62",
+                        "on-secondary-fixed": "#141f00",
+                        "primary-fixed": "#c9f080",
+                        "surface-container": "#e7eefe",
+                        "on-tertiary-container": "#783279",
+                        "error-container": "#ffdad6",
+                        "on-background": "#151c27",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#f8a4f3",
+                        "inverse-surface": "#2a313d",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-fixed-variant": "#6f2a70",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-surface": "#151c27",
+                        "primary": "#496800",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#3e4b24",
+                        "secondary-fixed": "#d8e9b4",
+                        "on-primary-container": "#3c5600",
+                        "secondary-fixed-dim": "#bccd9a",
+                        "tertiary": "#8a438a",
+                        "on-primary-fixed": "#131f00",
+                        "outline-variant": "#c4c9b5",
+                        "tertiary-fixed": "#ffd6f8",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#59683d",
+                        "inverse-primary": "#aed367",
+                        "surface-tint": "#496800",
+                        "background": "#f9f9ff",
+                        "on-surface-variant": "#444939",
+                        "secondary-container": "#d5e6b1",
+                        "surface-container-highest": "#dce2f3",
+                        "surface-dim": "#d3daea",
+                        "on-tertiary-fixed": "#37003b",
+                        "surface": "#f9f9ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f8",
+                        "surface-variant": "#dce2f3",
+                        "secondary": "#55633a",
+                        "surface-container-low": "#f0f3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .clay-shadow {
+            box-shadow: 0 40px 40px rgba(21, 28, 39, 0.06), 0 4px 10px rgba(21, 28, 39, 0.04);
+        }
+
+        .clay-shadow-button {
+            box-shadow: 0 10px 20px rgba(21, 28, 39, 0.08), inset 0 2px 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .editorial-spacing {
+            letter-spacing: -0.02em;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body">
+    <!-- Top Navigation -->
+    <header
+        class="bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-[0_40px_40px_rgba(21,28,39,0.06),0_4px_10px_rgba(21,28,39,0.04)]">
+        <div class="flex justify-between items-center max-w-7xl mx-auto px-8 py-4">
+            <div class="flex items-center gap-2">
+                <img src="/company_logo.jpeg" alt="ShotZoo Logo" class="h-10 w-auto object-contain flex-shrink-0" />
+                <div class="text-2xl font-[800] tracking-tighter text-zinc-900 dark:text-zinc-50 font-headline">ShotZoo
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/signin"
+                    class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-2xl font-bold transition-all scale-95 duration-200 hover:scale-100 clay-shadow-button">Get
+                    Started</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <!-- Hero Section -->
+        <section class="flex flex-col items-center justify-center text-center px-6 bg-surface-container-lowest py-32">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <h1 class="font-headline font-extrabold text-[56px] leading-[1.1] text-on-surface editorial-spacing">
+                    Manage Tasks. Track Time. <span class="text-primary">Grow Teams.</span>
+                </h1>
+                <p class="text-lg text-[#6B7280] max-w-2xl mx-auto font-body">
+                    The all-in-one workspace for teams to log tasks, track attendance, and hit every deadline.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <a href="/signin"
+                        class="bg-primary-container text-on-primary-container px-8 py-4 rounded-[14px] font-bold text-lg clay-shadow-button transition-transform hover:-translate-y-1 w-full sm:w-auto text-center">
+                        Employee Sign In
+                    </a>
+                    <a href="/admin"
+                        class="border-2 border-primary-container text-on-surface px-8 py-4 rounded-[14px] font-bold text-lg transition-transform hover:-translate-y-1 w-full sm:w-auto text-center flex items-center gap-2 justify-center">
+                        <span style="font-family:'Material Symbols Outlined';font-size:20px;line-height:1">shield_person</span>
+                        Join as Admin
+                    </a>
+                </div>
+            </div>
+            <!-- Hero Decorative UI Piece -->
+        </section>
+        <!-- Features Section -->
+        <section class="py-32 px-8 bg-surface">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-20">
+                    <h2 class="font-headline font-extrabold text-4xl text-on-surface editorial-spacing">Built for modern
+                        teams</h2>
+                    <div class="h-2 w-24 bg-primary-container mt-4 rounded-full"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Feature 1 -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-[20px] clay-shadow hover:-translate-y-2 transition-transform duration-300">
+                        <div
+                            class="w-14 h-14 bg-primary-container rounded-full flex items-center justify-center mb-6 text-on-primary-container">
+                            <span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+                        </div>
+                        <h3 class="font-headline font-extrabold text-xl mb-3 text-on-surface">Structured Task Logging
+                        </h3>
+                        <p class="text-on-surface-variant font-body">Log every task with precision and clarity.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-[20px] clay-shadow hover:-translate-y-2 transition-transform duration-300">
+                        <div
+                            class="w-14 h-14 bg-primary-container rounded-full flex items-center justify-center mb-6 text-on-primary-container">
+                            <span class="material-symbols-outlined" data-icon="timer">timer</span>
+                        </div>
+                        <h3 class="font-headline font-extrabold text-xl mb-3 text-on-surface">Attendance Tracking</h3>
+                        <p class="text-on-surface-variant font-body">Seamless check-ins and check-outs for your team.
+                        </p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-[20px] clay-shadow hover:-translate-y-2 transition-transform duration-300">
+                        <div
+                            class="w-14 h-14 bg-primary-container rounded-full flex items-center justify-center mb-6 text-on-primary-container">
+                            <span class="material-symbols-outlined"
+                                data-icon="notifications_active">notifications_active</span>
+                        </div>
+                        <h3 class="font-headline font-extrabold text-xl mb-3 text-on-surface">Smart Notifications</h3>
+                        <p class="text-on-surface-variant font-body">Stay ahead of deadlines with real-time alerts.</p>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-[20px] clay-shadow hover:-translate-y-2 transition-transform duration-300">
+                        <div
+                            class="w-14 h-14 bg-primary-container rounded-full flex items-center justify-center mb-6 text-on-primary-container">
+                            <span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                        </div>
+                        <h3 class="font-headline font-extrabold text-xl mb-3 text-on-surface">Analytics Dashboard</h3>
+                        <p class="text-on-surface-variant font-body">Visualize team performance and project growth.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Stats Section (Asymmetric Editorial Style) -->
+        <section class="py-24 bg-surface-container-low px-8">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+                <div class="lg:w-1/2">
+                    <h2
+                        class="font-headline font-extrabold text-[44px] leading-tight text-on-surface editorial-spacing mb-6">
+                        Real-time metrics for real-world growth.</h2>
+                    <p class="text-lg text-on-surface-variant mb-10">Stop guessing and start measuring. Our data-driven
+                        workspace provides granular insights into workforce efficiency without the overhead.</p>
+                    <div class="flex gap-12">
+                        <div>
+                            <div class="font-headline font-extrabold text-4xl text-primary mb-1">98%</div>
+                            <div class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
+                                Accuracy</div>
+                        </div>
+                        <div>
+                            <div class="font-headline font-extrabold text-4xl text-primary mb-1">12k+</div>
+                            <div class="text-sm font-bold uppercase tracking-widest text-on-surface-variant opacity-60">
+                                Tasks Tracked</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 w-full">
+                    <div class="bg-surface-container-lowest p-12 rounded-[32px] clay-shadow relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-8 text-primary/10">
+                            <span class="material-symbols-outlined text-[120px]" data-icon="insights"
+                                data-weight="fill">insights</span>
+                        </div>
+                        <div class="space-y-6 relative z-10">
+                            <div class="bg-surface p-6 rounded-2xl clay-shadow-button">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-secondary-container rounded-full"></div>
+                                    <div>
+                                        <div class="font-bold text-on-surface">Weekly Attendance Report</div>
+                                        <div class="text-sm text-on-surface-variant">Generated 2m ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-primary-container p-6 rounded-2xl clay-shadow-button">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-white"
+                                            data-icon="check">check</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-on-primary-container">Development Phase Complete
+                                        </div>
+                                        <div class="text-sm text-on-primary-container/80">Project: Alpha Redesign</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-zinc-50 dark:bg-zinc-900 full-width py-12 no-border tonal-transition">
+        <div class="flex flex-col items-center gap-6 w-full px-8">
+            <div class="flex items-center gap-2"><img alt="ShotZoo Logo" class="h-7 w-auto object-contain"
+                    src="/company_logo.jpeg" />
+                <div class="text-xl font-[800] tracking-tighter text-zinc-900 dark:text-zinc-50 font-headline">ShotZoo
+                </div>
+            </div>
+            <div class="flex gap-8">
+                <a class="text-zinc-500 dark:text-zinc-400 text-sm font-sans hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                    href="#">Privacy Policy</a>
+                <a class="text-zinc-500 dark:text-zinc-400 text-sm font-sans hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                    href="#">Terms of Service</a>
+                <a class="text-zinc-500 dark:text-zinc-400 text-sm font-sans hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                    href="#">Contact</a>
+            </div>
+            <div class="text-zinc-500 dark:text-zinc-400 text-sm font-sans">
+                © 2026 ShotZoo. All rights reserved.
+            </div>
+        </div>
+    </footer>
+    <script src="api.js"></script>
+    <script>
+        // If already logged in, redirect to dashboard
+        if (api.getToken()) globalThis.location.href = '/dashboard';
+    </script>
+</body>
+
+</html>

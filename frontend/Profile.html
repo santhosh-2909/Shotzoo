@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo - Profile</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="base.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#f7f8f4",
+                        "surface-container-low": "#f0f3ff",
+                        "surface-container-high": "#e2e8f8",
+                        "surface-container-highest": "#dce2f3",
+                        "on-surface": "#151c27",
+                        "on-surface-variant": "#444939",
+                        "primary": "#496800",
+                        "primary-container": "#a8cd62",
+                        "on-primary-container": "#3c5600",
+                        "error": "#EF4444",
+                        "background": "#f7f8f4"
+                    },
+                    fontFamily: { headline: ["Space Grotesk"], body: ["Manrope"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f7f8f4; color: #1a1c15; font-family: 'Manrope', sans-serif; }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .clay-card {
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.05), inset 0 -2px 4px rgba(0, 0, 0, 0.04);
+        }
+        .field-input {
+            width: 100%;
+            background: #F0F2EA;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-family: inherit;
+            font-weight: 600;
+            color: #111827;
+            transition: box-shadow 0.18s ease, background 0.18s ease;
+        }
+        .field-input::placeholder { color: #6B7280; }
+        .field-input:focus { outline: none; background: #fff; box-shadow: 0 0 0 2px #A8CD62; }
+        /* Password input wrapper with eye toggle */
+        .pwd-wrap { position: relative; }
+        .pwd-wrap .field-input { padding-right: 48px; }
+        .pwd-eye {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            background: transparent; border: none; cursor: pointer; color: #6B7280;
+            border-radius: 10px; transition: background 0.15s, color 0.15s;
+        }
+        .pwd-eye:hover { background: #E5E7EB; color: #111827; }
+        .pwd-error { display: none; font-size: 12px; font-weight: 700; color: #EF4444; margin: 6px 0 0 4px; }
+        .pwd-error.show { display: block; }
+        .forgot-link {
+            display: inline-block; font-size: 13px; font-weight: 700; color: #A8CD62;
+            cursor: pointer; margin-top: 12px; text-decoration: none;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+        /* OTP boxes */
+        .otp-box {
+            width: 44px; height: 52px; text-align: center; font-family: 'JetBrains Mono', monospace;
+            font-size: 22px; font-weight: 800; background: #F0F2EA; border: 2px solid transparent;
+            border-radius: 12px; color: #111827;
+        }
+        .otp-box:focus { outline: none; border-color: #A8CD62; background: #fff; }
+        .field-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: #6B7280; margin: 0 0 6px 4px; }
+        .field-label .opt { color: #9CA3AF; font-weight: 600; text-transform: none; letter-spacing: 0; margin-left: 8px; }
+        .pill {
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            border: 2px solid #E5E7EB;
+            background: #fff;
+            color: #374151;
+        }
+        .pill.active { background: #A8CD62; color: #111827; border-color: #A8CD62; box-shadow: 0 6px 16px rgba(168,205,98,0.3); }
+        .primary-btn {
+            background: #A8CD62;
+            color: #131F00;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 8px 20px rgba(168,205,98,0.3);
+        }
+        .primary-btn:hover { filter: brightness(1.08); }
+        .primary-btn:active { transform: scale(0.99); }
+        .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .outline-btn {
+            background: #fff;
+            color: #3C5600;
+            border: 2px solid #A8CD62;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 22px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+        .outline-btn:hover { background: #F0F2EA; }
+        .photo-upload {
+            position: relative;
+            width: 128px;
+            height: 128px;
+            border-radius: 9999px;
+            background: #F0F2EA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid #A8CD62;
+            color: #3C5600;
+            font-weight: 800;
+            font-size: 36px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-upload .overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; opacity: 0; transition: opacity 0.18s;
+        }
+        .photo-upload:hover .overlay { opacity: 1; }
+        .sidebar-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-radius: 12px;
+            color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500;
+            transition: all 0.15s;
+        }
+        .sidebar-item:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .sidebar-item.active { color: #fff; background: rgba(168,205,98,0.2); font-weight: 700; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="h-screen w-72 fixed left-0 top-0 bg-[#2A2A2A] shadow-[40px_0_40px_rgba(240,240,240,0.06)] z-50 flex flex-col p-6 font-headline tracking-tighter">
+            <div class="text-2xl font-bold text-[#add366] mb-8">
+                <a href="/dashboard" class="flex items-center gap-2">
+                    <img alt="ShotZoo Logo" class="w-8 h-8 object-contain" src="/company_logo.jpeg" />
+                    <span>ShotZoo</span>
+                </a>
+            </div>
+            <div class="flex flex-col gap-1 mb-10 px-4">
+                <div class="w-14 h-14 rounded-2xl overflow-hidden mb-3 ring-2 ring-[#add366]/20">
+                    <img alt="User avatar" class="w-full h-full object-cover" data-user-photo src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8cHZZCiK4qJkz0_dUPBFHB2OfTBIcIYXcl_liRMhpG4R7A-J2DWHmbQMlIF_Y-LvWkdr8mJwEPx7NYJ1TV6aPsDiZc4rNxorhXZ6gweR6JcWIxl94XQ7Zn_4wGf9PizjlihjSHpEwtt0-4d1GV6O22xb6VDuIWeY9C5-u1jBtUDT6B0FVQ7PAbMBF20aTnPq8CDENYh3WUlok-v2iCvDDYzsKIWaK99hggZG0UUJVF32oPdrl6AhID0iedv41_gYiL0sIAMTbePM" />
+                </div>
+                <h2 class="text-white text-lg font-bold" data-user-name>User</h2>
+                <p class="text-white/40 text-xs tracking-widest uppercase" data-user-id>ID: —</p>
+            </div>
+            <nav class="flex flex-col gap-2 flex-grow">
+                <a class="sidebar-item" href="/attendance"><span class="material-symbols-outlined">event_available</span><span>Attendance</span></a>
+                <a class="sidebar-item" href="/add-task"><span class="material-symbols-outlined">add_circle</span><span>Add Task</span></a>
+                <a class="sidebar-item" href="/daily-reports"><span class="material-symbols-outlined">description</span><span>Daily Reports</span></a>
+                <a class="sidebar-item" href="/my-tasks"><span class="material-symbols-outlined">assignment</span><span>My Tasks</span></a>
+                <a class="sidebar-item" href="/notifications"><span class="material-symbols-outlined">notifications</span><span>Notifications</span></a>
+                <a class="sidebar-item" href="/dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a>
+                <a class="sidebar-item active" href="/profile"><span class="material-symbols-outlined">person</span><span>My Profile</span></a>
+            </nav>
+            <div class="mt-auto pt-6 border-t border-white/5 flex flex-col gap-2">
+                <a class="sidebar-item" href="#" data-logout><span class="material-symbols-outlined">logout</span><span>Logout</span></a>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 ml-72 p-8 lg:p-12 max-w-5xl">
+            <header class="mb-10">
+                <h1 class="text-4xl font-headline font-extrabold tracking-tighter text-on-surface">My Profile</h1>
+                <p class="text-[#6B7280] mt-2 font-medium">Update your personal details, contact info, and security settings.</p>
+            </header>
+
+            <form id="profile-form" autocomplete="off" class="space-y-8">
+
+                <!-- ===== SECTION 1 — Personal Information ===== -->
+                <section class="clay-card p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="material-symbols-outlined text-primary-container text-2xl">badge</span>
+                        <h2 class="text-xl font-headline font-extrabold tracking-tight">Personal Information</h2>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        <!-- Photo upload -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div id="photo-upload" class="photo-upload" title="Click to change photo">
+                                <span id="photo-initials">U</span>
+                                <img id="photo-img" alt="Profile photo" style="display:none" />
+                                <div class="overlay">
+                                    <span class="material-symbols-outlined">photo_camera</span>
+                                </div>
+                            </div>
+                            <input id="photo-input" type="file" accept="image/*" style="display:none" />
+                            <span class="text-[11px] text-[#6B7280] font-semibold">Click to change</span>
+                        </div>
+
+                        <!-- Personal fields -->
+                        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+                            <div class="md:col-span-2">
+                                <label for="prof-name" class="field-label">Full Name</label>
+                                <input id="prof-name" class="field-input" type="text" placeholder="e.g. Jane Doe" />
+                            </div>
+                            <div>
+                                <label for="prof-joining" class="field-label">Joining Date</label>
+                                <input id="prof-joining" class="field-input" type="date" />
+                            </div>
+                            <div>
+                                <label for="prof-gender" class="field-label">Gender</label>
+                                <select id="prof-gender" class="field-input appearance-none">
+                                    <option value="">— Select —</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="prof-dob" class="field-label">Date of Birth</label>
+                                <input id="prof-dob" class="field-input" type="date" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== SECTION 2 — Contact ===== -->
+                <section class="clay-card p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="material-symbols-outlined text-primary-container text-2xl">contact_mail</span>
+                        <h2 class="text-xl font-headline font-extrabold tracking-tight">Contact</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="prof-email" class="field-label">Email Address</label>
+                            <input id="prof-email" class="field-input" type="email" placeholder="name@company.com" />
+                        </div>
+                        <div>
+                            <label for="prof-phone" class="field-label">Mobile Number</label>
+                            <input id="prof-phone" class="field-input" type="tel" placeholder="+1 555 000 0000" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="prof-linkedin" class="field-label">LinkedIn Profile URL <span class="opt">Optional</span></label>
+                            <input id="prof-linkedin" class="field-input" type="url" placeholder="https://linkedin.com/in/your-handle" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== SECTION 3 — Working ===== -->
+                <section class="clay-card p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="material-symbols-outlined text-primary-container text-2xl">work</span>
+                        <h2 class="text-xl font-headline font-extrabold tracking-tight">Working</h2>
+                    </div>
+                    <label class="field-label mb-3">Work Location</label>
+                    <div class="flex gap-3">
+                        <button id="loc-home" class="pill" type="button" data-loc="Home">Work from Home</button>
+                        <button id="loc-office" class="pill" type="button" data-loc="Office">Office</button>
+                    </div>
+                    <div class="mt-6">
+                        <label for="prof-work-role" class="field-label">Work Role</label>
+                        <input id="prof-work-role" class="field-input" type="text" placeholder="e.g. Growth Strategist, Performance Marketer..." />
+                    </div>
+                </section>
+
+                <!-- ===== SECTION 4 — Password & Security ===== -->
+                <section class="clay-card p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="material-symbols-outlined text-primary-container text-2xl">lock</span>
+                        <h2 class="text-xl font-headline font-extrabold tracking-tight">Password &amp; Security</h2>
+                    </div>
+                    <div class="space-y-5 mb-2">
+                        <div>
+                            <label for="pwd-current" class="field-label">Current Password</label>
+                            <div class="pwd-wrap">
+                                <input id="pwd-current" class="field-input" type="password" placeholder="Enter your current password" autocomplete="current-password" />
+                                <button type="button" class="pwd-eye" data-pwd-toggle="pwd-current" aria-label="Show password">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </div>
+                            <p id="pwd-current-error" class="pwd-error">Incorrect current password</p>
+                        </div>
+                        <div>
+                            <label for="pwd-new" class="field-label">New Password</label>
+                            <div class="pwd-wrap">
+                                <input id="pwd-new" class="field-input" type="password" placeholder="Min. 6 characters" autocomplete="new-password" />
+                                <button type="button" class="pwd-eye" data-pwd-toggle="pwd-new" aria-label="Show password">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </div>
+                            <p id="pwd-new-error" class="pwd-error"></p>
+                        </div>
+                        <div>
+                            <label for="pwd-confirm" class="field-label">Confirm New Password</label>
+                            <div class="pwd-wrap">
+                                <input id="pwd-confirm" class="field-input" type="password" placeholder="Re-type new password" autocomplete="new-password" />
+                                <button type="button" class="pwd-eye" data-pwd-toggle="pwd-confirm" aria-label="Show password">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </div>
+                            <p id="pwd-confirm-error" class="pwd-error">Passwords do not match</p>
+                        </div>
+                    </div>
+                    <a id="forgot-link" class="forgot-link" href="#">Forgot your current password?</a>
+                    <button id="btn-update-password" type="button" class="primary-btn w-full mt-5 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">lock_reset</span> Update Password
+                    </button>
+                </section>
+
+                <!-- Save bar -->
+                <div class="flex items-center justify-end pt-2">
+                    <button id="btn-save-profile" type="button" class="primary-btn flex items-center gap-2">
+                        <span class="material-symbols-outlined">save</span> Save Changes
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <!-- Forgot Password Modal — three steps in one overlay -->
+    <div id="fp-overlay" class="hidden fixed inset-0 bg-black/45 z-[9998] items-center justify-center">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-[90%] shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-headline font-extrabold tracking-tight">Reset Your Password</h3>
+                <button id="fp-close" type="button" aria-label="Close" class="p-2 hover:bg-gray-100 rounded-full">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Step 1: choose channel + send -->
+            <div id="fp-step-1">
+                <div class="w-16 h-16 mx-auto rounded-full bg-[#F0F2EA] flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[#3C5600] text-3xl">forward_to_inbox</span>
+                </div>
+                <p class="text-center text-sm text-[#6B7280] mb-5">Choose where you'd like the verification code sent.</p>
+                <div class="flex gap-3 mb-5">
+                    <button id="fp-pill-email" type="button" class="pill flex-1 active" data-channel="email">Send to Email</button>
+                    <button id="fp-pill-mobile" type="button" class="pill flex-1" data-channel="mobile" disabled title="SMS delivery coming soon">Send to Mobile</button>
+                </div>
+                <div class="bg-[#F0F2EA] rounded-2xl p-4 mb-2 text-center">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-[#6B7280] mb-1">Code will be sent to</p>
+                    <p id="fp-destination" class="text-base font-bold font-mono text-[#111827]">—</p>
+                </div>
+                <p id="fp-mobile-note" class="hidden text-[11px] text-[#9CA3AF] text-center mb-3">SMS delivery coming soon. Please use email.</p>
+                <p id="fp-step1-error" class="pwd-error text-center mb-3"></p>
+                <button id="fp-send-otp" type="button" class="primary-btn w-full mt-3 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">send</span> Send OTP
+                </button>
+            </div>
+
+            <!-- Step 2: enter OTP -->
+            <div id="fp-step-2" class="hidden">
+                <div class="w-16 h-16 mx-auto rounded-full bg-[#F0F2EA] flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[#3C5600] text-3xl">mark_email_read</span>
+                </div>
+                <p class="text-center text-sm text-[#6B7280] mb-5">Enter the 6-digit code we sent to <span id="fp-destination-2" class="font-bold text-[#111827]">your email</span>.</p>
+                <div class="flex gap-2 justify-center mb-3" id="fp-otp-boxes">
+                    <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 1" placeholder="•" />
+                    <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 2" placeholder="•" />
+                    <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 3" placeholder="•" />
+                    <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 4" placeholder="•" />
+                    <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 5" placeholder="•" />
+                    <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="OTP digit 6" placeholder="•" />
+                </div>
+                <p id="fp-otp-error" class="pwd-error text-center mb-2"></p>
+                <div class="flex items-center justify-between text-xs mb-4">
+                    <span id="fp-resend-timer" class="text-[#6B7280] font-semibold">Resend OTP in 30s</span>
+                    <a id="fp-resend" class="forgot-link" style="display:none" href="#">Resend OTP</a>
+                </div>
+                <button id="fp-verify-otp" type="button" class="primary-btn w-full flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span> Verify OTP
+                </button>
+            </div>
+
+            <!-- Step 3: set new password -->
+            <div id="fp-step-3" class="hidden">
+                <div class="w-16 h-16 mx-auto rounded-full bg-[#F0F2EA] flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[#3C5600] text-3xl">lock_reset</span>
+                </div>
+                <p class="text-center text-sm text-[#6B7280] mb-5">Choose a new password for your account.</p>
+                <div class="space-y-4 mb-2">
+                    <div>
+                        <label for="fp-new" class="field-label">New Password</label>
+                        <div class="pwd-wrap">
+                            <input id="fp-new" class="field-input" type="password" placeholder="Min. 6 characters" autocomplete="new-password" />
+                            <button type="button" class="pwd-eye" data-pwd-toggle="fp-new" aria-label="Show password">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="fp-confirm" class="field-label">Confirm New Password</label>
+                        <div class="pwd-wrap">
+                            <input id="fp-confirm" class="field-input" type="password" placeholder="Re-type new password" autocomplete="new-password" />
+                            <button type="button" class="pwd-eye" data-pwd-toggle="fp-confirm" aria-label="Show password">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <p id="fp-final-error" class="pwd-error text-center"></p>
+                <button id="fp-final-submit" type="button" class="primary-btn w-full mt-4 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">save</span> Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" style="display:none" class="fixed top-6 right-6 bg-[#2A313D] text-white px-6 py-3 rounded-2xl shadow-2xl z-[9999] font-bold text-sm flex items-center gap-2">
+        <span class="material-symbols-outlined text-[#A8CD62]">check_circle</span>
+        <span id="toast-text">Saved</span>
+    </div>
+
+    <script src="api.js?v=2"></script>
+    <script>
+    (function () {
+        if (!api.requireAuth()) { document.body.style.display = 'none'; return; }
+        api.updateSidebar();
+
+        // ----- Toast -----
+        function toast(msg) {
+            var t = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = msg;
+            t.style.display = 'flex';
+            setTimeout(function () { t.style.display = 'none'; }, 2500);
+        }
+
+        // ----- Photo upload -----
+        var photoUpload = document.getElementById('photo-upload');
+        var photoInput = document.getElementById('photo-input');
+        var photoImg = document.getElementById('photo-img');
+        var photoInitials = document.getElementById('photo-initials');
+
+        function setPhoto(url, name) {
+            if (url) {
+                photoImg.src = url;
+                photoImg.style.display = 'block';
+                photoInitials.style.display = 'none';
+            } else {
+                photoImg.style.display = 'none';
+                photoInitials.style.display = 'block';
+                var initial = (name || 'U').trim().charAt(0).toUpperCase() || 'U';
+                photoInitials.textContent = initial;
+            }
+        }
+        photoUpload.addEventListener('click', function () { photoInput.click(); });
+        photoInput.addEventListener('change', async function () {
+            if (!photoInput.files[0]) return;
+            var fd = new FormData();
+            fd.append('photo', photoInput.files[0]);
+            try {
+                var data = await api.updateProfile(fd);
+                if (data.user) {
+                    setPhoto(api.uploadUrl(data.user.photo), data.user.fullName);
+                    api.refreshUser(data.user);
+                }
+                toast('Photo updated');
+            } catch (err) { alert(err.message || 'Photo upload failed'); }
+        });
+
+        // ----- Work Location pills -----
+        var locHome = document.getElementById('loc-home');
+        var locOffice = document.getElementById('loc-office');
+        function setLocation(loc) {
+            locHome.classList.toggle('active', loc === 'Home');
+            locOffice.classList.toggle('active', loc === 'Office');
+        }
+        function getLocation() {
+            if (locHome.classList.contains('active')) return 'Home';
+            if (locOffice.classList.contains('active')) return 'Office';
+            return '';
+        }
+        locHome.addEventListener('click', function () { setLocation('Home'); });
+        locOffice.addEventListener('click', function () { setLocation('Office'); });
+
+        // ----- Helpers -----
+        function dateToInput(iso) {
+            if (!iso) return '';
+            var d = new Date(iso);
+            var y = d.getFullYear();
+            var m = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
+        }
+
+        // ----- Load profile -----
+        async function loadProfile() {
+            try {
+                var data = await api.getProfile();
+                var u = data.user || {};
+                document.getElementById('prof-name').value = u.fullName || '';
+                document.getElementById('prof-joining').value = dateToInput(u.joiningDate);
+                document.getElementById('prof-gender').value = u.gender || '';
+                document.getElementById('prof-dob').value = dateToInput(u.dateOfBirth);
+                document.getElementById('prof-email').value = u.email || '';
+                document.getElementById('prof-phone').value = u.phone || '';
+                document.getElementById('prof-linkedin').value = u.linkedinUrl || '';
+                document.getElementById('prof-work-role').value = u.workRole || '';
+                setLocation(u.employeeType || '');
+                setPhoto(u.photo ? api.uploadUrl(u.photo) : '', u.fullName);
+            } catch (err) {
+                alert('Failed to load profile. Please refresh.');
+            }
+        }
+        loadProfile();
+
+        // ----- Save Changes (everything except password) -----
+        document.getElementById('btn-save-profile').addEventListener('click', async function () {
+            var btn = this; btn.disabled = true;
+            try {
+                var fd = new FormData();
+                fd.append('fullName',    document.getElementById('prof-name').value || '');
+                fd.append('email',       document.getElementById('prof-email').value || '');
+                fd.append('phone',       document.getElementById('prof-phone').value || '');
+                fd.append('joiningDate', document.getElementById('prof-joining').value || '');
+                fd.append('gender',      document.getElementById('prof-gender').value || '');
+                fd.append('dateOfBirth', document.getElementById('prof-dob').value || '');
+                fd.append('linkedinUrl', document.getElementById('prof-linkedin').value || '');
+                fd.append('workRole',    document.getElementById('prof-work-role').value || '');
+                var loc = getLocation();
+                if (loc === 'Office' || loc === 'Home') fd.append('employeeType', loc);
+                var data = await api.updateProfile(fd);
+                if (data.user) api.refreshUser(data.user);
+                toast('Profile saved');
+            } catch (err) {
+                alert(err.message || 'Failed to save profile');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ============================================================
+        // Password & Security
+        // ============================================================
+        var pwdCurEl = document.getElementById('pwd-current');
+        var pwdNewEl = document.getElementById('pwd-new');
+        var pwdCfmEl = document.getElementById('pwd-confirm');
+        var pwdCurErr = document.getElementById('pwd-current-error');
+        var pwdNewErr = document.getElementById('pwd-new-error');
+        var pwdCfmErr = document.getElementById('pwd-confirm-error');
+
+        function showErr(el, msg) { if (msg) el.textContent = msg; el.classList.add('show'); }
+        function hideErr(el) { el.classList.remove('show'); }
+        function clearAllErrs() { [pwdCurErr, pwdNewErr, pwdCfmErr].forEach(hideErr); }
+
+        // Eye toggles for any [data-pwd-toggle] button
+        document.querySelectorAll('[data-pwd-toggle]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var input = document.getElementById(btn.getAttribute('data-pwd-toggle'));
+                if (!input) return;
+                var nowText = input.type === 'password';
+                input.type = nowText ? 'text' : 'password';
+                var icon = btn.querySelector('.material-symbols-outlined');
+                if (icon) icon.textContent = nowText ? 'visibility_off' : 'visibility';
+                btn.setAttribute('aria-label', nowText ? 'Hide password' : 'Show password');
+            });
+        });
+
+        // Update Password (direct path — requires current password)
+        document.getElementById('btn-update-password').addEventListener('click', async function () {
+            clearAllErrs();
+            var cur = pwdCurEl.value;
+            var nw = pwdNewEl.value;
+            var cf = pwdCfmEl.value;
+
+            // Client-side checks
+            if (!cur) { showErr(pwdCurErr, 'Enter your current password'); return; }
+            if (!nw)  { showErr(pwdNewErr, 'Enter a new password'); return; }
+            if (nw.length < 6) { showErr(pwdNewErr, 'Password must be at least 6 characters'); return; }
+            if (nw !== cf) { showErr(pwdCfmErr, 'Passwords do not match'); return; }
+
+            var btn = this; btn.disabled = true;
+            try {
+                await api.changePassword(cur, nw, cf);
+                pwdCurEl.value = ''; pwdNewEl.value = ''; pwdCfmEl.value = '';
+                toast('Password updated successfully');
+            } catch (err) {
+                var msg = (err && err.message) || 'Failed to update password';
+                // Backend returns "Current password is incorrect." for 401
+                if (/current password/i.test(msg)) {
+                    showErr(pwdCurErr, 'Incorrect current password');
+                } else if (/do not match/i.test(msg)) {
+                    showErr(pwdCfmErr, 'Passwords do not match');
+                } else {
+                    showErr(pwdCfmErr, msg);
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ------------------------------------------------------------
+        // Forgot Password modal (3 steps)
+        // ------------------------------------------------------------
+        var fpOverlay = document.getElementById('fp-overlay');
+        var fpStep1 = document.getElementById('fp-step-1');
+        var fpStep2 = document.getElementById('fp-step-2');
+        var fpStep3 = document.getElementById('fp-step-3');
+        var fpDestEl = document.getElementById('fp-destination');
+        var fpDest2El = document.getElementById('fp-destination-2');
+        var fpStep1Err = document.getElementById('fp-step1-error');
+        var fpOtpErr = document.getElementById('fp-otp-error');
+        var fpFinalErr = document.getElementById('fp-final-error');
+        var fpPillEmail = document.getElementById('fp-pill-email');
+        var fpPillMobile = document.getElementById('fp-pill-mobile');
+        var fpMobileNote = document.getElementById('fp-mobile-note');
+        var fpResendTimer = document.getElementById('fp-resend-timer');
+        var fpResendLink = document.getElementById('fp-resend');
+        var fpOtpBoxes = document.querySelectorAll('#fp-otp-boxes .otp-box');
+        var fpChannel = 'email';
+        var fpResendInterval = null;
+
+        function fpMaskEmail(e) {
+            if (!e) return '';
+            var parts = String(e).split('@');
+            if (parts.length !== 2) return e;
+            var local = parts[0];
+            var visible = local.slice(0, Math.min(3, Math.max(1, local.length - 1)));
+            return visible + '*'.repeat(Math.max(1, local.length - visible.length)) + '@' + parts[1];
+        }
+        function fpMaskPhone(p) {
+            if (!p) return '';
+            var d = String(p).replace(/\D/g, '');
+            if (d.length < 4) return '*'.repeat(d.length);
+            return '*'.repeat(d.length - 4) + d.slice(-4);
+        }
+        function showFpStep(n) {
+            fpStep1.classList.toggle('hidden', n !== 1);
+            fpStep2.classList.toggle('hidden', n !== 2);
+            fpStep3.classList.toggle('hidden', n !== 3);
+        }
+        function openFp() {
+            // Refresh destination from local user, default to email
+            var u = api.getUser() || {};
+            fpChannel = 'email';
+            fpPillEmail.classList.add('active');
+            fpPillMobile.classList.remove('active');
+            fpDestEl.textContent = u.email ? fpMaskEmail(u.email) : '—';
+            hideErr(fpStep1Err); hideErr(fpOtpErr); hideErr(fpFinalErr);
+            showFpStep(1);
+            fpOverlay.classList.remove('hidden');
+            fpOverlay.classList.add('flex');
+        }
+        function closeFp() {
+            fpOverlay.classList.add('hidden');
+            fpOverlay.classList.remove('flex');
+            fpOtpBoxes.forEach(function (b) { b.value = ''; });
+            document.getElementById('fp-new').value = '';
+            document.getElementById('fp-confirm').value = '';
+            if (fpResendInterval) { clearInterval(fpResendInterval); fpResendInterval = null; }
+        }
+        document.getElementById('forgot-link').addEventListener('click', function (e) { e.preventDefault(); openFp(); });
+        document.getElementById('fp-close').addEventListener('click', closeFp);
+        fpOverlay.addEventListener('click', function (e) { if (e.target === fpOverlay) closeFp(); });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !fpOverlay.classList.contains('hidden')) closeFp();
+        });
+
+        // Channel pill handlers
+        fpPillEmail.addEventListener('click', function () {
+            fpChannel = 'email';
+            fpPillEmail.classList.add('active');
+            fpPillMobile.classList.remove('active');
+            var u = api.getUser() || {};
+            fpDestEl.textContent = u.email ? fpMaskEmail(u.email) : '—';
+            fpMobileNote.classList.add('hidden');
+            hideErr(fpStep1Err);
+        });
+        // Mobile pill is disabled (SMS not wired). The button is `disabled` so
+        // clicks won't fire, but we keep this handler defensive in case the
+        // disabled state is ever lifted.
+        fpPillMobile.addEventListener('click', function () {
+            if (fpPillMobile.disabled) return;
+            fpChannel = 'mobile';
+            fpPillMobile.classList.add('active');
+            fpPillEmail.classList.remove('active');
+            var u = api.getUser() || {};
+            fpDestEl.textContent = u.phone ? fpMaskPhone(u.phone) : '—';
+            fpMobileNote.classList.remove('hidden');
+        });
+
+        // Send OTP → step 2
+        function startResendCountdown() {
+            var seconds = 30;
+            fpResendLink.style.display = 'none';
+            fpResendTimer.textContent = 'Resend OTP in ' + seconds + 's';
+            if (fpResendInterval) clearInterval(fpResendInterval);
+            fpResendInterval = setInterval(function () {
+                seconds--;
+                if (seconds <= 0) {
+                    clearInterval(fpResendInterval); fpResendInterval = null;
+                    fpResendTimer.textContent = '';
+                    fpResendLink.style.display = 'inline-block';
+                    return;
+                }
+                fpResendTimer.textContent = 'Resend OTP in ' + seconds + 's';
+            }, 1000);
+        }
+        async function sendOtp() {
+            hideErr(fpStep1Err);
+            try {
+                var d = await api.requestPasswordResetOtp(fpChannel);
+                showFpStep(2);
+                fpDest2El.textContent = (d && d.destination) || (api.getUser() || {}).email || 'your email';
+                fpOtpBoxes[0].focus();
+                startResendCountdown();
+            } catch (err) {
+                showErr(fpStep1Err, (err && err.message) || 'Failed to send OTP');
+            }
+        }
+        document.getElementById('fp-send-otp').addEventListener('click', function () {
+            var btn = this; btn.disabled = true;
+            sendOtp().finally(function () { btn.disabled = false; });
+        });
+        fpResendLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            sendOtp();
+        });
+
+        // OTP box auto-advance + paste handling
+        fpOtpBoxes.forEach(function (box, i) {
+            box.addEventListener('input', function () {
+                box.value = box.value.replace(/\D/g, '').slice(0, 1);
+                if (box.value && i < fpOtpBoxes.length - 1) fpOtpBoxes[i + 1].focus();
+                hideErr(fpOtpErr);
+            });
+            box.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' && !box.value && i > 0) fpOtpBoxes[i - 1].focus();
+            });
+            box.addEventListener('paste', function (e) {
+                var text = (e.clipboardData || window.clipboardData).getData('text');
+                var digits = (text || '').replace(/\D/g, '').slice(0, 6);
+                if (!digits) return;
+                e.preventDefault();
+                for (var j = 0; j < digits.length && j < fpOtpBoxes.length; j++) fpOtpBoxes[j].value = digits[j];
+                var nextIdx = Math.min(digits.length, fpOtpBoxes.length - 1);
+                fpOtpBoxes[nextIdx].focus();
+            });
+        });
+
+        function readOtp() {
+            var v = '';
+            fpOtpBoxes.forEach(function (b) { v += b.value; });
+            return v;
+        }
+
+        // Verify OTP → step 3
+        // We don't have a separate "verify" endpoint — verification happens
+        // atomically with the password update on step 3. So Verify just
+        // moves to step 3 if the field is filled in correctly. We pre-store
+        // the typed code on the modal and the final submit sends it.
+        var fpStoredCode = '';
+        document.getElementById('fp-verify-otp').addEventListener('click', function () {
+            hideErr(fpOtpErr);
+            var code = readOtp();
+            if (!/^\d{6}$/.test(code)) { showErr(fpOtpErr, 'Enter the 6-digit code'); return; }
+            fpStoredCode = code;
+            showFpStep(3);
+            document.getElementById('fp-new').focus();
+        });
+
+        // Final submit — verifies OTP + sets new password atomically
+        document.getElementById('fp-final-submit').addEventListener('click', async function () {
+            hideErr(fpFinalErr);
+            var nw = document.getElementById('fp-new').value;
+            var cf = document.getElementById('fp-confirm').value;
+            if (!nw || nw.length < 6) { showErr(fpFinalErr, 'Password must be at least 6 characters'); return; }
+            if (nw !== cf) { showErr(fpFinalErr, 'Passwords do not match'); return; }
+
+            var btn = this; btn.disabled = true;
+            try {
+                await api.resetPasswordWithOtp(fpStoredCode, nw, cf);
+                closeFp();
+                toast('Password updated successfully');
+            } catch (err) {
+                var msg = (err && err.message) || 'Failed to update password';
+                if (/Invalid OTP/i.test(msg)) {
+                    // OTP was wrong — bounce them back to step 2 to retry
+                    showFpStep(2);
+                    showErr(fpOtpErr, 'Invalid OTP. Try again.');
+                } else if (/expired/i.test(msg)) {
+                    showFpStep(2);
+                    showErr(fpOtpErr, msg);
+                } else {
+                    showErr(fpFinalErr, msg);
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

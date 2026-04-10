@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>ShotZoo | Join the Jungle</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Manrope:wght@200..800&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link href="base.css" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#292b23",
+                        "surface-container-low": "#1a1c15",
+                        "on-primary": "#243600",
+                        "inverse-on-surface": "#2f3129",
+                        "surface-container-lowest": "#0d0f08",
+                        "secondary-container": "#404e26",
+                        "surface-container-highest": "#33362d",
+                        "on-primary-fixed-variant": "#364e00",
+                        "on-tertiary-fixed": "#36003d",
+                        "background": "#12140d",
+                        "secondary": "#bccd99",
+                        "on-secondary": "#28350f",
+                        "on-surface-variant": "#c4c9b5",
+                        "secondary-fixed-dim": "#bccd99",
+                        "on-primary-fixed": "#131f00",
+                        "on-primary-container": "#3f5a00",
+                        "outline": "#8e9381",
+                        "surface-tint": "#add366",
+                        "primary-container": "#add366",
+                        "surface-bright": "#383a31",
+                        "surface-container": "#1e2019",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#3e4b24",
+                        "on-tertiary-container": "#7b3681",
+                        "on-secondary-container": "#aebf8c",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#540f5c",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#d8e9b4",
+                        "outline-variant": "#444939",
+                        "surface-dim": "#12140d",
+                        "on-tertiary-fixed-variant": "#6e2a75",
+                        "primary": "#c8f07f",
+                        "on-background": "#e3e3d7",
+                        "inverse-surface": "#e3e3d7",
+                        "surface-variant": "#33362d",
+                        "tertiary": "#ffd6fc",
+                        "on-secondary-fixed": "#131f00",
+                        "inverse-primary": "#496800",
+                        "tertiary-container": "#fcaafe",
+                        "tertiary-fixed": "#ffd6fc",
+                        "surface": "#12140d",
+                        "primary-fixed": "#c9f07f",
+                        "primary-fixed-dim": "#add366",
+                        "on-surface": "#e3e3d7",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#fcaafe"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .clay-shadow {
+            box-shadow: 0 20px 40px rgba(240, 240, 240, 0.06), 0 10px 10px rgba(240, 240, 240, 0.04);
+        }
+
+        .clay-button-inner {
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+
+        .soft-indent {
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .abstract-clay-shape {
+            background: linear-gradient(135deg, #add366 0%, #60811d 100%);
+            border-radius: 43% 57% 70% 30% / 30% 45% 55% 70%;
+            filter: blur(1px);
+            position: relative;
+        }
+
+        .abstract-clay-shape::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: rgba(255, 255, 255, 0.15);
+            filter: blur(20px);
+            border-radius: inherit;
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-body text-on-surface overflow-x-hidden animate-fade-in">
+    <main class="min-h-screen flex flex-col md:flex-row">
+        <!-- Left Panel: Branding & Abstract Aesthetic -->
+        <section
+            class="w-full md:w-1/2 bg-surface-container-lowest flex flex-col justify-between p-12 relative overflow-hidden">
+            <!-- Logo Area -->
+            <div class="z-10 flex items-center gap-3">
+                <img alt="ShotZoo Logo" class="h-10 w-auto"
+                    src="/company_logo.jpeg"
+                   >
+                <span class="font-headline font-bold text-2xl tracking-tighter text-primary-fixed-dim"
+                   >ShotZoo</span>
+            </div>
+            <!-- Abstract Clay Centerpiece -->
+            <div class="flex-grow flex items-center justify-center py-20 z-10">
+                <div class="abstract-clay-shape w-64 h-64 md:w-96 md:h-96 clay-shadow flex items-center justify-center">
+                    <img alt="ShotZoo Logo" class="h-32 w-auto object-contain opacity-90 drop-shadow-lg"
+                        src="/company_logo.jpeg"
+                       >
+                </div>
+            </div>
+            <!-- Bottom Tagline -->
+            <div class="z-10">
+                <h2 class="font-headline font-bold text-5xl md:text-6xl text-white tracking-tighter leading-none mb-4"
+                   >Join the&nbsp; ShotZoo.</h2>
+                <p class="font-headline text-2xl text-primary-fixed-dim opacity-80">Grow with us.</p>
+            </div>
+            <!-- Decorative background elements -->
+            <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/4 -left-10 w-40 h-40 bg-primary-container/10 rounded-full blur-2xl"></div>
+        </section>
+        <!-- Right Panel: Sign-Up Form -->
+        <section
+            class="w-full md:w-1/2 bg-on-background text-surface flex items-center justify-center p-8 md:p-16 lg:p-24">
+            <div class="w-full max-w-lg">
+                <header class="mb-10">
+                    <h1 class="font-headline font-bold text-4xl text-surface-container-lowest tracking-tight mb-2">Create Admin Account</h1>
+                    <p class="text-surface-container-highest font-medium">Set up your company's admin workspace.</p>
+                </header>
+                <form class="space-y-6" id="signup-form">
+                    <!-- Name & Email Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label for="reg-fullName"
+                                class="text-xs font-bold font-headline uppercase tracking-wider text-surface-container-highest px-1">Full Name</label>
+                            <input id="reg-fullName" name="fullName"
+                                class="w-full h-[48px] px-4 rounded-[12px] bg-surface-container-highest/10 border-none ring-1 ring-surface-container-highest/20 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none font-body text-surface"
+                                placeholder="Your full name" type="text" required>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="reg-email"
+                                class="text-xs font-bold font-headline uppercase tracking-wider text-surface-container-highest px-1">Email Address</label>
+                            <input id="reg-email" name="email"
+                                class="w-full h-[48px] px-4 rounded-[12px] bg-surface-container-highest/10 border-none ring-1 ring-surface-container-highest/20 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none font-body text-surface"
+                                placeholder="admin@company.com" type="email" required>
+                        </div>
+                    </div>
+                    <!-- Company Name -->
+                    <div class="space-y-1.5">
+                        <label for="reg-company"
+                            class="text-xs font-bold font-headline uppercase tracking-wider text-surface-container-highest px-1">Company Name</label>
+                        <input id="reg-company" name="company"
+                            class="w-full h-[48px] px-4 rounded-[12px] bg-surface-container-highest/10 border-none ring-1 ring-surface-container-highest/20 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none font-body text-surface"
+                            placeholder="e.g. ShotZoo Productions" type="text" required>
+                    </div>
+                    <!-- Passwords -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label for="reg-password"
+                                class="text-xs font-bold font-headline uppercase tracking-wider text-surface-container-highest px-1">Password</label>
+                            <input id="reg-password" name="password"
+                                class="w-full h-[48px] px-4 rounded-[12px] bg-surface-container-highest/10 border-none ring-1 ring-surface-container-highest/20 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none font-body text-surface"
+                                placeholder="••••••••" type="password" required minlength="6">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="reg-confirmPassword"
+                                class="text-xs font-bold font-headline uppercase tracking-wider text-surface-container-highest px-1">Confirm Password</label>
+                            <input id="reg-confirmPassword" name="confirmPassword"
+                                class="w-full h-[48px] px-4 rounded-[12px] bg-surface-container-highest/10 border-none ring-1 ring-surface-container-highest/20 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none font-body text-surface"
+                                placeholder="••••••••" type="password" required minlength="6">
+                        </div>
+                    </div>
+                    <!-- Primary CTA -->
+                    <div class="pt-4">
+                        <button
+                            class="w-full h-[56px] bg-primary-container text-on-primary-container font-headline font-bold text-lg rounded-[20px] clay-shadow clay-button-inner hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                            type="submit">
+                            Create Admin Account
+                        </button>
+                    </div>
+                    <!-- Footer Links -->
+                    <footer class="text-center space-y-4 pt-6">
+                        <p class="font-body text-sm font-medium text-surface-container-highest">
+                            Already have an account?
+                            <a class="text-primary-fixed-dim font-bold hover:underline ml-1" href="/signin">Sign In</a>
+                        </p>
+                        <div class="flex items-center justify-center gap-2 py-3 px-4 bg-surface-container-highest/5 rounded-full inline-flex mx-auto">
+                            <span class="material-symbols-outlined text-[16px] text-surface-container-highest">shield_person</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-surface-container-highest">Admin accounts only</span>
+                        </div>
+                    </footer>
+                </form>
+            </div>
+        </section>
+    </main>
+    <!-- Global Footer (Suppressed based on Transactional Shell visibility rule) -->
+    <!-- Navigation (Suppressed based on Transactional Shell visibility rule) -->
+    <script src="api.js"></script>
+    <script>
+        if (api.getToken()) globalThis.location.href = '/dashboard';
+
+        var form = document.getElementById('signup-form');
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var btn = form.querySelector('button[type="submit"]');
+            var originalText = btn.textContent;
+
+            var password = document.getElementById('reg-password').value;
+            var confirmPassword = document.getElementById('reg-confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters.');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('fullName', document.getElementById('reg-fullName').value.trim());
+            formData.append('email', document.getElementById('reg-email').value.trim());
+            formData.append('company', document.getElementById('reg-company').value.trim());
+            formData.append('password', password);
+            formData.append('confirmPassword', confirmPassword);
+
+            try {
+                btn.textContent = 'Creating Account...';
+                btn.disabled = true;
+                await api.register(formData);
+                globalThis.location.href = '/dashboard';
+            } catch (err) {
+                alert(err.message || 'Registration failed.');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

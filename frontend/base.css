@@ -1,0 +1,110 @@
+/* ShotZoo Premium Design System */
+
+:root {
+    --primary: #add366;
+    --primary-dim: #aed367;
+    --on-primary: #131f00;
+    --surface: #f7f8f4;
+    --surface-bright: #f7f8f4;
+    --surface-container: #eceee6;
+    --surface-container-low: #f2f4ec;
+    --surface-container-high: #e6e9e0;
+    --on-surface: #1a1c15;
+    --on-surface-variant: #444939;
+    --error: #ba1a1a;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.clay-card {
+    background: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.06),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.clay-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.1),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.clay-button {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-radius: 16px;
+    padding: 12px 24px;
+    font-weight: 700;
+    box-shadow: 
+        0 10px 20px rgba(173, 211, 102, 0.2),
+        inset 0 2px 2px rgba(255, 255, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.clay-button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(173, 211, 102, 0.3);
+}
+
+.clay-button:active {
+    transform: scale(0.98);
+}
+
+/* Sidebar full height — stretches to bottom on all pages */
+aside {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    height: 100% !important;
+    min-height: 100vh !important;
+    overflow-y: auto;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+}
+
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    transform: translateX(4px);
+}
+
+.sidebar-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #add366;
+}
+
+/* Filled icon variant */
+.material-symbols-filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

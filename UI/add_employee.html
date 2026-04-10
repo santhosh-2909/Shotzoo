@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ShotZoo Admin - Add Employee</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#a8cd62", "primary": "#496800", "on-primary": "#ffffff",
+                        "on-primary-container": "#3c5600", "surface": "#f7f8f4", "on-surface": "#151c27",
+                        "on-surface-variant": "#444939", "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f0f3ff", "surface-container-high": "#e2e8f8",
+                        "error": "#ba1a1a", "error-container": "#ffdad6", "outline": "#757968"
+                    },
+                    "fontFamily": { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Manrope"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #F7F8F4; }
+        h1,h2,h3 { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .form-input { width: 100%; height: 48px; padding: 0 16px; border-radius: 12px; border: 1px solid #e2e8f8; background: #fff; font-family: 'Manrope', sans-serif; font-size: 14px; transition: all 0.2s; outline: none; }
+        .form-input:focus { border-color: #a8cd62; box-shadow: 0 0 0 3px rgba(168,205,98,0.15); }
+        .form-textarea { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f8; background: #fff; font-family: 'Manrope', sans-serif; font-size: 14px; resize: vertical; min-height: 60px; transition: all 0.2s; outline: none; }
+        .form-textarea:focus { border-color: #a8cd62; box-shadow: 0 0 0 3px rgba(168,205,98,0.15); }
+        .form-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #757968; margin-bottom: 6px; }
+    </style>
+</head>
+<body class="text-on-surface">
+    <!-- Sidebar -->
+    <nav class="fixed left-0 top-0 flex flex-col py-8 px-6 gap-y-2 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">shield_with_heart</span></div>
+            <div><h2 class="font-bold text-lg tracking-tighter font-headline leading-tight text-white">Admin Panel</h2>
+                <p class="text-[11px] text-white/40 uppercase tracking-widest font-medium font-headline">ShotZoo</p></div>
+        </div>
+        <div class="flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/attendence.html"><span class="material-symbols-outlined">calendar_today</span><span class="font-headline font-medium text-sm">Attendance</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/add_task.html"><span class="material-symbols-outlined">add_task</span><span class="font-headline font-medium text-sm">Add Task</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/my_task_admin.html"><span class="material-symbols-outlined">task_alt</span><span class="font-headline font-medium text-sm">My Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/all_task.html"><span class="material-symbols-outlined">assignment</span><span class="font-headline font-medium text-sm">All Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-150 text-white font-bold bg-[#A8CD62] mx-2 my-1" href="/admin/emp_pg.html"><span class="material-symbols-outlined">group</span><span class="font-headline font-medium text-sm">Employees</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/analytics.html"><span class="material-symbols-outlined">analytics</span><span class="font-headline font-medium text-sm">Analytics</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-headline font-medium text-sm">Dashboard</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/send_noti.html"><span class="material-symbols-outlined">mic</span><span class="font-headline font-medium text-sm">Send Notification</span></a>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/10 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/pfp.html"><span class="material-symbols-outlined">settings</span><span class="font-headline font-medium text-sm">Settings</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-error hover:bg-white/10 mx-2 my-1" href="/"><span class="material-symbols-outlined">logout</span><span class="font-headline font-medium text-sm">Logout</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="ml-72 min-h-screen p-12">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <a href="/admin/emp_pg.html" class="inline-flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary transition-colors mb-2">
+                    <span class="material-symbols-outlined text-lg">arrow_back</span> Back to Employees
+                </a>
+                <h1 class="text-4xl font-bold tracking-tight font-headline text-black">Add New Employee</h1>
+                <p class="text-stone-500 mt-1 font-body">Create an employee account and share login credentials.</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-12 gap-8">
+            <!-- Form -->
+            <div class="col-span-7">
+                <form id="add-emp-form" class="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] space-y-6">
+                    <!-- Name & Email -->
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="form-label">Full Name *</label>
+                            <input id="emp-name" class="form-input" placeholder="e.g. Arun Kumar" type="text" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Email Address *</label>
+                            <input id="emp-email" class="form-input" placeholder="arun@shotzoo.io" type="email" required />
+                        </div>
+                    </div>
+                    <!-- Phone & Role -->
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="form-label">Phone Number</label>
+                            <input id="emp-phone" class="form-input" placeholder="+91 98765 43210" type="tel" />
+                        </div>
+                        <div>
+                            <label class="form-label">Role / Designation *</label>
+                            <input id="emp-role" class="form-input" placeholder="e.g. Video Editor, Designer" type="text" required />
+                        </div>
+                    </div>
+                    <!-- Employee Type -->
+                    <div>
+                        <label class="form-label">Employee Type</label>
+                        <div class="flex gap-4 mt-1">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="emp-type" value="Office" checked class="accent-[#A8CD62] w-4 h-4" />
+                                <span class="text-sm font-medium">Office</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="emp-type" value="Home" class="accent-[#A8CD62] w-4 h-4" />
+                                <span class="text-sm font-medium">Work from Home</span>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Password -->
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="form-label">Set Password *</label>
+                            <div class="relative">
+                                <input id="emp-password" class="form-input pr-12" placeholder="Min 6 characters" type="password" required minlength="6" />
+                                <button type="button" onclick="var p=document.getElementById('emp-password');p.type=p.type==='password'?'text':'password'" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600">
+                                    <span class="material-symbols-outlined text-xl">visibility</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Confirm Password *</label>
+                            <input id="emp-confirm" class="form-input" placeholder="Re-enter password" type="password" required minlength="6" />
+                        </div>
+                    </div>
+                    <!-- Generate Password -->
+                    <div>
+                        <button type="button" id="gen-password-btn" class="text-sm font-bold text-primary flex items-center gap-1 hover:underline">
+                            <span class="material-symbols-outlined text-lg">password</span> Auto-Generate Strong Password
+                        </button>
+                    </div>
+
+                    <hr class="border-stone-100" />
+
+                    <!-- Submit -->
+                    <div class="flex items-center gap-4">
+                        <button type="submit" id="submit-btn" class="bg-primary-container text-on-primary-container font-bold px-10 py-4 rounded-xl hover:scale-[1.02] active:scale-95 transition-all text-sm flex items-center gap-2 shadow-lg shadow-primary-container/20">
+                            <span class="material-symbols-outlined text-lg">person_add</span> Create Employee Account
+                        </button>
+                        <button type="button" onclick="globalThis.location.href='/admin/emp_pg.html'" class="text-stone-400 font-bold px-6 py-4 rounded-xl hover:text-stone-600 hover:bg-stone-50 transition-all text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Success Panel (hidden by default) -->
+            <div class="col-span-5">
+                <div id="success-panel" class="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hidden">
+                    <div class="text-center mb-6">
+                        <span class="material-symbols-outlined text-5xl text-primary-container" style="font-variation-settings:'FILL' 1">check_circle</span>
+                        <h3 class="text-xl font-bold font-headline mt-3">Employee Created!</h3>
+                        <p class="text-sm text-stone-500 mt-1">Share these credentials with the employee.</p>
+                    </div>
+                    <div class="bg-[#F7F8F4] rounded-xl p-6 space-y-4 font-mono text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-500">Name</span>
+                            <span id="cred-name" class="font-bold text-on-surface">—</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-500">Employee ID</span>
+                            <span id="cred-id" class="font-bold text-primary">—</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-500">Email</span>
+                            <span id="cred-email" class="font-bold text-on-surface">—</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-500">Password</span>
+                            <span id="cred-pass" class="font-bold text-on-surface">—</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-3">
+                        <button id="copy-cred-btn" class="w-full bg-[#2A313D] text-white font-bold py-3 rounded-xl hover:bg-[#1f252e] transition-colors text-sm flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">content_copy</span> Copy Credentials
+                        </button>
+                        <button onclick="document.getElementById('success-panel').classList.add('hidden');document.getElementById('add-emp-form').reset();" class="w-full border-2 border-stone-200 text-stone-600 font-bold py-3 rounded-xl hover:bg-stone-50 transition-colors text-sm flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">person_add</span> Add Another Employee
+                        </button>
+                    </div>
+                </div>
+                <!-- Info Card -->
+                <div id="info-card" class="bg-white rounded-2xl p-8 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                    <h3 class="font-bold font-headline text-lg mb-4">How Employee Onboarding Works</h3>
+                    <div class="space-y-4 text-sm text-stone-600">
+                        <div class="flex gap-3">
+                            <span class="material-symbols-outlined text-primary-container text-xl mt-0.5">looks_one</span>
+                            <p><strong class="text-on-surface">Create the account</strong> — Fill in employee details and set a temporary password.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="material-symbols-outlined text-primary-container text-xl mt-0.5">looks_two</span>
+                            <p><strong class="text-on-surface">Share credentials</strong> — Copy the Employee ID + password and share with the employee.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="material-symbols-outlined text-primary-container text-xl mt-0.5">looks_3</span>
+                            <p><strong class="text-on-surface">Employee signs in</strong> — They log in at the employee portal using their Email or Employee ID + password.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="material-symbols-outlined text-primary-container text-xl mt-0.5">looks_4</span>
+                            <p><strong class="text-on-surface">Change password</strong> — Employee can update their password from Profile settings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+(function () {
+    var API = 'http://localhost:5000/api';
+    var token = localStorage.getItem('shotzoo_token');
+    if (!token) return;
+    var auth = { 'Authorization': 'Bearer ' + token };
+    var createdPassword = '';
+
+    // Auto-generate password
+    document.getElementById('gen-password-btn').addEventListener('click', function () {
+        var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+        var pass = '';
+        for (var i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        document.getElementById('emp-password').value = pass;
+        document.getElementById('emp-confirm').value = pass;
+        document.getElementById('emp-password').type = 'text';
+    });
+
+    // Form submit
+    document.getElementById('add-emp-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = document.getElementById('emp-name').value.trim();
+        var email = document.getElementById('emp-email').value.trim();
+        var phone = document.getElementById('emp-phone').value.trim();
+        var role = document.getElementById('emp-role').value.trim();
+        var empType = document.querySelector('input[name="emp-type"]:checked').value;
+        var password = document.getElementById('emp-password').value;
+        var confirm = document.getElementById('emp-confirm').value;
+
+        if (!name || !email || !role || !password) { alert('Please fill in all required fields.'); return; }
+        if (password.length < 6) { alert('Password must be at least 6 characters.'); return; }
+        if (password !== confirm) { alert('Passwords do not match.'); return; }
+
+        createdPassword = password;
+        var btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">progress_activity</span> Creating...';
+
+        fetch(API + '/auth/create-employee', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName: name, email: email, phone: phone, role: role, employeeType: empType, password: password })
+        }).then(function (r) { return r.json(); }).then(function (d) {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">person_add</span> Create Employee Account';
+
+            if (!d.success) { alert(d.message || 'Failed to create employee.'); return; }
+
+            // Show success panel
+            document.getElementById('cred-name').textContent = d.user.fullName;
+            document.getElementById('cred-id').textContent = d.user.employeeId;
+            document.getElementById('cred-email').textContent = email;
+            document.getElementById('cred-pass').textContent = createdPassword;
+            document.getElementById('success-panel').classList.remove('hidden');
+            document.getElementById('info-card').classList.add('hidden');
+        }).catch(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">person_add</span> Create Employee Account';
+            alert('Network error. Please try again.');
+        });
+    });
+
+    // Copy credentials
+    document.getElementById('copy-cred-btn').addEventListener('click', function () {
+        var name = document.getElementById('cred-name').textContent;
+        var id = document.getElementById('cred-id').textContent;
+        var email = document.getElementById('cred-email').textContent;
+        var pass = document.getElementById('cred-pass').textContent;
+        var text = 'ShotZoo Login Credentials\n\nName: ' + name + '\nEmployee ID: ' + id + '\nEmail: ' + email + '\nPassword: ' + pass + '\n\nLogin: http://localhost:5000/signin';
+        navigator.clipboard.writeText(text).then(function () {
+            var btn = document.getElementById('copy-cred-btn');
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check</span> Copied!';
+            setTimeout(function () { btn.innerHTML = '<span class="material-symbols-outlined text-lg">content_copy</span> Copy Credentials'; }, 2000);
+        });
+    });
+})();
+</script>
+<script src="/admin/admin-guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Editorial Vault | Reporting Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Manrope:wght@200..800&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#ffb044",
+                        "primary-container": "#a8cd62",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "on-surface-variant": "#444939",
+                        "surface-variant": "#dce2f3",
+                        "primary-fixed": "#c9f080",
+                        "background": "#f9f9ff",
+                        "outline-variant": "#c4c9b5",
+                        "on-tertiary-fixed": "#2a1700",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#ebf1ff",
+                        "surface-tint": "#496800",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#6f4500",
+                        "inverse-surface": "#2a313d",
+                        "on-primary-fixed": "#131f00",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#2170e4",
+                        "primary-fixed-dim": "#aed367",
+                        "on-secondary-fixed": "#001a42",
+                        "on-secondary-container": "#fefcff",
+                        "on-background": "#151c27",
+                        "tertiary-fixed": "#ffddb8",
+                        "primary": "#496800",
+                        "surface": "#f9f9ff",
+                        "on-primary-fixed-variant": "#364e00",
+                        "secondary": "#0058be",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#3c5600",
+                        "surface-container-low": "#f0f3ff",
+                        "inverse-primary": "#aed367",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f9f9ff",
+                        "on-surface": "#151c27",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#855300",
+                        "surface-dim": "#d3daea",
+                        "on-error": "#ffffff",
+                        "outline": "#757968",
+                        "surface-container-high": "#e2e8f8",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#dce2f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #F7F8F4;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono-data {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="text-on-background">
+    <!-- Navigation Drawer -->
+    <nav class="fixed left-0 top-0 flex flex-col py-8 px-6 gap-y-2 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)]">
+        <div class="mb-10 px-2 flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">shield_with_heart</span></div>
+            <div><h2 class="font-bold text-lg tracking-tighter font-headline leading-tight text-white">Admin Panel</h2>
+                <p class="text-[11px] text-white/40 uppercase tracking-widest font-medium font-headline">ShotZoo</p></div>
+        </div>
+        <div class="flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/attendence.html"><span class="material-symbols-outlined">calendar_today</span><span class="font-headline font-medium text-sm">Attendance</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/add_task.html"><span class="material-symbols-outlined">add_task</span><span class="font-headline font-medium text-sm">Add Task</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/my_task_admin.html"><span class="material-symbols-outlined">task_alt</span><span class="font-headline font-medium text-sm">My Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/all_task.html"><span class="material-symbols-outlined">assignment</span><span class="font-headline font-medium text-sm">All Tasks</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/emp_pg.html"><span class="material-symbols-outlined">group</span><span class="font-headline font-medium text-sm">Employees</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/analytics.html"><span class="material-symbols-outlined">analytics</span><span class="font-headline font-medium text-sm">Analytics</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-150 text-white font-bold bg-[#A8CD62] mx-2 my-1" href="/admin/dashboard.html"><span class="material-symbols-outlined">dashboard</span><span class="font-headline font-medium text-sm">Dashboard</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/send_noti.html"><span class="material-symbols-outlined">mic</span><span class="font-headline font-medium text-sm">Send Notification</span></a>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/10 flex flex-col gap-1">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-white/60 hover:text-white hover:bg-white/10 mx-2 my-1" href="/admin/pfp.html"><span class="material-symbols-outlined">settings</span><span class="font-headline font-medium text-sm">Settings</span></a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 text-error hover:bg-white/10 mx-2 my-1" href="/"><span class="material-symbols-outlined">logout</span><span class="font-headline font-medium text-sm">Logout</span></a>
+        </div>
+    </nav>
+    <!-- Main Content Canvas -->
+    <main class="ml-72 min-h-screen p-12">
+        <!-- Top App Bar -->
+        <header class="flex justify-between items-center mb-12 w-full">
+            <div>
+                <h1 class="text-4xl font-bold tracking-tight font-headline text-black">Dashboard</h1>
+                <p class="text-stone-500 mt-1 font-body">Editorial oversight &amp; operations control center.</p>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="/admin/send_noti.html" class="relative hover:opacity-80 transition-opacity cursor-pointer">
+                    <span class="material-symbols-outlined text-stone-400 text-2xl">notifications</span>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-[#F7F8F4]"></span>
+                </a>
+                <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm">
+                    <div class="text-right">
+                        <p class="text-xs font-bold leading-none">Admin User</p>
+                        <p class="text-[10px] text-white/30 font-mono tracking-tighter">ID: VAULT-001</p>
+                    </div>
+                    <img alt="Admin Profile"
+                        class="w-10 h-10 rounded-full object-cover border-2 border-primary-container"
+                        data-alt="Close-up professional portrait of a man in a modern workspace with soft natural lighting and neutral background"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAexFSmkbrGexvsHUlgUQ2ONyVrQ2JjWD7d_SVUWtT1Qiy8cEI6eCNzTFI8WZ1i0E9BrlfHpjI2MQFhIRWnjRemZcH66ETQ0eaPI_O13Cxd3_a9CZzGLSuBWSqfuhOwYCMwVJfycUqWvDH0t0KXTghsAYl8xXDFNM2p4NBpYXRnanJm_-oHW2n5tbVenAbng96qN6zn5lNjZuO59xOcYvdA8zkUvD0bMQm6VHKP409xg0qvYt4NoNMXckPQnFx-QlSdMw4edpZxtzkB" />
+                </div>
+            </div>
+        </header>
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-4">
+                <span class="material-symbols-outlined text-primary-container text-3xl">trending_up</span>
+                <div>
+                    <p class="text-stone-400 text-xs font-medium uppercase tracking-wider mb-1">Completed Today</p>
+                    <h3 class="text-3xl font-bold font-headline mono-data">—</h3>
+                </div>
+                <div class="text-xs font-bold text-primary-container">tasks finished</div>
+            </div>
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-4">
+                <span class="material-symbols-outlined text-tertiary-container text-3xl">pending_actions</span>
+                <div>
+                    <p class="text-stone-400 text-xs font-medium uppercase tracking-wider mb-1">Open Tasks</p>
+                    <h3 class="text-3xl font-bold font-headline mono-data">—</h3>
+                </div>
+                <div id="stat-overdue-sub" class="text-xs font-bold text-stone-400"></div>
+            </div>
+            <div class="bg-white p-8 rounded-xl flex flex-col gap-4">
+                <span class="material-symbols-outlined text-secondary text-3xl">group</span>
+                <div>
+                    <p class="text-stone-400 text-xs font-medium uppercase tracking-wider mb-1">Total Employees</p>
+                    <h3 class="text-3xl font-bold font-headline mono-data">—</h3>
+                </div>
+                <div id="stat-emp-sub" class="text-xs font-bold text-stone-400"></div>
+            </div>
+        </section>
+        <!-- Main Dashboard Content -->
+        <div class="grid grid-cols-12 gap-8">
+            <!-- Left Column: Reports & Tasks -->
+            <div class="col-span-12 lg:col-span-8 flex flex-col gap-8">
+                <!-- My Daily Report (admin's own BOD/MOD/EOD) -->
+                <section id="my-daily-report">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold font-headline">My Daily Report</h2>
+                        <span id="dr-today-label" class="text-sm font-bold text-stone-500 font-mono"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- BOD card -->
+                        <div class="bg-white rounded-xl p-5 flex flex-col gap-3" data-dr-card="BOD">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-extrabold font-headline text-stone-900">BOD</h3>
+                                    <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">9:00 AM – 1:00 PM</p>
+                                </div>
+                                <span data-dr-badge class="hidden text-[10px] font-extrabold px-2 py-1 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-bold text-stone-500" data-dr-lock>
+                                <span class="material-symbols-outlined text-sm">lock</span>
+                                <span data-dr-lock-text>Available 9:00 AM – 1:00 PM</span>
+                            </div>
+                            <textarea data-dr-input rows="4" placeholder="What did you start the day with?"
+                                class="w-full bg-[#F0F2EA] border-none rounded-lg p-3 text-sm font-medium text-on-surface resize-none focus:ring-2 focus:ring-[#A8CD62] disabled:bg-[#F3F4F6] disabled:text-stone-500 disabled:cursor-not-allowed"></textarea>
+                            <button type="button" data-dr-submit
+                                class="w-full bg-[#A8CD62] text-[#131F00] font-extrabold text-xs uppercase tracking-wider h-10 rounded-lg hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                Submit BOD
+                            </button>
+                        </div>
+
+                        <!-- MOD card -->
+                        <div class="bg-white rounded-xl p-5 flex flex-col gap-3" data-dr-card="MOD">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-extrabold font-headline text-stone-900">MOD</h3>
+                                    <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">2:00 PM – 6:00 PM</p>
+                                </div>
+                                <span data-dr-badge class="hidden text-[10px] font-extrabold px-2 py-1 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-bold text-stone-500" data-dr-lock>
+                                <span class="material-symbols-outlined text-sm">lock</span>
+                                <span data-dr-lock-text>Available 2:00 PM – 6:00 PM</span>
+                            </div>
+                            <textarea data-dr-input rows="4" placeholder="Mid-day progress update…"
+                                class="w-full bg-[#F0F2EA] border-none rounded-lg p-3 text-sm font-medium text-on-surface resize-none focus:ring-2 focus:ring-[#A8CD62] disabled:bg-[#F3F4F6] disabled:text-stone-500 disabled:cursor-not-allowed"></textarea>
+                            <button type="button" data-dr-submit
+                                class="w-full bg-[#A8CD62] text-[#131F00] font-extrabold text-xs uppercase tracking-wider h-10 rounded-lg hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                Submit MOD
+                            </button>
+                        </div>
+
+                        <!-- EOD card -->
+                        <div class="bg-white rounded-xl p-5 flex flex-col gap-3" data-dr-card="EOD">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-extrabold font-headline text-stone-900">EOD</h3>
+                                    <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">After 6:00 PM</p>
+                                </div>
+                                <span data-dr-badge class="hidden text-[10px] font-extrabold px-2 py-1 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-bold text-stone-500" data-dr-lock>
+                                <span class="material-symbols-outlined text-sm">lock</span>
+                                <span data-dr-lock-text>Available after 6:00 PM</span>
+                            </div>
+                            <textarea data-dr-input rows="4" placeholder="Wrap up the day with a summary…"
+                                class="w-full bg-[#F0F2EA] border-none rounded-lg p-3 text-sm font-medium text-on-surface resize-none focus:ring-2 focus:ring-[#A8CD62] disabled:bg-[#F3F4F6] disabled:text-stone-500 disabled:cursor-not-allowed"></textarea>
+                            <button type="button" data-dr-submit
+                                class="w-full bg-[#A8CD62] text-[#131F00] font-extrabold text-xs uppercase tracking-wider h-10 rounded-lg hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                Submit EOD
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <!-- Reporting Overview Section -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold font-headline">Reporting Overview</h2>
+                        <div class="flex items-center gap-2">
+                            <button id="btn-export-csv" type="button"
+                                class="text-sm font-bold text-primary flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-primary-container/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-sm">download</span> Export CSV
+                            </button>
+                            <button id="btn-export-xlsx" type="button"
+                                class="text-sm font-bold text-white bg-primary-container hover:brightness-110 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-sm">table_view</span> Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Toast -->
+                    <div id="dash-toast" class="fixed top-6 right-6 bg-[#2A313D] text-white px-6 py-3 rounded-xl shadow-xl flex items-center gap-2 z-[999] opacity-0 translate-y-[-20px] transition-all duration-300 pointer-events-none">
+                        <span class="material-symbols-outlined text-primary-container">info</span>
+                        <span id="dash-toast-text" class="font-bold text-sm"></span>
+                    </div>
+                    <div class="bg-white rounded-xl overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-surface-container-low">
+                                <tr>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500 font-label">
+                                        Name / Role</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500 font-label">
+                                        BOD (9:00 AM – 1:00 PM)</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500 font-label">
+                                        MOD (2:00 PM – 6:00 PM)</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500 font-label">
+                                        EOD (After 6:00 PM)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-100"><tr><td colspan="4" class="px-6 py-8 text-center text-stone-400 text-sm">Loading task data...</td></tr></tbody>
+                        </table>
+                    </div>
+                </section>
+                <!-- Team Activity -->
+                <section>
+                    <h2 class="text-2xl font-bold font-headline mb-6">Team Activity</h2>
+                    <div id="activity-list" class="space-y-4">
+                        <div class="bg-white p-6 rounded-xl text-sm text-stone-400 text-center">Loading activity…</div>
+                    </div>
+                </section>
+            </div>
+            <!-- Right Column: Deadlines & Quick Actions -->
+            <div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+                <!-- Urgent Deadlines -->
+                <section>
+                    <h2 class="text-2xl font-bold font-headline mb-6">Urgent Deadlines</h2>
+                    <div class="bg-white p-8 rounded-xl flex flex-col gap-8">
+                        <div
+                            class="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-error before:rounded-full">
+                            <p class="text-xs font-bold text-error uppercase tracking-widest mb-1">Today, 5:00 PM</p>
+                            <h4 class="text-lg font-bold font-headline">Main Vault Migration</h4>
+                            <p class="text-sm text-stone-500 mt-2">Moving legacy archives to the new cloud cluster.
+                                Critical path.</p>
+                        </div>
+                        <div
+                            class="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-tertiary-container before:rounded-full">
+                            <p class="text-xs font-bold text-tertiary-container uppercase tracking-widest mb-1">
+                                Tomorrow, 10:00 AM</p>
+                            <h4 class="text-lg font-bold font-headline">Quarterly Review</h4>
+                            <p class="text-sm text-stone-500 mt-2">Team performance evaluation and budget reallocation
+                                for Q3.</p>
+                        </div>
+                        <button
+                            class="w-full py-4 bg-stone-950 text-white rounded-xl font-bold text-sm hover:bg-stone-800 transition-colors">
+                            View All Deadlines
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+<script>
+(function () {
+    var API = 'http://localhost:5000/api';
+    var token = localStorage.getItem('shotzoo_token');
+    if (!token) return;
+    var auth = { 'Authorization': 'Bearer ' + token };
+    function apiFetch(url) { return fetch(API + url, { headers: auth }).then(function (r) { return r.json(); }); }
+
+    // Populate admin name from stored user
+    var adminUser = JSON.parse(localStorage.getItem('shotzoo_user') || '{}');
+    document.querySelectorAll('[data-admin-name]').forEach(function (el) { el.textContent = adminUser.fullName || 'Admin'; });
+
+    apiFetch('/admin/stats').then(function (d) {
+        if (!d.success) return;
+        var s = d.stats;
+        var h3s = document.querySelectorAll('section.grid.grid-cols-3 h3');
+        if (h3s[0]) h3s[0].textContent = s.completedToday || 0;
+        if (h3s[1]) h3s[1].textContent = s.openTasks || 0;
+        if (h3s[2]) h3s[2].textContent = s.totalEmployees || 0;
+        var el = document.getElementById('stat-overdue-sub');
+        if (el && s.overdueCount > 0) el.textContent = s.overdueCount + ' Overdue';
+        el = document.getElementById('stat-emp-sub');
+        if (el) el.textContent = 'registered accounts';
+    }).catch(function () {});
+
+    // ---------- Tasks load + export ----------
+    var ALL_TASKS = [];
+    var btnCsv = document.getElementById('btn-export-csv');
+    var btnXlsx = document.getElementById('btn-export-xlsx');
+    btnCsv.disabled = true;
+    btnXlsx.disabled = true;
+
+    apiFetch('/admin/tasks').then(function (d) {
+        if (!d.success) return;
+        ALL_TASKS = d.tasks || [];
+        if (ALL_TASKS.length) {
+            btnCsv.disabled = false;
+            btnXlsx.disabled = false;
+        }
+        var tbody = document.querySelector('table tbody');
+        if (!tbody) return;
+        if (!ALL_TASKS.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-stone-400 text-sm">No tasks yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = ALL_TASKS.slice(0, 8).map(function (t) {
+            var emp = t.user ? t.user.fullName : 'Unassigned';
+            var dl = t.deadline ? new Date(t.deadline).toLocaleDateString() : '—';
+            var sc = t.status === 'Overdue' ? 'text-red-600 bg-red-50' : t.status === 'Completed' ? 'text-green-700 bg-green-50' : 'text-blue-600 bg-blue-50';
+            return '<tr class="hover:bg-primary-container/5 transition-colors">' +
+                '<td class="px-6 py-4"><span class="text-sm font-bold">' + emp + '</span></td>' +
+                '<td class="px-6 py-4 text-sm font-medium">' + t.title + '</td>' +
+                '<td class="px-6 py-4 text-sm text-center">' + dl + '</td>' +
+                '<td class="px-6 py-4 text-center"><span class="px-2 py-0.5 rounded text-xs font-bold ' + sc + '">' + t.status + '</span></td></tr>';
+        }).join('');
+    }).catch(function () {});
+
+    // ---------- Toast ----------
+    function showToast(msg) {
+        var t = document.getElementById('dash-toast');
+        var txt = document.getElementById('dash-toast-text');
+        if (!t || !txt) return;
+        txt.textContent = msg;
+        t.style.opacity = '1';
+        t.style.transform = 'translateY(0)';
+        setTimeout(function () { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; }, 2500);
+    }
+
+    // ---------- Helpers ----------
+    function getSlot(iso) {
+        if (!iso) return '—';
+        var h = new Date(iso).getHours();
+        if (h >= 9 && h < 13) return 'BOD';
+        if (h >= 14 && h < 18) return 'MOD';
+        if (h >= 18) return 'EOD';
+        return 'Off-hours';
+    }
+    function fmtDateTime(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' +
+               d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    function fmtDate(iso) {
+        if (!iso) return '';
+        return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+    function escapeCsv(v) {
+        if (v == null) return '';
+        var s = String(v);
+        if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+    }
+
+    var HEADERS = ['Employee Name', 'Role', 'Task Title', 'Priority', 'Status', 'Slot', 'Deadline', 'Created At'];
+    function buildRows() {
+        return ALL_TASKS.map(function (t) {
+            return [
+                t.user ? (t.user.fullName || '') : 'Unassigned',
+                t.user ? (t.user.role || 'Employee') : '',
+                t.title || '',
+                t.priority || '',
+                t.status || '',
+                getSlot(t.createdAt),
+                fmtDate(t.deadline),
+                fmtDateTime(t.createdAt)
+            ];
+        });
+    }
+    function todayStamp() { return new Date().toISOString().slice(0, 10); }
+
+    // ---------- CSV ----------
+    btnCsv.addEventListener('click', function () {
+        if (!ALL_TASKS.length) { showToast('No data to export'); return; }
+        var rows = buildRows();
+        var csv = HEADERS.map(escapeCsv).join(',') + '\r\n' +
+                  rows.map(function (r) { return r.map(escapeCsv).join(','); }).join('\r\n');
+        // BOM so Excel opens UTF-8 cleanly
+        var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'shotzoo-tasks-' + todayStamp() + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    // ---------- XLSX ----------
+    btnXlsx.addEventListener('click', function () {
+        if (!ALL_TASKS.length) { showToast('No data to export'); return; }
+        if (typeof XLSX === 'undefined') { showToast('Excel library failed to load'); return; }
+        var rows = buildRows();
+        var aoa = [HEADERS].concat(rows);
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+
+        // Bold header row
+        var headerRange = XLSX.utils.decode_range(ws['!ref']);
+        for (var c = headerRange.s.c; c <= headerRange.e.c; c++) {
+            var addr = XLSX.utils.encode_cell({ r: 0, c: c });
+            if (ws[addr]) {
+                ws[addr].s = {
+                    font: { bold: true, color: { rgb: '131F00' } },
+                    fill: { fgColor: { rgb: 'A8CD62' } },
+                    alignment: { horizontal: 'left', vertical: 'center' }
+                };
+            }
+        }
+
+        // Auto column widths (max content length per column, capped)
+        ws['!cols'] = HEADERS.map(function (h, i) {
+            var max = h.length;
+            for (var r = 0; r < rows.length; r++) {
+                var v = rows[r][i] == null ? '' : String(rows[r][i]);
+                if (v.length > max) max = v.length;
+            }
+            return { wch: Math.min(Math.max(max + 2, 12), 50) };
+        });
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
+        XLSX.writeFile(wb, 'shotzoo-tasks-' + todayStamp() + '.xlsx');
+    });
+
+    // ---------- Team Activity (live, auto-refreshes every 60s) ----------
+    var ICON_BY_KIND = {
+        task_created:   { icon: 'add_task',     bg: 'bg-blue-50',    color: 'text-blue-600' },
+        task_completed: { icon: 'check_circle', bg: 'bg-green-50',   color: 'text-green-700' },
+        check_in:       { icon: 'login',        bg: 'bg-primary-container/10', color: 'text-primary-container' },
+        check_out:      { icon: 'logout',       bg: 'bg-stone-100',  color: 'text-stone-600' }
+    };
+    function escapeHtml(s) { return (s == null ? '' : String(s)).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+    function fmtClock(iso) {
+        if (!iso) return '';
+        return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+    function loadActivity() {
+        apiFetch('/admin/activity?limit=10').then(function (d) {
+            var box = document.getElementById('activity-list');
+            if (!box) return;
+            if (!d.success) {
+                box.innerHTML = '<div class="bg-white p-6 rounded-xl text-sm text-stone-400 text-center">Failed to load activity.</div>';
+                return;
+            }
+            var events = d.events || [];
+            if (!events.length) {
+                box.innerHTML = '<div class="bg-white p-6 rounded-xl text-sm text-stone-400 text-center">No recent activity yet.</div>';
+                return;
+            }
+            box.innerHTML = events.map(function (e) {
+                var meta = ICON_BY_KIND[e.kind] || ICON_BY_KIND.task_created;
+                var initial = (e.userName && e.userName.length ? e.userName[0] : '?').toUpperCase();
+                return '<div class="bg-white p-6 rounded-xl flex items-center gap-4">' +
+                    '<div class="w-12 h-12 ' + meta.bg + ' rounded-full flex items-center justify-center font-bold text-lg ' + meta.color + '">' + escapeHtml(initial) + '</div>' +
+                    '<div class="flex-1 min-w-0">' +
+                    '<p class="text-sm font-bold text-stone-900 truncate">' +
+                        '<span class="font-extrabold">' + escapeHtml(e.userName || 'Unknown') + '</span> ' +
+                        escapeHtml(e.text) +
+                    '</p>' +
+                    '<p class="text-xs text-stone-400 mt-0.5">' + escapeHtml(fmtClock(e.at)) + '</p>' +
+                    '</div>' +
+                    '<span class="material-symbols-outlined text-stone-300">' + meta.icon + '</span>' +
+                    '</div>';
+            }).join('');
+        }).catch(function () {
+            var box = document.getElementById('activity-list');
+            if (box) box.innerHTML = '<div class="bg-white p-6 rounded-xl text-sm text-stone-400 text-center">Failed to load activity.</div>';
+        });
+    }
+    loadActivity();
+    setInterval(loadActivity, 60 * 1000);
+
+    // ---------- My Daily Report (admin's own BOD/MOD/EOD) ----------
+    // Uses the existing /api/daily-reports endpoints. The backend already
+    // enforces strict time windows — submissions outside a slot's window
+    // return 400 with a lock message — so this UI layer is purely cosmetic
+    // locking on top of that hard guarantee. Each slot is 100% independent;
+    // submitting one does NOT touch the other two.
+    var DR_WINDOWS = { BOD: [9, 13], MOD: [14, 18], EOD: [18, 24] };
+    var DR_WINDOW_LABELS = {
+        BOD: 'Available 9:00 AM \u2013 1:00 PM',
+        MOD: 'Available 2:00 PM \u2013 6:00 PM',
+        EOD: 'Available after 6:00 PM'
+    };
+    var drSubmitted = { BOD: null, MOD: null, EOD: null };
+
+    function drWindowStatus(type) {
+        var h = new Date().getHours();
+        var w = DR_WINDOWS[type];
+        if (h >= w[0] && h < w[1]) return 'open';
+        if (h >= w[1]) return 'closed';
+        return 'upcoming';
+    }
+
+    function drSetCardState(card, state, submittedReport) {
+        var input = card.querySelector('[data-dr-input]');
+        var btn = card.querySelector('[data-dr-submit]');
+        var lock = card.querySelector('[data-dr-lock]');
+        var lockText = card.querySelector('[data-dr-lock-text]');
+        var badge = card.querySelector('[data-dr-badge]');
+        var type = card.getAttribute('data-dr-card');
+
+        if (state === 'submitted') {
+            // Already submitted — show the saved text, read-only, success badge.
+            input.value = (submittedReport && (submittedReport.title || submittedReport.description)) || '';
+            if (submittedReport && submittedReport.description && submittedReport.title) {
+                input.value = submittedReport.title + '\n\n' + submittedReport.description;
+            }
+            input.readOnly = true;
+            input.disabled = true;
+            btn.disabled = true;
+            btn.textContent = 'Submitted';
+            lock.classList.add('hidden');
+            badge.textContent = 'Submitted \u2713';
+            badge.className = 'text-[10px] font-extrabold px-2 py-1 rounded-full bg-[#DCFCE7] text-[#166534]';
+            badge.classList.remove('hidden');
+            return;
+        }
+
+        if (state === 'open') {
+            // In window — unlock, enable input, enable submit.
+            input.readOnly = false;
+            input.disabled = false;
+            btn.disabled = false;
+            btn.textContent = 'Submit ' + type;
+            lock.classList.add('hidden');
+            badge.classList.add('hidden');
+            return;
+        }
+
+        // state === 'locked' (upcoming or closed)
+        input.value = '';
+        input.readOnly = true;
+        input.disabled = true;
+        btn.disabled = true;
+        btn.textContent = 'Locked';
+        lock.classList.remove('hidden');
+        lockText.textContent = DR_WINDOW_LABELS[type];
+        badge.classList.add('hidden');
+    }
+
+    function drApplyAllStates() {
+        ['BOD', 'MOD', 'EOD'].forEach(function (type) {
+            var card = document.querySelector('[data-dr-card="' + type + '"]');
+            if (!card) return;
+            if (drSubmitted[type]) {
+                drSetCardState(card, 'submitted', drSubmitted[type]);
+                return;
+            }
+            var status = drWindowStatus(type);
+            drSetCardState(card, status === 'open' ? 'open' : 'locked');
+        });
+    }
+
+    function drLoadToday() {
+        apiFetch('/daily-reports/today').then(function (d) {
+            if (!d || !d.success) return;
+            drSubmitted = { BOD: null, MOD: null, EOD: null };
+            (d.reports || []).forEach(function (r) {
+                if (r && r.type && drSubmitted.hasOwnProperty(r.type)) drSubmitted[r.type] = r;
+            });
+            drApplyAllStates();
+        }).catch(function () { /* leave defaults — cards will just be locked/open per window */ });
+    }
+
+    // Wire submit buttons
+    document.querySelectorAll('[data-dr-card]').forEach(function (card) {
+        var type = card.getAttribute('data-dr-card');
+        var input = card.querySelector('[data-dr-input]');
+        var btn = card.querySelector('[data-dr-submit]');
+
+        btn.addEventListener('click', function () {
+            // Hard guard: don't even attempt a submit if the window isn't open.
+            if (drSubmitted[type]) return;
+            if (drWindowStatus(type) !== 'open') {
+                showToast(DR_WINDOW_LABELS[type]);
+                return;
+            }
+            var text = (input.value || '').trim();
+            if (!text) { showToast('Write something before submitting ' + type); return; }
+
+            btn.disabled = true;
+            var oldLabel = btn.textContent;
+            btn.textContent = 'Submitting…';
+            // The backend submitReport requires a `title`. Use the first line as
+            // the title and the rest as the description so the admin only has to
+            // write into one textarea, like the employee dashboard.
+            var lines = text.split('\n');
+            var title = lines[0].slice(0, 140);
+            var description = lines.slice(1).join('\n').trim();
+            fetch(API + '/daily-reports/submit', {
+                method: 'POST',
+                headers: Object.assign({}, auth, { 'Content-Type': 'application/json' }),
+                body: JSON.stringify({ type: type, title: title, description: description })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (!d.success) {
+                        showToast(d.message || ('Failed to submit ' + type));
+                        btn.disabled = false;
+                        btn.textContent = oldLabel;
+                        return;
+                    }
+                    drSubmitted[type] = d.report;
+                    drApplyAllStates();
+                    showToast(type + ' report submitted');
+                })
+                .catch(function () {
+                    showToast('Network error');
+                    btn.disabled = false;
+                    btn.textContent = oldLabel;
+                });
+        });
+    });
+
+    // Today's date label + initial load + auto-refresh every 60s
+    var drTodayLabel = document.getElementById('dr-today-label');
+    if (drTodayLabel) {
+        drTodayLabel.textContent = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    drApplyAllStates(); // show initial locked state while we wait for the fetch
+    drLoadToday();
+    setInterval(function () {
+        // Re-evaluate window state locally every minute so slots unlock/lock
+        // at the right time without a page refresh.
+        drApplyAllStates();
+    }, 60 * 1000);
+})();
+</script>
+<script src="/admin/admin-guard.js"></script>
+</body>
+
+</html>

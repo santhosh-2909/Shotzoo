@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Tasks - ShotZoo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="base.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#f7f8f4",
+                        "surface-dim": "#d8dace",
+                        "surface-bright": "#f7f8f4",
+                        "surface-container": "#eceee6",
+                        "surface-container-low": "#f2f4ec",
+                        "surface-container-high": "#e6e9e0",
+                        "surface-container-highest": "#dfe1d8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e1e4d5",
+                        "on-surface": "#1a1c15",
+                        "on-surface-variant": "#444939",
+                        "background": "#f7f8f4",
+                        "on-background": "#1a1c15",
+                        "primary": "#496800",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#add366",
+                        "on-primary-container": "#131f00",
+                        "primary-fixed": "#c9f080",
+                        "primary-fixed-dim": "#add366",
+                        "on-primary-fixed": "#131f00",
+                        "on-primary-fixed-variant": "#364e00",
+                        "secondary": "#55633a",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d8e9b4",
+                        "on-secondary-container": "#131f00",
+                        "secondary-fixed": "#d8e9b4",
+                        "secondary-fixed-dim": "#bccd9a",
+                        "on-secondary-fixed": "#141f00",
+                        "on-secondary-fixed-variant": "#3e4b24",
+                        "tertiary": "#8a438a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#ffd6f8",
+                        "on-tertiary-container": "#37003b",
+                        "tertiary-fixed": "#ffd6f8",
+                        "tertiary-fixed-dim": "#feaaf9",
+                        "on-tertiary-fixed": "#37003b",
+                        "on-tertiary-fixed-variant": "#6f2a70",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#410002",
+                        "outline": "#757968",
+                        "outline-variant": "#c4c9b5",
+                        "inverse-surface": "#2f3129",
+                        "inverse-on-surface": "#f0f1e8",
+                        "inverse-primary": "#add366",
+                        "surface-tint": "#496800"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-headline {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .clay-shadow {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), 0 4px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .inner-glow {
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.15);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container animate-fade-in">
+    <div class="flex min-h-screen overflow-hidden">
+        <!-- SideNavBar -->
+    <aside
+        class="h-screen w-72 fixed left-0 top-0 bg-[#2A2A2A] shadow-[40px_0_40px_rgba(240,240,240,0.06)] z-50 flex flex-col p-6 font-headline tracking-tighter">
+        <div class="text-2xl font-bold text-[#add366] mb-8">
+            <a href="/dashboard" class="flex items-center gap-2">
+                <img alt="ShotZoo Logo" class="w-8 h-8 object-contain" src="/company_logo.jpeg" />
+                <span>ShotZoo</span>
+            </a>
+        </div>
+        <div class="flex flex-col gap-1 mb-10 px-4">
+            <div class="w-14 h-14 rounded-2xl overflow-hidden mb-3 ring-2 ring-[#add366]/20">
+                <img alt="User avatar" class="w-full h-full object-cover" data-user-photo src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8cHZZCiK4qJkz0_dUPBFHB2OfTBIcIYXcl_liRMhpG4R7A-J2DWHmbQMlIF_Y-LvWkdr8mJwEPx7NYJ1TV6aPsDiZc4rNxorhXZ6gweR6JcWIxl94XQ7Zn_4wGf9PizjlihjSHpEwtt0-4d1GV6O22xb6VDuIWeY9C5-u1jBtUDT6B0FVQ7PAbMBF20aTnPq8CDENYh3WUlok-v2iCvDDYzsKIWaK99hggZG0UUJVF32oPdrl6AhID0iedv41_gYiL0sIAMTbePM" />
+            </div>
+            <h2 class="text-white text-lg font-bold" data-user-name>Arun</h2>
+            <p class="text-on-surface-variant text-xs tracking-widest uppercase" data-user-id>ID: SZ-2024-089</p>
+        </div>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a class="sidebar-item" href="/attendance">
+                <span class="material-symbols-outlined">event_available</span>
+                <span>Attendance</span>
+            </a>
+            <a class="sidebar-item" href="/add-task">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Add Task</span>
+            </a>
+            <a class="sidebar-item" href="/daily-reports"><span class="material-symbols-outlined">description</span><span>Daily Reports</span></a>
+            <a class="sidebar-item active" href="/my-tasks">
+                <span class="material-symbols-outlined">assignment</span>
+                <span>My Tasks</span>
+            </a>
+            <a class="sidebar-item" href="/notifications">
+                <span class="material-symbols-outlined">notifications</span>
+                <span>Notifications</span>
+            </a>
+            <a class="sidebar-item" href="/dashboard">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="sidebar-item" href="/profile">
+                <span class="material-symbols-outlined">person</span>
+                <span>My Profile</span>
+            </a>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-black/5 flex flex-col gap-2">
+            <a class="sidebar-item" href="#" data-logout>
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+        <!-- Main Content Area -->
+        <main class="flex-1 ml-72 bg-[#F7F8F4] overflow-y-auto min-h-screen">
+            <!-- Header Section -->
+            <header class="px-10 pt-12 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h2 class="font-headline text-6xl font-extrabold tracking-tighter text-on-surface">My Tasks</h2>
+                    <p class="font-body text-on-surface-variant/80 font-medium mt-2">Manage your creative workflow with tactile precision.</p>
+                </div>
+                <div id="view-toggle" class="bg-surface-container-high/20 p-1.5 rounded-2xl flex items-center">
+                    <button data-view="list"
+                        class="px-6 py-2.5 rounded-xl font-headline font-bold text-sm transition-all text-on-surface-variant hover:text-on-surface">List</button>
+                    <button data-view="board"
+                        class="px-6 py-2.5 rounded-xl font-headline font-bold text-sm bg-white text-on-surface shadow-sm">Board</button>
+                </div>
+            </header>
+            <!-- Filter Bar -->
+            <div class="px-10 mb-10">
+                <div class="flex flex-wrap items-center gap-4 bg-white/60 backdrop-blur-md p-4 rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
+                    <!-- Status Filters -->
+                    <div id="status-filters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pr-4 border-r border-black/10">
+                        <button data-status="" class="status-btn px-5 py-2 rounded-full bg-primary text-white text-xs font-extrabold font-body">All</button>
+                        <button data-status="Pending" class="status-btn px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-extrabold font-body hover:bg-surface-container-highest">Pending</button>
+                        <button data-status="In Progress" class="status-btn px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-extrabold font-body hover:bg-surface-container-highest">In Progress</button>
+                        <button data-status="Completed" class="status-btn px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-extrabold font-body hover:bg-surface-container-highest">Completed</button>
+                        <button data-status="Overdue" class="status-btn px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-extrabold font-body hover:bg-surface-container-highest">Overdue</button>
+                    </div>
+                    <!-- Search + Filters -->
+                    <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                        <div class="relative flex-1">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">search</span>
+                            <input id="task-search"
+                                class="w-full pl-12 pr-4 py-3 bg-surface-container-high/10 border-none rounded-2xl focus:ring-2 focus:ring-primary-container text-sm font-body text-black placeholder:text-gray-500"
+                                placeholder="Search tasks..." type="text" />
+                        </div>
+                        <!-- Date Filter -->
+                        <div class="relative">
+                            <input id="date-filter" type="date" aria-label="Filter by date" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                            <button id="date-filter-btn"
+                                class="px-4 py-3 bg-white rounded-2xl flex items-center gap-2 shadow-sm text-on-surface-variant hover:text-on-surface transition-colors relative pointer-events-none">
+                                <span class="material-symbols-outlined text-xl">calendar_today</span>
+                                <span class="text-xs font-bold font-body" id="date-filter-label">Date</span>
+                            </button>
+                        </div>
+                        <!-- Priority Filter -->
+                        <div class="relative" id="priority-wrapper">
+                            <button id="priority-filter-btn"
+                                class="px-4 py-3 bg-white rounded-2xl flex items-center gap-2 shadow-sm text-on-surface-variant hover:text-on-surface transition-colors">
+                                <span class="material-symbols-outlined text-xl">filter_list</span>
+                                <span class="text-xs font-bold font-body" id="priority-filter-label">Priority</span>
+                            </button>
+                            <div id="priority-dropdown" class="hidden absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-lg border border-black/5 py-2 z-50 min-w-[140px]">
+                                <button data-priority="" class="w-full text-left px-4 py-2 text-sm font-bold hover:bg-surface-container-high/30 text-on-surface">All</button>
+                                <button data-priority="Low" class="w-full text-left px-4 py-2 text-sm font-bold hover:bg-surface-container-high/30 text-on-surface-variant">Low</button>
+                                <button data-priority="Medium" class="w-full text-left px-4 py-2 text-sm font-bold hover:bg-surface-container-high/30 text-on-surface-variant">Medium</button>
+                                <button data-priority="High" class="w-full text-left px-4 py-2 text-sm font-bold hover:bg-surface-container-high/30 text-on-surface-variant">High</button>
+                                <button data-priority="Urgent" class="w-full text-left px-4 py-2 text-sm font-bold hover:bg-surface-container-high/30 text-error">Urgent</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- List View (hidden by default) -->
+            <div class="px-10 pb-20 hidden" id="list-view">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-high/30">
+                                <th class="px-6 py-4 font-headline text-sm font-bold text-on-surface-variant">Task</th>
+                                <th class="px-6 py-4 font-headline text-sm font-bold text-on-surface-variant">Priority</th>
+                                <th class="px-6 py-4 font-headline text-sm font-bold text-on-surface-variant">Deadline</th>
+                                <th class="px-6 py-4 font-headline text-sm font-bold text-on-surface-variant">Status</th>
+                                <th class="px-6 py-4 font-headline text-sm font-bold text-on-surface-variant text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-tbody" class="divide-y divide-black/5">
+                            <tr><td colspan="5" class="px-6 py-12 text-center text-on-surface-variant">No tasks yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Kanban Board View -->
+            <div class="px-10 pb-20 overflow-x-auto flex gap-8" id="kanban-board">
+                <!-- Pending Column -->
+                <div class="flex-shrink-0 w-80" id="col-pending">
+                    <div class="flex items-center justify-between mb-6 px-2">
+                        <h3 class="font-headline font-bold text-lg text-on-surface flex items-center gap-2">Pending
+                            <span class="bg-surface-container-high/20 text-on-surface-variant px-2 py-0.5 rounded-lg text-xs">0</span>
+                        </h3>
+                    </div>
+                    <div class="space-y-4"><p class="text-center text-on-surface-variant/60 py-8 text-sm">No tasks</p></div>
+                </div>
+                <!-- In Progress Column -->
+                <div class="flex-shrink-0 w-80" id="col-inprogress">
+                    <div class="flex items-center justify-between mb-6 px-2">
+                        <h3 class="font-headline font-bold text-lg text-on-surface flex items-center gap-2">In Progress
+                            <span class="bg-primary-container/20 text-on-primary-container px-2 py-0.5 rounded-lg text-xs">0</span></h3>
+                    </div>
+                    <div class="space-y-4"><p class="text-center text-on-surface-variant/60 py-8 text-sm">No tasks</p></div>
+                </div>
+                <!-- Completed Column -->
+                <div class="flex-shrink-0 w-80" id="col-completed">
+                    <div class="flex items-center justify-between mb-6 px-2">
+                        <h3 class="font-headline font-bold text-lg text-on-surface flex items-center gap-2">Completed
+                            <span class="bg-surface-container-high/20 text-on-surface-variant px-2 py-0.5 rounded-lg text-xs">0</span></h3>
+                    </div>
+                    <div class="space-y-4"><p class="text-center text-on-surface-variant/60 py-8 text-sm">No tasks</p></div>
+                </div>
+                <!-- Overdue Column -->
+                <div class="flex-shrink-0 w-80" id="col-overdue">
+                    <div class="flex items-center justify-between mb-6 px-2">
+                        <h3 class="font-headline font-bold text-lg text-error flex items-center gap-2">Overdue
+                            <span class="bg-error/20 text-error px-2 py-0.5 rounded-lg text-xs">0</span></h3>
+                    </div>
+                    <div class="space-y-4"><p class="text-center text-on-surface-variant/60 py-8 text-sm">No tasks</p></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="api.js?v=2"></script>
+    <script>
+        if (!api.requireAuth()) { document.body.style.display = 'none'; }
+        api.updateSidebar();
+
+        var currentView = 'board';
+        var currentStatus = '';
+        var currentPriority = '';
+        var currentSearch = '';
+        var currentDate = '';
+        var allTasks = [];
+
+        var PRIORITY_CLASSES = {
+            'High': 'bg-secondary-fixed text-on-secondary-fixed',
+            'Medium': 'bg-surface-container-high/20 text-on-surface-variant',
+            'Low': 'bg-surface-container-high/20 text-on-surface-variant',
+            'Urgent': 'bg-error/10 text-error'
+        };
+        var STATUS_CLASSES = {
+            'Pending': 'bg-surface-container-highest text-on-surface-variant',
+            'In Progress': 'bg-secondary-container text-on-secondary-container',
+            'Completed': 'bg-primary-container text-on-primary-container',
+            'Overdue': 'bg-error-container text-on-error-container'
+        };
+        var NEXT_STATUS = { 'Pending': 'In Progress', 'In Progress': 'Completed', 'Overdue': 'In Progress' };
+
+        // Format deadline as "10 Apr 2026" (en-GB long format).
+        // Returns null when there's no deadline so the caller can render the
+        // "No deadline set" placeholder in the right gray.
+        function formatDeadline(iso) {
+            if (!iso) return null;
+            return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        var NO_DL_HTML = '<span style="color:#9CA3AF" class="text-[11px] font-semibold italic">No deadline set</span>';
+
+        function createTaskCard(task) {
+            var dlText = formatDeadline(task.deadline);
+            var pClass = PRIORITY_CLASSES[task.priority] || PRIORITY_CLASSES['Medium'];
+            var isCompleted = task.status === 'Completed';
+            var isOverdue = task.status === 'Overdue';
+            var borderClass = task.status === 'In Progress' ? 'border-l-4 border-primary-container' : isOverdue ? 'border border-error/10' : '';
+            var titleClass = isCompleted ? 'line-through decoration-primary-container decoration-2' : '';
+            var progressBar = (task.status === 'In Progress' && task.progress > 0) ?
+                '<div class="mt-4 h-1 w-full bg-surface-container-high/10 rounded-full overflow-hidden"><div class="h-full bg-primary-container" style="width:' + task.progress + '%"></div></div>' : '';
+            var nextStatus = NEXT_STATUS[task.status];
+            var actionHtml = nextStatus ? '<button class="task-action mt-3 w-full text-center text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 py-2 rounded-xl hover:bg-primary/20 transition-colors" data-id="' + task._id + '" data-next="' + nextStatus + '">Move to ' + nextStatus + '</button>' : '';
+
+            // Date row: real date if present, "No deadline set" placeholder otherwise.
+            var dateRowHtml = dlText
+                ? '<div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">' + (isOverdue ? 'warning' : 'calendar_month') + '</span><span class="text-[11px] font-bold font-body ' + (isOverdue ? 'text-error' : '') + '">' + escapeHtml(dlText) + '</span></div>'
+                : '<div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm" style="color:#9CA3AF">event_busy</span>' + NO_DL_HTML + '</div>';
+
+            return '<div class="bg-white p-5 rounded-[1.25rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-shadow group ' + borderClass + '">' +
+                '<div class="flex justify-between items-start mb-4"><span class="px-3 py-1 rounded-full ' + pClass + ' text-[10px] font-black font-body uppercase tracking-wider">' + escapeHtml(task.priority) + '</span>' +
+                (isCompleted ? '<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: \'FILL\' 1;">check_circle</span>' : '') + '</div>' +
+                '<h4 class="font-headline font-bold text-on-surface leading-tight ' + titleClass + '">' + escapeHtml(task.title) + '</h4>' +
+                progressBar +
+                '<div class="mt-6 flex items-center justify-between text-on-surface-variant/60">' + dateRowHtml +
+                ((task.status === 'In Progress' && task.progress) ? '<span class="text-[10px] font-extrabold font-body text-primary-container uppercase">' + task.progress + '%</span>' : '') +
+                '</div>' + actionHtml + '</div>';
+        }
+
+        function createListRow(task) {
+            var dlText = formatDeadline(task.deadline);
+            var dlCellHtml = dlText
+                ? '<span class="text-on-surface-variant text-sm">' + escapeHtml(dlText) + '</span>'
+                : NO_DL_HTML;
+            var pClass = PRIORITY_CLASSES[task.priority] || PRIORITY_CLASSES['Medium'];
+            var sClass = STATUS_CLASSES[task.status] || '';
+            var nextStatus = NEXT_STATUS[task.status];
+            var actionHtml = nextStatus ? '<button class="task-action text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-xl hover:bg-primary/20 transition-colors" data-id="' + task._id + '" data-next="' + nextStatus + '">' + nextStatus + '</button>' : '';
+            return '<tr class="hover:bg-black/[0.02] transition-colors"><td class="px-6 py-4 font-bold text-on-surface">' + escapeHtml(task.title) + '</td>' +
+                '<td class="px-6 py-4"><span class="px-3 py-1 rounded-full ' + pClass + ' text-[10px] font-black uppercase">' + escapeHtml(task.priority) + '</span></td>' +
+                '<td class="px-6 py-4">' + dlCellHtml + '</td>' +
+                '<td class="px-6 py-4"><span class="px-3 py-1 rounded-full ' + sClass + ' text-xs font-bold">' + escapeHtml(task.status) + '</span></td>' +
+                '<td class="px-6 py-4 text-right">' + actionHtml + '</td></tr>';
+        }
+
+        function renderColumn(colId, items) {
+            var col = document.getElementById(colId);
+            if (!col) return;
+            var badge = col.querySelector('h3 span');
+            if (badge) badge.textContent = items.length;
+            var container = col.querySelector('.space-y-4');
+            if (!container) return;
+            if (items.length) container.innerHTML = items.map(createTaskCard).join('');
+            else container.innerHTML = '<p class="text-center text-on-surface-variant/60 py-8 text-sm">No tasks</p>';
+        }
+
+        function renderBoard(tasks) {
+            renderColumn('col-pending', tasks.filter(function(t) { return t.status === 'Pending'; }));
+            renderColumn('col-inprogress', tasks.filter(function(t) { return t.status === 'In Progress'; }));
+            renderColumn('col-completed', tasks.filter(function(t) { return t.status === 'Completed'; }));
+            renderColumn('col-overdue', tasks.filter(function(t) { return t.status === 'Overdue'; }));
+            document.querySelectorAll('#kanban-board .task-action').forEach(attachAction);
+        }
+
+        function renderList(tasks) {
+            var tbody = document.getElementById('list-tbody');
+            if (!tbody) return;
+            if (tasks.length) {
+                tbody.innerHTML = tasks.map(createListRow).join('');
+                tbody.querySelectorAll('.task-action').forEach(attachAction);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-on-surface-variant">No tasks match your filters</td></tr>';
+            }
+        }
+
+        function attachAction(btn) {
+            btn.addEventListener('click', async function(e) {
+                e.stopPropagation();
+                try { btn.textContent = '...'; btn.disabled = true; await api.updateTaskStatus(btn.dataset.id, btn.dataset.next); loadTasks(); } catch (err) { alert(err.message); }
+            });
+        }
+
+        function applyFilters() {
+            var filtered = allTasks.slice();
+            if (currentStatus) filtered = filtered.filter(function(t) { return t.status === currentStatus; });
+            if (currentPriority) filtered = filtered.filter(function(t) { return t.priority === currentPriority; });
+            if (currentSearch) { var q = currentSearch.toLowerCase(); filtered = filtered.filter(function(t) { return t.title.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q); }); }
+            if (currentDate) filtered = filtered.filter(function(t) { return t.deadline && t.deadline.substring(0, 10) === currentDate; });
+            // Earliest deadline first; tasks with no deadline drop to the bottom.
+            filtered.sort(function (a, b) {
+                if (!a.deadline && !b.deadline) return 0;
+                if (!a.deadline) return 1;
+                if (!b.deadline) return -1;
+                return new Date(a.deadline) - new Date(b.deadline);
+            });
+            if (currentView === 'board') renderBoard(filtered);
+            else renderList(filtered);
+        }
+
+        async function loadTasks() {
+            try { var data = await api.getTasks(); allTasks = data.tasks || []; applyFilters(); } catch (err) { var tb = document.querySelector('#tasks-tbody, tbody'); if (tb) tb.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-sm text-on-surface-variant">Failed to load tasks. Please refresh the page.</td></tr>'; }
+        }
+
+        // View Toggle
+        document.querySelectorAll('#view-toggle button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                currentView = btn.dataset.view;
+                document.querySelectorAll('#view-toggle button').forEach(function(b) { b.className = 'px-6 py-2.5 rounded-xl font-headline font-bold text-sm transition-all text-on-surface-variant hover:text-on-surface'; });
+                btn.className = 'px-6 py-2.5 rounded-xl font-headline font-bold text-sm bg-white text-on-surface shadow-sm';
+                document.getElementById('kanban-board').classList.toggle('hidden', currentView !== 'board');
+                document.getElementById('list-view').classList.toggle('hidden', currentView !== 'list');
+                applyFilters();
+            });
+        });
+
+        // Status Filters
+        document.querySelectorAll('.status-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                currentStatus = btn.dataset.status;
+                document.querySelectorAll('.status-btn').forEach(function(b) { b.className = 'status-btn px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-extrabold font-body hover:bg-surface-container-highest'; });
+                btn.className = 'status-btn px-5 py-2 rounded-full bg-primary text-white text-xs font-extrabold font-body';
+                applyFilters();
+            });
+        });
+
+        // Search
+        var searchTimeout;
+        document.getElementById('task-search').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            var input = this;
+            searchTimeout = setTimeout(function() { currentSearch = input.value.trim(); applyFilters(); }, 300);
+        });
+
+        // Date Filter
+        document.getElementById('date-filter').addEventListener('change', function() {
+            currentDate = this.value;
+            var label = document.getElementById('date-filter-label');
+            if (currentDate) { label.textContent = new Date(currentDate + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); label.parentElement.classList.add('bg-primary-container'); }
+            else { label.textContent = 'Date'; label.parentElement.classList.remove('bg-primary-container'); }
+            applyFilters();
+        });
+
+        // Priority Filter
+        document.getElementById('priority-filter-btn').addEventListener('click', function(e) { e.stopPropagation(); document.getElementById('priority-dropdown').classList.toggle('hidden'); });
+        document.querySelectorAll('#priority-dropdown button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                currentPriority = btn.dataset.priority;
+                document.getElementById('priority-filter-label').textContent = currentPriority || 'Priority';
+                var wrapper = document.getElementById('priority-filter-btn');
+                if (currentPriority) wrapper.classList.add('bg-primary-container'); else wrapper.classList.remove('bg-primary-container');
+                document.getElementById('priority-dropdown').classList.add('hidden');
+                applyFilters();
+            });
+        });
+        document.addEventListener('click', function() { document.getElementById('priority-dropdown').classList.add('hidden'); });
+
+        // Logout
+        document.querySelectorAll('[data-logout]').forEach(function(a) { a.addEventListener('click', function(e) { e.preventDefault(); api.logout(); }); });
+
+        loadTasks();
+    </script>
+</body>
+</html>

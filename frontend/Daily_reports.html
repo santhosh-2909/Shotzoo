@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Daily Reports | ShotZoo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="base.css" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#f7f8f4",
+                        "surface-dim": "#d8dace",
+                        "surface-bright": "#f7f8f4",
+                        "surface-container": "#eceee6",
+                        "surface-container-low": "#f2f4ec",
+                        "surface-container-high": "#e6e9e0",
+                        "surface-container-highest": "#dfe1d8",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e1e4d5",
+                        "on-surface": "#1a1c15",
+                        "on-surface-variant": "#444939",
+                        "background": "#f7f8f4",
+                        "on-background": "#1a1c15",
+                        "primary": "#496800",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#add366",
+                        "on-primary-container": "#131f00",
+                        "primary-fixed": "#c9f080",
+                        "primary-fixed-dim": "#add366",
+                        "secondary": "#55633a",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d8e9b4",
+                        "on-secondary-container": "#131f00",
+                        "tertiary": "#8a438a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#ffd6f8",
+                        "on-tertiary-container": "#37003b",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#410002",
+                        "outline": "#757968",
+                        "outline-variant": "#c4c9b5",
+                        "inverse-surface": "#2f3129",
+                        "inverse-on-surface": "#f0f1e8",
+                        "inverse-primary": "#add366",
+                        "surface-tint": "#496800"
+                    },
+                    "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    "fontFamily": { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Manrope"] }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .clay-card { border-radius: 20px; background-color: #ffffff; box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.04); }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container animate-fade-in">
+    <!-- SideNavBar -->
+    <aside class="h-screen w-72 fixed left-0 top-0 bg-[#2A2A2A] shadow-[40px_0_40px_rgba(240,240,240,0.06)] z-50 flex flex-col p-6 font-headline tracking-tighter">
+        <div class="text-2xl font-bold text-[#add366] mb-8">
+            <a href="/dashboard" class="flex items-center gap-2">
+                <img alt="ShotZoo Logo" class="w-8 h-8 object-contain" src="/company_logo.jpeg" />
+                <span>ShotZoo</span>
+            </a>
+        </div>
+        <div class="flex flex-col gap-1 mb-10 px-4">
+            <div class="w-14 h-14 rounded-2xl overflow-hidden mb-3 ring-2 ring-[#add366]/20">
+                <img alt="User avatar" class="w-full h-full object-cover" data-user-photo src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8cHZZCiK4qJkz0_dUPBFHB2OfTBIcIYXcl_liRMhpG4R7A-J2DWHmbQMlIF_Y-LvWkdr8mJwEPx7NYJ1TV6aPsDiZc4rNxorhXZ6gweR6JcWIxl94XQ7Zn_4wGf9PizjlihjSHpEwtt0-4d1GV6O22xb6VDuIWeY9C5-u1jBtUDT6B0FVQ7PAbMBF20aTnPq8CDENYh3WUlok-v2iCvDDYzsKIWaK99hggZG0UUJVF32oPdrl6AhID0iedv41_gYiL0sIAMTbePM" />
+            </div>
+            <h2 class="text-white text-lg font-bold" data-user-name>User</h2>
+            <p class="text-white/40 text-xs tracking-widest uppercase" data-user-id>ID: --</p>
+        </div>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a class="sidebar-item" href="/attendance"><span class="material-symbols-outlined">event_available</span><span>Attendance</span></a>
+            <a class="sidebar-item" href="/add-task"><span class="material-symbols-outlined">add_circle</span><span>Add Task</span></a>
+            <a class="sidebar-item active" href="/daily-reports"><span class="material-symbols-outlined">description</span><span>Daily Reports</span></a>
+            <a class="sidebar-item" href="/my-tasks"><span class="material-symbols-outlined">assignment</span><span>My Tasks</span></a>
+            <a class="sidebar-item" href="/notifications"><span class="material-symbols-outlined">notifications</span><span>Notifications</span></a>
+            <a class="sidebar-item" href="/dashboard"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a>
+            <a class="sidebar-item" href="/profile"><span class="material-symbols-outlined">person</span><span>My Profile</span></a>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-black/5 flex flex-col gap-2">
+            <a class="sidebar-item" href="#" data-logout><span class="material-symbols-outlined">logout</span><span>Logout</span></a>
+        </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="ml-72 min-h-screen p-6 md:p-10 overflow-x-hidden">
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+                <h2 class="font-headline text-4xl font-bold tracking-tight text-on-surface">Daily Reports</h2>
+                <p class="text-on-surface-variant mt-1">Submit your BOD, MOD, and EOD updates on time</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="live-date" class="text-sm font-medium text-on-surface-variant bg-surface-container-high px-4 py-2 rounded-full">--</span>
+                <span id="live-time" class="text-sm font-bold text-primary bg-primary-container/30 px-4 py-2 rounded-full tabular-nums">--:-- --</span>
+            </div>
+        </header>
+        <div class="space-y-8">
+            <!-- Time Status Bar -->
+            <section class="clay-card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Submission Window</h3>
+                </div>
+                <div class="flex w-full bg-surface-container-high rounded-full h-12 md:h-14 p-1 md:p-1.5 gap-1 md:gap-2" id="time-bar">
+                    <div id="bar-bod" class="flex-1 flex items-center justify-center rounded-full text-on-surface-variant font-medium text-xs md:text-sm transition-all">BOD (9am-1pm)</div>
+                    <div id="bar-mod" class="flex-1 flex items-center justify-center rounded-full text-on-surface-variant font-medium text-xs md:text-sm transition-all">MOD (2-6pm)</div>
+                    <div id="bar-eod" class="flex-1 flex items-center justify-center rounded-full text-on-surface-variant font-medium text-xs md:text-sm transition-all">EOD (6-9pm)</div>
+                </div>
+            </section>
+            <!-- Today's Status — horizontal row -->
+            <section class="clay-card p-6">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Today's Summary</h3>
+                <div id="status-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-outline-variant/10 flex items-center justify-center text-outline-variant"><span class="material-symbols-outlined">schedule</span></div>
+                            <div><p class="text-sm font-bold">BOD</p><p class="text-[10px] text-on-surface-variant">9 AM - 1 PM</p></div>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-on-surface-variant uppercase" id="status-bod">Pending</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-outline-variant/10 flex items-center justify-center text-outline-variant"><span class="material-symbols-outlined">schedule</span></div>
+                            <div><p class="text-sm font-bold">MOD</p><p class="text-[10px] text-on-surface-variant">2 PM - 6 PM</p></div>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-on-surface-variant uppercase" id="status-mod">Pending</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-outline-variant/10 flex items-center justify-center text-outline-variant"><span class="material-symbols-outlined">schedule</span></div>
+                            <div><p class="text-sm font-bold">EOD</p><p class="text-[10px] text-on-surface-variant">6 PM - 9 PM</p></div>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-on-surface-variant uppercase" id="status-eod">Pending</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Form Area -->
+            <div class="max-w-3xl space-y-6">
+                    <!-- Tab View -->
+                    <section class="clay-card overflow-hidden">
+                        <div class="flex border-b border-surface-container-high" id="report-tabs">
+                            <button data-tab="BOD" class="report-tab flex-1 py-5 text-sm font-bold text-primary border-b-4 border-primary">BOD Report</button>
+                            <button data-tab="MOD" class="report-tab flex-1 py-5 text-sm font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors border-b-4 border-transparent">MOD Report</button>
+                            <button data-tab="EOD" class="report-tab flex-1 py-5 text-sm font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors border-b-4 border-transparent">EOD Report</button>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <h4 id="form-title" class="text-xl font-bold text-on-surface">Beginning of Day Report</h4>
+                                <div id="form-status-badge" class="flex items-center px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold">
+                                    <span class="w-2 h-2 rounded-full bg-primary mr-2"></span>
+                                    <span id="form-status-text">Submission open</span>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="space-y-1">
+                                    <label for="report-title" class="text-xs font-bold text-on-surface-variant ml-1 uppercase tracking-wider">Task Title</label>
+                                    <input id="report-title" class="w-full h-12 px-5 bg-surface-container-low border-transparent rounded-2xl focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline-variant" placeholder="e.g. Warehouse Inventory Audit" type="text" />
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="report-body" class="text-xs font-bold text-on-surface-variant ml-1 uppercase tracking-wider">Detailed Scope (What / Why / How / When)</label>
+                                    <textarea id="report-body" class="w-full p-5 bg-surface-container-low border-transparent rounded-2xl focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none text-on-surface resize-none placeholder:text-outline-variant" placeholder="Describe the objectives and strategy..." rows="6"></textarea>
+                                </div>
+                            </div>
+                            <button id="btn-submit-report" class="w-full h-14 bg-primary-container text-on-primary-container font-extrabold text-lg rounded-full shadow-[0_10px_20px_rgba(173,211,102,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined">send</span>
+                                Submit Report
+                            </button>
+                        </div>
+                    </section>
+                    <!-- Late Alert (hidden by default) -->
+                    <section id="late-alert" class="hidden bg-error-container/20 border-2 border-dashed border-error/20 p-6 rounded-[20px] flex gap-4 items-start">
+                        <div class="bg-error rounded-full p-2 text-white"><span class="material-symbols-outlined text-[20px]">warning</span></div>
+                        <div class="flex-1">
+                            <h5 class="text-sm font-bold text-error" id="late-alert-title">Submission window closed</h5>
+                            <p class="text-xs text-on-surface-variant mt-1 mb-4">Please provide a reason for the late submission.</p>
+                            <input id="late-reason" class="w-full h-10 px-4 bg-white border border-error/30 rounded-full text-sm outline-none focus:ring-2 focus:ring-error focus:border-transparent" placeholder="Reason for late submission..." type="text" />
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="api.js?v=2"></script>
+    <script>
+        if (!api.requireAuth()) { document.body.style.display = 'none'; }
+        api.updateSidebar();
+
+        // State
+        var currentTab = 'BOD';
+        var submittedReports = {}; // { BOD: {...}, MOD: {...}, EOD: {...} }
+        var TITLES = { BOD: 'Beginning of Day Report', MOD: 'Middle of Day Report', EOD: 'End of Day Report' };
+        var WINDOWS = { BOD: [9, 13], MOD: [14, 18], EOD: [18, 21] };
+        var WINDOW_LABELS = {
+            BOD: 'BOD window is 9:00 AM \u2013 1:00 PM',
+            MOD: 'MOD window is 2:00 PM \u2013 6:00 PM',
+            EOD: 'EOD window is after 6:00 PM'
+        };
+        var BTN_ACTIVE = 'w-full h-14 bg-primary-container text-on-primary-container font-extrabold text-lg rounded-full shadow-[0_10px_20px_rgba(173,211,102,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center justify-center gap-3';
+        var BTN_DISABLED = 'w-full h-14 bg-surface-container-high text-on-surface-variant font-extrabold text-lg rounded-full flex items-center justify-center gap-3 opacity-50 cursor-not-allowed';
+
+        // Live clock + time bar
+        function updateClock() {
+            var now = new Date();
+            document.getElementById('live-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('live-time').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            var h = now.getHours();
+            ['BOD', 'MOD', 'EOD'].forEach(function (key) {
+                var el = document.getElementById('bar-' + key.toLowerCase());
+                var w = WINDOWS[key];
+                if (h >= w[0] && h < w[1]) el.className = 'flex-1 bg-primary-container flex items-center justify-center rounded-full text-on-primary-container font-bold text-sm shadow-sm';
+                else if (h >= w[1]) el.className = 'flex-1 bg-surface-container flex items-center justify-center rounded-full text-on-surface-variant/60 font-medium text-sm';
+                else el.className = 'flex-1 flex items-center justify-center rounded-full text-on-surface-variant font-medium text-sm';
+            });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+        // Re-evaluate the lock state every minute so a slot opens/closes without a page reload.
+        setInterval(function () { updateFormStatus(); }, 60 * 1000);
+
+        function getWindowStatus(type) {
+            var h = new Date().getHours();
+            var w = WINDOWS[type];
+            if (h >= w[0] && h < w[1]) return 'open';
+            if (h >= w[1]) return 'closed';
+            return 'upcoming';
+        }
+
+        // Update sidebar status for a report type
+        function updateStatusCard(type, data) {
+            var el = document.getElementById('status-' + type.toLowerCase());
+            if (!el) return;
+            var card = el.closest('.rounded-xl');
+            var icon = card.querySelector('.material-symbols-outlined');
+            var iconWrap = card.querySelector('.w-10');
+            var subtext = card.querySelector('.text-\\[10px\\].text-on-surface-variant');
+
+            if (data.submitted) {
+                var timeStr = new Date(data.submittedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                if (data.isLate) {
+                    el.textContent = 'Late';
+                    el.className = 'text-[10px] font-extrabold text-error uppercase';
+                    iconWrap.className = 'w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error';
+                    icon.textContent = 'warning';
+                } else {
+                    el.textContent = 'On Time';
+                    el.className = 'text-[10px] font-extrabold text-primary uppercase';
+                    iconWrap.className = 'w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary';
+                    icon.textContent = 'check_circle';
+                }
+                if (subtext) subtext.textContent = 'Submitted at ' + timeStr;
+            } else {
+                var ws = data.windowStatus || getWindowStatus(type);
+                if (ws === 'open') {
+                    el.textContent = 'Open Now';
+                    el.className = 'text-[10px] font-extrabold text-primary uppercase';
+                    iconWrap.className = 'w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary';
+                    icon.textContent = 'edit_note';
+                } else if (ws === 'closed') {
+                    el.textContent = 'Missed';
+                    el.className = 'text-[10px] font-extrabold text-error uppercase';
+                    iconWrap.className = 'w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error';
+                    icon.textContent = 'cancel';
+                } else {
+                    el.textContent = 'Pending';
+                    el.className = 'text-[10px] font-extrabold text-on-surface-variant uppercase';
+                }
+            }
+        }
+
+        // Lock or unlock the form inputs for the current tab
+        function setInputsLocked(locked) {
+            var titleEl = document.getElementById('report-title');
+            var bodyEl = document.getElementById('report-body');
+            if (titleEl) {
+                titleEl.readOnly = locked;
+                titleEl.disabled = locked;
+                titleEl.style.opacity = locked ? '0.55' : '1';
+                titleEl.style.cursor = locked ? 'not-allowed' : 'text';
+            }
+            if (bodyEl) {
+                bodyEl.readOnly = locked;
+                bodyEl.disabled = locked;
+                bodyEl.style.opacity = locked ? '0.55' : '1';
+                bodyEl.style.cursor = locked ? 'not-allowed' : 'text';
+            }
+        }
+
+        // Update form based on current tab — strict time-window enforcement.
+        // Each tab is COMPLETELY independent. No "late submission" path.
+        function updateFormStatus() {
+            var badge = document.getElementById('form-status-badge');
+            var text = document.getElementById('form-status-text');
+            var lateAlert = document.getElementById('late-alert');
+            var submitBtn = document.getElementById('btn-submit-report');
+
+            // Always hide the legacy "late submission" alert — we no longer support late submissions.
+            if (lateAlert) lateAlert.classList.add('hidden');
+
+            // If already submitted: lock and show success
+            if (submittedReports[currentTab]) {
+                badge.className = 'flex items-center px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold';
+                text.textContent = 'Already submitted';
+                submitBtn.disabled = true;
+                submitBtn.className = BTN_DISABLED;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> ' + currentTab + ' Report Submitted';
+                setInputsLocked(true);
+                return;
+            }
+
+            var status = getWindowStatus(currentTab);
+            if (status === 'open') {
+                badge.className = 'flex items-center px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold';
+                text.textContent = 'Submission open';
+                submitBtn.disabled = false;
+                submitBtn.className = BTN_ACTIVE;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined">send</span> Submit Report';
+                setInputsLocked(false);
+            } else {
+                // Either upcoming or closed — both are LOCKED. Show the slot's window message.
+                badge.className = 'flex items-center px-3 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold';
+                text.textContent = WINDOW_LABELS[currentTab];
+                submitBtn.disabled = true;
+                submitBtn.className = BTN_DISABLED;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined">lock</span> ' + WINDOW_LABELS[currentTab];
+                setInputsLocked(true);
+            }
+        }
+
+        // Tab switching — clears the form so the next tab starts fresh.
+        // Without this, content typed on BOD would visually carry over to MOD/EOD.
+        document.querySelectorAll('.report-tab').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                currentTab = btn.dataset.tab;
+                document.querySelectorAll('.report-tab').forEach(function (b) {
+                    b.className = 'report-tab flex-1 py-5 text-sm font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors border-b-4 border-transparent';
+                });
+                btn.className = 'report-tab flex-1 py-5 text-sm font-bold text-primary border-b-4 border-primary';
+                document.getElementById('form-title').textContent = TITLES[currentTab];
+                var titleEl = document.getElementById('report-title');
+                var bodyEl = document.getElementById('report-body');
+                if (titleEl) titleEl.value = '';
+                if (bodyEl) bodyEl.value = '';
+                updateFormStatus();
+            });
+        });
+
+        // Load today's reports from backend
+        async function loadTodayReports() {
+            try {
+                var data = await api.getTodayReports();
+                submittedReports = {};
+                if (data.statuses) {
+                    ['BOD', 'MOD', 'EOD'].forEach(function (type) {
+                        var s = data.statuses[type];
+                        if (s.submitted) submittedReports[type] = s;
+                        updateStatusCard(type, s);
+                    });
+                }
+                updateFormStatus();
+            } catch (e) { var rc = document.querySelector('table tbody'); if (rc) rc.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-sm text-on-surface-variant">Failed to load reports. Please refresh.</td></tr>'; }
+        }
+        loadTodayReports();
+
+        // Submit report via backend API. Submits ONLY the current tab; the
+        // backend independently rejects anything outside the slot's window.
+        document.getElementById('btn-submit-report').addEventListener('click', async function () {
+            // Hard guard: never even attempt a submit if the slot isn't open right now.
+            if (getWindowStatus(currentTab) !== 'open') {
+                alert(WINDOW_LABELS[currentTab]);
+                return;
+            }
+            var title = document.getElementById('report-title').value.trim();
+            var body = document.getElementById('report-body').value.trim();
+            if (!title) { alert('Please enter a task title.'); return; }
+            if (!body) { alert('Please enter the report details.'); return; }
+
+            var btn = this;
+            try {
+                btn.textContent = 'Submitting...';
+                btn.disabled = true;
+                await api.submitReport({
+                    type: currentTab,
+                    title: title,
+                    description: body
+                });
+
+                // Clear form
+                document.getElementById('report-title').value = '';
+                document.getElementById('report-body').value = '';
+
+                // Reload statuses from backend (only this slot's row will flip to submitted)
+                await loadTodayReports();
+                alert(currentTab + ' Report submitted successfully!');
+            } catch (err) {
+                alert(err.message || 'Failed to submit report.');
+                btn.innerHTML = '<span class="material-symbols-outlined">send</span> Submit Report';
+                btn.disabled = false;
+            }
+        });
+
+        // Logout
+        document.querySelectorAll('[data-logout]').forEach(function (a) {
+            a.addEventListener('click', function (e) { e.preventDefault(); api.logout(); });
+        });
+    </script>
+</body>
+</html>
