@@ -1,13 +1,17 @@
 {
-  "experimentalServices": {
-    "frontend": {
-      "entrypoint": "frontend",
-      "routePrefix": "/",
-      "framework": "vite"
-    },
-    "backend": {
-      "entrypoint": "backend",
-      "routePrefix": "/_/backend"
+  "version": 2,
+  "buildCommand": "npm --prefix frontend install && npm --prefix frontend run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "npm install && npm --prefix frontend install",
+  "framework": null,
+  "functions": {
+    "api/[...path].ts": {
+      "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)",    "destination": "/api/[...path]" },
+    { "source": "/uploads/(.*)", "destination": "/api/[...path]" },
+    { "source": "/((?!api/|uploads/|assets/|.*\\.(?:js|css|ico|png|jpe?g|svg|woff2?|ttf|eot|json|map|txt|webp|gif|mp4|webm)).*)", "destination": "/index.html" }
+  ]
 }

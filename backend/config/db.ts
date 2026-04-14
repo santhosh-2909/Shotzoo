@@ -19,8 +19,11 @@ const startInMemory = async (reason: string): Promise<void> => {
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- optional dep
-    const { MongoMemoryServer } = require('mongodb-memory-server');
+    // Hide the module name from static analyzers (Vercel's esbuild would
+    // otherwise try to bundle this dev-only dep into the serverless function).
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic require
+    const dynRequire = eval('require') as (m: string) => { MongoMemoryServer: { create: (opts?: unknown) => Promise<{ getUri: () => string; stop: (opts?: unknown) => Promise<void> }> } };
+    const { MongoMemoryServer } = dynRequire('mongodb-memory-server');
     const mongod = await MongoMemoryServer.create({
       instance: {
         dbPath,
