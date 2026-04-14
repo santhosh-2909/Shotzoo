@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
 import { sendEmployeeIdEmail } from '../utils/emailService';
+import { fileToDataUrl } from '../middleware/upload';
 
 const generateToken = (id: unknown): string =>
   jwt.sign({ id }, process.env.JWT_SECRET as string, {
@@ -89,7 +90,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       gender:       gender      || '',
       linkedinUrl:  linkedinUrl || '',
       bio:          bio         || '',
-      photo:        req.file ? '/uploads/' + req.file.filename : '',
+      photo:        fileToDataUrl(req.file) ?? '',
     });
 
     setTimeout(() => {

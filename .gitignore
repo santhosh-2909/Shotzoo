@@ -10,6 +10,7 @@ yarn-error.log*
 .env.*.local
 *.pem
 *.key
+vercel.env.txt
 
 # Runtime data / uploads
 backend/uploads/*

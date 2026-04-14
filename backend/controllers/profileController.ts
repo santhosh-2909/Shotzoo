@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/User';
 import { sendOtpEmail } from '../utils/emailService';
+import { fileToDataUrl } from '../middleware/upload';
 
 interface OtpEntry {
   code: string;
@@ -52,7 +53,8 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         updates[f] = req.body[f];
       }
     }
-    if (req.file) updates.photo = '/uploads/' + req.file.filename;
+    const dataUrl = fileToDataUrl(req.file);
+    if (dataUrl) updates.photo = dataUrl;
 
     const user = await User.findByIdAndUpdate(req.user!._id, updates, {
       new: true,

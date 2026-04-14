@@ -23,7 +23,11 @@ export const DEFAULT_AVATAR =
 
 export function uploadUrl(path: string): string {
   if (!path) return DEFAULT_AVATAR;
+  // Inline data URLs (new in-DB storage) → return as-is
+  if (path.startsWith('data:')) return path;
+  // Absolute URLs → as-is
   if (path.startsWith('http')) return path;
+  // Legacy /uploads/* paths → prefix with API_BASE + cache-bust
   const v = localStorage.getItem('shotzoo_photo_v') ?? '0';
   const prefixed = path.startsWith('/') ? API_BASE + path : API_BASE + '/' + path;
   return prefixed + '?v=' + v;
@@ -63,7 +67,7 @@ async function request<T = unknown>(
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- JSON shape unknown
-  const data = (await res.json()) as any;
+  const data: any = await res.json();
 
   // Expired/invalid token on protected endpoint → force re-login
   if (res.status === 401 && !endpoint.startsWith('/auth/')) {
@@ -71,7 +75,7 @@ async function request<T = unknown>(
     localStorage.removeItem('shotzoo_user');
     localStorage.removeItem('shotzoo_admin');
     localStorage.removeItem('shotzoo_photo_v');
-    window.location.href = '/signin';
+    globalThis.location.href = '/signin';
     throw new Error('Session expired. Please log in again.');
   }
 

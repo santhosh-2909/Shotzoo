@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import seedDatabase from './seed';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const startInMemory = async (reason: string): Promise<void> => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- optional dep
@@ -25,6 +27,38 @@ const startInMemory = async (reason: string): Promise<void> => {
 const connectDB = async (): Promise<void> => {
   const uri = process.env.MONGODB_URI;
 
+  // Production: REQUIRE a real MongoDB. Never fall back to in-memory.
+  // Serverless platforms (Vercel, Netlify, etc.) have a read-only filesystem,
+  // so mongodb-memory-server cannot run there. Even if it could, every
+  // cold start would lose all data.
+  if (isProd) {
+    if (!uri) {
+      console.error('');
+      console.error('  ✖ MONGODB_URI is required in production.');
+      console.error('  Sign up at https://www.mongodb.com/cloud/atlas');
+      console.error('  Create a free M0 cluster and set the connection string');
+      console.error('  as MONGODB_URI in your hosting provider\'s env vars.');
+      console.error('');
+      process.exit(1);
+    }
+    try {
+      await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
+      console.log('  DB mode: real MongoDB (production)');
+      console.log('  Host:    ' + mongoose.connection.host);
+      console.log('  Name:    ' + mongoose.connection.name);
+    } catch (err) {
+      console.error('');
+      console.error('  ✖ Failed to connect to MONGODB_URI in production.');
+      console.error('  ' + (err as Error).message);
+      console.error('  Verify the connection string, IP whitelist, and credentials.');
+      console.error('');
+      process.exit(1);
+    }
+    await seedDatabase();
+    return;
+  }
+
+  // Development: try real URI first, fall back to in-memory with a warning.
   if (uri) {
     try {
       await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
