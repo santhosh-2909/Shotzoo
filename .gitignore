@@ -15,6 +15,8 @@ vercel.env.txt
 # Runtime data / uploads
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/data/
+data/
 logs/
 *.log
 

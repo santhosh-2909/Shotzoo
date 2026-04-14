@@ -60,14 +60,34 @@ async function request<T = unknown>(
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(apiUrl('/api' + endpoint), {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
+  let res: Response;
+  try {
+    res = await fetch(apiUrl('/api' + endpoint), {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+  } catch {
+    throw new Error('Cannot reach the server. Please check your connection and try again.');
+  }
+
+  // Read body as text first so we can give a useful error for empty / non-JSON responses.
+  const rawText = await res.text();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- JSON shape unknown
-  const data: any = await res.json();
+  let data: any = null;
+  if (rawText) {
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      // Non-JSON response (HTML error page, proxy timeout, etc.)
+      throw new Error(
+        res.ok
+          ? 'Server returned an invalid response. Please try again.'
+          : 'Server error (HTTP ' + res.status + '). Please try again in a moment.',
+      );
+    }
+  }
 
   // Expired/invalid token on protected endpoint → force re-login
   if (res.status === 401 && !endpoint.startsWith('/auth/')) {
@@ -81,7 +101,7 @@ async function request<T = unknown>(
 
   if (!res.ok) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    throw new Error((data?.message as string | undefined) ?? 'Request failed');
+    throw new Error((data?.message as string | undefined) ?? 'Request failed (HTTP ' + res.status + ')');
   }
 
   return data as T;

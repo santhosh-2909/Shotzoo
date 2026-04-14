@@ -1,18 +1,52 @@
 import mongoose from 'mongoose';
+import fs from 'node:fs';
+import path from 'node:path';
 import seedDatabase from './seed';
 
 const isProd = process.env.NODE_ENV === 'production';
 
+/**
+ * Persistent dev DB using mongodb-memory-server with a fixed dbPath.
+ * The mongod binary writes wiredTiger files under backend/data/ so data
+ * survives process restarts — no external MongoDB install needed.
+ */
 const startInMemory = async (reason: string): Promise<void> => {
+  const dbPath = path.resolve(__dirname, '..', '..', 'data');
+  try {
+    fs.mkdirSync(dbPath, { recursive: true });
+  } catch {
+    /* ignore mkdir errors — will surface below if unusable */
+  }
+
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- optional dep
     const { MongoMemoryServer } = require('mongodb-memory-server');
-    const mongod = await MongoMemoryServer.create();
+    const mongod = await MongoMemoryServer.create({
+      instance: {
+        dbPath,
+        storageEngine: 'wiredTiger',
+      },
+    });
     const memUri: string = mongod.getUri();
     await mongoose.connect(memUri);
-    console.log('  DB mode: in-memory MongoDB (ephemeral)');
+
+    // Graceful shutdown so wiredTiger flushes cleanly
+    const shutdown = async (): Promise<void> => {
+      try {
+        await mongoose.disconnect();
+        await mongod.stop({ doCleanup: false, force: false });
+      } catch {
+        /* best-effort */
+      }
+      process.exit(0);
+    };
+    process.once('SIGINT',  () => { void shutdown(); });
+    process.once('SIGTERM', () => { void shutdown(); });
+
+    console.log('  DB mode: persistent in-memory MongoDB');
     if (reason) console.log('  Reason:  ' + reason);
     console.log('  URI:     ' + memUri);
+    console.log('  Data:    ' + dbPath + ' (persists across restarts)');
   } catch (memErr) {
     console.error('');
     console.error('  ✖ Failed to start in-memory MongoDB.');
