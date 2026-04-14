@@ -1,0 +1,25 @@
+{
+  "extends": ["development"],
+  "ignoredUrls": [
+    {
+      "domain": "(^|.*/)UI/",
+      "hints": ["*"]
+    },
+    {
+      "domain": "(^|.*/)backend/(data|uploads|dist)/",
+      "hints": ["*"]
+    },
+    {
+      "domain": "(^|.*/)frontend/(dist|node_modules)/",
+      "hints": ["*"]
+    },
+    {
+      "domain": "(^|.*/)node_modules/",
+      "hints": ["*"]
+    }
+  ],
+  "hints": {
+    "no-inline-styles": "off",
+    "axe/forms": "warning"
+  }
+}

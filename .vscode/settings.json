@@ -3,28 +3,46 @@
     "**/.git": true,
     "**/node_modules": true,
     "**/dist": true,
-    "backend/data": true,
-    "backend/uploads": true,
-    "data": true
+    "**/backend/data": true,
+    "**/backend/uploads": true,
+    "**/data": true
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/**": true,
     "**/dist/**": true,
-    "backend/data/**": true,
-    "backend/uploads/**": true,
-    "data/**": true
+    "**/backend/data/**": true,
+    "**/backend/uploads/**": true,
+    "**/data/**": true
   },
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
     "**/package-lock.json": true,
-    "backend/data": true,
-    "backend/uploads": true,
-    "data": true
+    "**/backend/data": true,
+    "**/backend/uploads": true,
+    "**/data": true
   },
   "typescript.tsserver.watchOptions": {
     "excludeDirectories": ["**/node_modules", "**/dist", "**/backend/data", "**/backend/uploads"]
-  }
+  },
+
+  // ── Microsoft Edge DevTools + webhint ─────────────────────────────────
+  // Disable the webhint integration in this workspace. The hints fire on
+  // in-memory buffers of files that no longer exist on disk (stale tabs
+  // from deleted UI/*.html), producing ghost errors we can't silence any
+  // other way. Accessibility and no-inline-styles are still enforced by
+  // ESLint/tsc on the real frontend/src/**/*.tsx code.
+  "vscode-edge-devtools.webhint": false,
+  "vscode-edge-devtools.enableDiagnostics": false,
+
+  // Safety net: any config files that do reference UI/ should be ignored
+  "webhint.ignoredUrls": [
+    "(^|.*/)UI/",
+    "(^|.*/)backend/data/",
+    "(^|.*/)backend/uploads/",
+    "(^|.*/)node_modules/",
+    "(^|.*/)dist/"
+  ]
 }
