@@ -1,0 +1,162 @@
+/*
+ * ShotZoo Triple-Portal Theme System
+ *
+ * :root      → Admin portal (blue-tinted Material You light)
+ * html.dark  → Employee portal (green-tinted Material You light)
+ * html.auth  → Auth/splash pages (true Material You dark — jungle aesthetic)
+ *
+ * ThemeContext.tsx toggles classes on <html> via setPortal():
+ *   'admin'    → no extra class   (:root vars)
+ *   'employee' → adds .dark       (html.dark vars)
+ *   'auth'     → adds .auth       (html.auth vars)
+ */
+
+/* ── Admin portal (default / light) ─────────────────────────────── */
+:root {
+  --tw-primary:                   #496800;
+  --tw-on-primary:                #ffffff;
+  --tw-primary-container:         #a8cd62;
+  --tw-on-primary-container:      #3c5600;
+  --tw-primary-fixed:             #c9f080;
+  --tw-primary-fixed-dim:         #a8cd62;
+  --tw-on-primary-fixed:          #131f00;
+  --tw-on-primary-fixed-variant:  #364e00;
+
+  --tw-secondary:                 #0058be;
+  --tw-on-secondary:              #ffffff;
+  --tw-secondary-container:       #d8e9b4;
+  --tw-on-secondary-container:    #3c5600;
+
+  --tw-tertiary:                  #8a438a;
+  --tw-on-tertiary:               #ffffff;
+  --tw-tertiary-container:        #ffb044;
+  --tw-on-tertiary-container:     #37003b;
+
+  --tw-surface:                   #f9f9ff;
+  --tw-on-surface:                #151c27;
+  --tw-on-surface-variant:        #444939;
+  --tw-surface-dim:               #d9d9e3;
+  --tw-surface-bright:            #f9f9ff;
+  --tw-surface-container-lowest:  #ffffff;
+  --tw-surface-container-low:     #f0f3ff;
+  --tw-surface-container:         #e7eefe;
+  --tw-surface-container-high:    #e2e8f8;
+  --tw-surface-container-highest: #dae2f8;
+  --tw-surface-variant:           #e1e4d5;
+
+  --tw-background:                #f9f9ff;
+  --tw-on-background:             #151c27;
+
+  --tw-error:                     #ba1a1a;
+  --tw-on-error:                  #ffffff;
+  --tw-error-container:           #ffdad6;
+  --tw-on-error-container:        #410002;
+
+  --tw-outline:                   #757968;
+  --tw-outline-variant:           #c4c9b5;
+
+  --tw-inverse-surface:           #2f3129;
+  --tw-inverse-on-surface:        #f0f1e8;
+  --tw-inverse-primary:           #add366;
+  --tw-surface-tint:              #496800;
+}
+
+/* ── Employee portal (html.dark selector) ────────────────────────── */
+html.dark {
+  --tw-primary:                   #496800;
+  --tw-on-primary:                #ffffff;
+  --tw-primary-container:         #add366;
+  --tw-on-primary-container:      #131f00;
+  --tw-primary-fixed:             #c9f080;
+  --tw-primary-fixed-dim:         #add366;
+  --tw-on-primary-fixed:          #131f00;
+  --tw-on-primary-fixed-variant:  #364e00;
+
+  --tw-secondary:                 #55633a;
+  --tw-on-secondary:              #ffffff;
+  --tw-secondary-container:       #d8e9b4;
+  --tw-on-secondary-container:    #131f00;
+
+  --tw-tertiary:                  #8a438a;
+  --tw-on-tertiary:               #ffffff;
+  --tw-tertiary-container:        #ffd6f8;
+  --tw-on-tertiary-container:     #37003b;
+
+  --tw-surface:                   #f7f8f4;
+  --tw-on-surface:                #1a1c15;
+  --tw-on-surface-variant:        #444939;
+  --tw-surface-dim:               #d8dace;
+  --tw-surface-bright:            #f7f8f4;
+  --tw-surface-container-lowest:  #ffffff;
+  --tw-surface-container-low:     #f2f4ec;
+  --tw-surface-container:         #eceee6;
+  --tw-surface-container-high:    #e6e9e0;
+  --tw-surface-container-highest: #dfe1d8;
+  --tw-surface-variant:           #e1e4d5;
+
+  --tw-background:                #f7f8f4;
+  --tw-on-background:             #1a1c15;
+
+  --tw-error:                     #ba1a1a;
+  --tw-on-error:                  #ffffff;
+  --tw-error-container:           #ffdad6;
+  --tw-on-error-container:        #410002;
+
+  --tw-outline:                   #757968;
+  --tw-outline-variant:           #c4c9b5;
+
+  --tw-inverse-surface:           #2f3129;
+  --tw-inverse-on-surface:        #f0f1e8;
+  --tw-inverse-primary:           #add366;
+  --tw-surface-tint:              #496800;
+}
+
+/* ── Auth portal — true Material You dark (jungle aesthetic) ─────── */
+html.auth {
+  --tw-primary:                   #c8f07f;
+  --tw-on-primary:                #243600;
+  --tw-primary-container:         #add366;
+  --tw-on-primary-container:      #3f5a00;
+  --tw-primary-fixed:             #c9f07f;
+  --tw-primary-fixed-dim:         #add366;
+  --tw-on-primary-fixed:          #131f00;
+  --tw-on-primary-fixed-variant:  #364e00;
+
+  --tw-secondary:                 #bccd99;
+  --tw-on-secondary:              #28350f;
+  --tw-secondary-container:       #404e26;
+  --tw-on-secondary-container:    #aebf8c;
+
+  --tw-tertiary:                  #ffd6fc;
+  --tw-on-tertiary:               #540f5c;
+  --tw-tertiary-container:        #fcaafe;
+  --tw-on-tertiary-container:     #7b3681;
+
+  --tw-surface:                   #12140d;
+  --tw-on-surface:                #e3e3d7;
+  --tw-on-surface-variant:        #c4c9b5;
+  --tw-surface-dim:               #12140d;
+  --tw-surface-bright:            #383a31;
+  --tw-surface-container-lowest:  #0d0f08;
+  --tw-surface-container-low:     #1a1c15;
+  --tw-surface-container:         #1e2019;
+  --tw-surface-container-high:    #292b23;
+  --tw-surface-container-highest: #33362d;
+  --tw-surface-variant:           #33362d;
+
+  --tw-background:                #12140d;
+  --tw-on-background:             #e3e3d7;
+
+  --tw-error:                     #ffb4ab;
+  --tw-on-error:                  #690005;
+  --tw-error-container:           #93000a;
+  --tw-on-error-container:        #ffdad6;
+
+  --tw-outline:                   #8e9381;
+  --tw-outline-variant:           #444939;
+
+  --tw-inverse-surface:           #e3e3d7;
+  --tw-inverse-on-surface:        #2f3129;
+  --tw-inverse-primary:           #496800;
+  --tw-surface-tint:              #add366;
+}
