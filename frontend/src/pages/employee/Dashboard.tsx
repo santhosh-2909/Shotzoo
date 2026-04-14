@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { tasksApi, attendanceApi, reportsApi } from '@/utils/api';
+import { tasksApi, attendanceApi, reportsApi, apiUrl } from '@/utils/api';
 import { escapeHtml } from '@/utils/api';
 import type { Task, Attendance, DailyReport } from '@/types';
 
@@ -220,7 +220,7 @@ export default function Dashboard() {
   // ── Load employee reports table ────────────────────────────────────────
   const loadEmpReports = useCallback((date: string) => {
     setRepLoading(true);
-    fetch('/api/daily-reports/all-today' + (date ? '?date=' + date : ''), {
+    fetch(apiUrl('/api/daily-reports/all-today' + (date ? '?date=' + date : '')), {
       headers: { Authorization: 'Bearer ' + (localStorage.getItem('shotzoo_token') ?? '') },
       credentials: 'include',
     })
@@ -261,7 +261,7 @@ export default function Dashboard() {
     for (const [type, text] of pairs) {
       if (!text.trim()) continue;
       try {
-        await fetch('/api/daily-reports/submit', {
+        await fetch(apiUrl('/api/daily-reports/submit'), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

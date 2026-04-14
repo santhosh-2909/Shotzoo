@@ -1,10 +1,20 @@
 /**
  * ShotZoo API utility
  *
- * Uses relative paths so Vite's dev-server proxy forwards
- * /api/* → http://localhost:5000/api/*
- * /uploads/* → http://localhost:5000/uploads/*
+ * In development:
+ *   VITE_API_BASE_URL is empty → relative /api/* paths use the Vite proxy
+ *   (frontend/vite.config.ts forwards /api → http://localhost:5000)
+ *
+ * In production (e.g. Vercel multi-service):
+ *   Set VITE_API_BASE_URL=/_/backend so all calls hit the backend service.
  */
+
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
+
+export function apiUrl(path: string): string {
+  const p = path.startsWith('/') ? path : '/' + path;
+  return API_BASE + p;
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -15,7 +25,8 @@ export function uploadUrl(path: string): string {
   if (!path) return DEFAULT_AVATAR;
   if (path.startsWith('http')) return path;
   const v = localStorage.getItem('shotzoo_photo_v') ?? '0';
-  return path + '?v=' + v;
+  const prefixed = path.startsWith('/') ? API_BASE + path : API_BASE + '/' + path;
+  return prefixed + '?v=' + v;
 }
 
 export function escapeHtml(str: string): string {
@@ -45,7 +56,7 @@ async function request<T = unknown>(
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch('/api' + endpoint, {
+  const res = await fetch(apiUrl('/api' + endpoint), {
     ...options,
     headers,
     credentials: 'include',
