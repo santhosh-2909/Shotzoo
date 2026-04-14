@@ -278,7 +278,7 @@ export default function Employees() {
                     strokeDasharray={circumference}
                     strokeDashoffset={presentOffset}
                     strokeWidth="18"
-                    style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                    className="donut-progress"
                   />
                 </svg>
                 <div className="absolute flex flex-col items-center">

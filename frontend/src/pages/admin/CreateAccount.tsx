@@ -100,13 +100,7 @@ export default function CreateAccount() {
           </div>
 
           <div className="flex-grow flex items-center justify-center py-20 z-10">
-            <div
-              className="w-64 h-64 md:w-96 md:h-96 flex items-center justify-center shadow-[0_20px_40px_rgba(240,240,240,0.06),0_10px_10px_rgba(240,240,240,0.04)]"
-              style={{
-                background: 'linear-gradient(135deg, #add366 0%, #60811d 100%)',
-                borderRadius: '43% 57% 70% 30% / 30% 45% 55% 70%',
-              }}
-            >
+            <div className="auth-clay-shape w-64 h-64 md:w-96 md:h-96 flex items-center justify-center shadow-[0_20px_40px_rgba(240,240,240,0.06),0_10px_10px_rgba(240,240,240,0.04)]">
               <span className="material-symbols-outlined text-white/90 text-[120px]">
                 nature
               </span>

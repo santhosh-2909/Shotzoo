@@ -337,6 +337,8 @@ export default function AdminProfile() {
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  aria-label="Upload profile photo"
+                  title="Upload profile photo"
                   onChange={handlePhotoChange}
                 />
                 <span className="text-[11px] text-[#6B7280] font-semibold">Click to change</span>

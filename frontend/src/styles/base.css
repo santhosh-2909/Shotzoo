@@ -28,7 +28,14 @@ h1, h2, h3, h4, h5, h6 {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar {
   -ms-overflow-style: none;
-  scrollbar-width: none;
+}
+@supports (scrollbar-width: none) {
+  .no-scrollbar { scrollbar-width: none; }
+}
+
+/* ── Donut chart smooth fill transition ───────────────────────────── */
+.donut-progress {
+  transition: stroke-dashoffset 0.8s ease;
 }
 
 /* ── Animations ───────────────────────────────────────────────────── */
