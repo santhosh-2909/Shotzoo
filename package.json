@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "ShotZoo — monorepo root (Vercel build entry)",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "npm --prefix frontend install && npm --prefix frontend run build",
     "dev": "echo 'Run backend and frontend separately: (cd backend && npm run dev) and (cd frontend && npm run dev)' && exit 1"

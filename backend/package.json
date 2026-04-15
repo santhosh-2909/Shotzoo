@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "ShotZoo Employee Task & Attendance Management API",
   "main": "dist/server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node server.ts",
