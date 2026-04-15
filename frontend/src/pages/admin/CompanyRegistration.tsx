@@ -72,7 +72,7 @@ export default function CompanyRegistration() {
       );
 
       await authApi.register(fd);
-      navigate('/admin/attendance');
+      navigate('/admin/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {

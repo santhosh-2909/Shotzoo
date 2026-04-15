@@ -19,7 +19,7 @@ export default function SignIn() {
   useEffect(() => { setPortal('auth'); }, [setPortal]);
 
   useEffect(() => {
-    if (token) navigate(isAdmin ? '/admin/attendance' : '/employee/dashboard', { replace: true });
+    if (token) navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
   }, [token, isAdmin, navigate]);
 
   async function handleSubmit(e: FormEvent) {
@@ -33,7 +33,7 @@ export default function SignIn() {
     try {
       const data = await authApi.login(email.trim(), password) as AuthResponse;
       login(data.user, data.token, data.user.isAdmin);
-      navigate(data.user.isAdmin ? '/admin/attendance' : '/employee/dashboard', { replace: true });
+      navigate(data.user.isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
     } catch (err) {
       setError((err as Error).message || 'Login failed. Please check your credentials.');
     } finally {

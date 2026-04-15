@@ -17,9 +17,7 @@ export default function LogoutModal({ onClose }: LogoutModalProps) {
   const handleConfirm = useCallback(() => {
     onClose();
     logout();
-    // Send the user to the public landing page rather than straight to
-    // /signin — gives a cleaner "signed out" experience.
-    navigate('/', { replace: true });
+    navigate('/signin', { replace: true });
   }, [logout, navigate, onClose]);
 
   // Close on Escape key

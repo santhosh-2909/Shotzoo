@@ -156,7 +156,7 @@ async function request<T = unknown>(
       localStorage.removeItem('shotzoo_user');
       localStorage.removeItem('shotzoo_admin');
       localStorage.removeItem('shotzoo_photo_v');
-      globalThis.location.href = '/';
+      globalThis.location.href = '/signin';
       throw new Error('Session expired. Please log in again.');
     }
 
