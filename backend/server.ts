@@ -166,9 +166,65 @@ if (!isServerless) {
   });
 }
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ success: false, message: 'Internal server error' });
+// JSON 404 for any unmatched /api/* route (so the frontend never has to
+// JSON-parse Express's default HTML error page).
+app.use('/api/*', (req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found: ' + req.method + ' ' + req.originalUrl,
+  });
+});
+
+// Error handler — always returns JSON. Recognizes multer errors, mongoose
+// validation errors, and CORS rejections so the frontend gets a useful
+// message instead of "Server error (HTTP 500)".
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express error type is loose
+app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack || err.message || err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  // Multer file upload errors
+  if (err?.name === 'MulterError') {
+    const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({
+      success: false,
+      message: err.message || 'File upload failed',
+    });
+  }
+
+  // Mongoose validation errors
+  if (err?.name === 'ValidationError') {
+    return res.status(400).json({
+      success: false,
+      message: err.message || 'Validation failed',
+    });
+  }
+
+  // Mongoose duplicate key (e.g. email already exists)
+  if (err?.code === 11000) {
+    return res.status(400).json({
+      success: false,
+      message: 'A record with that value already exists.',
+    });
+  }
+
+  // CORS rejection
+  if (typeof err?.message === 'string' && err.message.includes('CORS')) {
+    return res.status(403).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  // Generic fallback
+  const status = typeof err?.status === 'number' ? err.status : 500;
+  return res.status(status).json({
+    success: false,
+    message: err?.message || 'Internal server error',
+  });
 });
 
 // Only start a listener when run as a long-lived process (node dist/server.js).
