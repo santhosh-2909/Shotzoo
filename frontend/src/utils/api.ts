@@ -44,6 +44,31 @@ export function escapeHtml(str: string): string {
 
 // ─── Core fetch ────────────────────────────────────────────────────────────
 
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+interface AttemptResult {
+  res: Response;
+  rawText: string;
+}
+
+async function singleAttempt(
+  endpoint: string,
+  options: RequestInit,
+  headers: Record<string, string>,
+): Promise<AttemptResult | { networkError: true }> {
+  try {
+    const res = await fetch(apiUrl('/api' + endpoint), {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+    const rawText = await res.text();
+    return { res, rawText };
+  } catch {
+    return { networkError: true };
+  }
+}
+
 async function request<T = unknown>(
   endpoint: string,
   options: RequestInit = {},
@@ -60,51 +85,76 @@ async function request<T = unknown>(
     headers['Content-Type'] = 'application/json';
   }
 
-  let res: Response;
-  try {
-    res = await fetch(apiUrl('/api' + endpoint), {
-      ...options,
-      headers,
-      credentials: 'include',
-    });
-  } catch {
-    throw new Error('Cannot reach the server. Please check your connection and try again.');
-  }
+  // Retry transient failures: network errors, 502/503/504, and 5xx with
+  // empty/non-JSON bodies. We only retry idempotent-ish failures and only
+  // GET methods are retried more than once. Writes (POST/PUT/PATCH/DELETE)
+  // get exactly one retry to cover backend restarts mid-request.
+  const method = (options.method ?? 'GET').toUpperCase();
+  const maxRetries = method === 'GET' ? 2 : 1;
 
-  // Read body as text first so we can give a useful error for empty / non-JSON responses.
-  const rawText = await res.text();
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const result = await singleAttempt(endpoint, options, headers);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- JSON shape unknown
-  let data: any = null;
-  if (rawText) {
-    try {
-      data = JSON.parse(rawText);
-    } catch {
-      // Non-JSON response (HTML error page, proxy timeout, etc.)
+    if ('networkError' in result) {
+      if (attempt < maxRetries) {
+        await sleep(400 * (attempt + 1));
+        continue;
+      }
+      throw new Error('Cannot reach the server. Please check your connection and try again.');
+    }
+
+    const { res, rawText } = result;
+    const transient = res.status >= 502 && res.status <= 504;
+
+    // Try to JSON-parse first so we can distinguish "real backend 5xx with
+    // a useful message" from "proxy returned HTML during a restart"
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- JSON shape unknown
+    let data: any = null;
+    let parseFailed = false;
+    if (rawText) {
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        parseFailed = true;
+      }
+    }
+
+    // Retry conditions:
+    //  - 502/503/504 from any layer (gateway hiccup)
+    //  - any 5xx with empty body OR HTML body (backend restart caught mid-request)
+    if (attempt < maxRetries && (transient || (res.status >= 500 && (parseFailed || !rawText)))) {
+      await sleep(400 * (attempt + 1));
+      continue;
+    }
+
+    if (parseFailed) {
       throw new Error(
         res.ok
           ? 'Server returned an invalid response. Please try again.'
           : 'Server error (HTTP ' + res.status + '). Please try again in a moment.',
       );
     }
+
+    // Expired/invalid token on protected endpoint → force re-login
+    if (res.status === 401 && !endpoint.startsWith('/auth/')) {
+      localStorage.removeItem('shotzoo_token');
+      localStorage.removeItem('shotzoo_user');
+      localStorage.removeItem('shotzoo_admin');
+      localStorage.removeItem('shotzoo_photo_v');
+      globalThis.location.href = '/signin';
+      throw new Error('Session expired. Please log in again.');
+    }
+
+    if (!res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new Error((data?.message as string | undefined) ?? 'Request failed (HTTP ' + res.status + ')');
+    }
+
+    return data as T;
   }
 
-  // Expired/invalid token on protected endpoint → force re-login
-  if (res.status === 401 && !endpoint.startsWith('/auth/')) {
-    localStorage.removeItem('shotzoo_token');
-    localStorage.removeItem('shotzoo_user');
-    localStorage.removeItem('shotzoo_admin');
-    localStorage.removeItem('shotzoo_photo_v');
-    globalThis.location.href = '/signin';
-    throw new Error('Session expired. Please log in again.');
-  }
-
-  if (!res.ok) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    throw new Error((data?.message as string | undefined) ?? 'Request failed (HTTP ' + res.status + ')');
-  }
-
-  return data as T;
+  // Unreachable — the loop always returns or throws.
+  throw new Error('Request failed.');
 }
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
