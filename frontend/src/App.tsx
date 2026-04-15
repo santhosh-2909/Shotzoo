@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import EmployeeGuard from '@/guards/EmployeeGuard';
 import AdminGuard    from '@/guards/AdminGuard';
@@ -57,7 +57,7 @@ export default function App() {
         <SetupGate>
         <Routes>
           {/* ── Public ───────────────────────────────────────────────── */}
-          <Route path="/"        element={<Navigate to="/splash" replace />} />
+          <Route path="/"        element={<Landing />} />
           <Route path="/splash"  element={<Splash />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/signin"       element={<SignIn />} />

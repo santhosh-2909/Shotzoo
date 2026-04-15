@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { authApi } from '@/utils/api';
 
 const FEATURES = [
   { icon: 'task_alt',              title: 'Structured Task Logging', desc: 'Log every task with precision and clarity.' },
@@ -12,11 +13,39 @@ const FEATURES = [
 
 export default function Landing() {
   const { token, isAdmin } = useAuth();
-  const { setPortal } = useTheme();
+  const { setPortal }      = useTheme();
+  const navigate           = useNavigate();
+  const [hasAdmin, setHasAdmin] = useState<boolean | null>(null);
 
   useEffect(() => { setPortal('auth'); }, [setPortal]);
 
-  const dashboardHref = token ? (isAdmin ? '/admin/dashboard' : '/employee/dashboard') : '/signin';
+  // Logged-in users never see the public landing page — send them
+  // straight to their own dashboard.
+  useEffect(() => {
+    if (token) {
+      navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+    }
+  }, [token, isAdmin, navigate]);
+
+  // Decide where the "Get Started" CTA goes: /setup when the DB has
+  // zero admins (first-run), otherwise /signin.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await authApi.checkSetup() as { success: boolean; data: { hasAdmin: boolean } };
+        if (!cancelled) setHasAdmin(res?.data?.hasAdmin ?? true);
+      } catch { /* offline — default to /signin */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const dashboardHref  = token ? (isAdmin ? '/admin/dashboard' : '/employee/dashboard') : '/signin';
+  const getStartedHref = hasAdmin === false ? '/setup' : '/signin';
+
+  const scrollToFeatures = (): void => {
+    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="bg-surface text-on-surface font-body">
@@ -29,10 +58,10 @@ export default function Landing() {
             <div className="text-2xl font-extrabold tracking-tighter text-zinc-900 font-headline">ShotZoo</div>
           </div>
           <Link
-            to={dashboardHref}
+            to={token ? dashboardHref : '/signin'}
             className="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-95 duration-200 shadow-[0_10px_20px_rgba(21,28,39,0.08),inset_0_2px_2px_rgba(255,255,255,0.2)]"
           >
-            {token ? 'Go to Dashboard' : 'Get Started'}
+            {token ? 'Go to Dashboard' : 'Sign In'}
           </Link>
         </div>
       </header>
@@ -61,17 +90,27 @@ export default function Landing() {
                 <>
                   <Link
                     to="/signin"
-                    className="bg-primary-container text-on-primary-container px-8 py-4 rounded-[14px] font-bold text-lg shadow-[0_10px_20px_rgba(21,28,39,0.08)] transition-transform hover:-translate-y-1 w-full sm:w-auto text-center"
+                    className="bg-primary-container text-on-primary-container px-8 py-4 rounded-[14px] font-bold text-lg shadow-[0_10px_20px_rgba(21,28,39,0.08)] transition-transform hover:-translate-y-1 w-full sm:w-auto text-center flex items-center gap-2 justify-center"
                   >
-                    Employee Sign In
+                    <span className="material-symbols-outlined text-[20px]">login</span>
+                    <span>Sign In</span>
                   </Link>
-                  <Link
-                    to="/signup"
+                  <button
+                    type="button"
+                    onClick={scrollToFeatures}
                     className="border-2 border-primary-container text-on-surface px-8 py-4 rounded-[14px] font-bold text-lg transition-transform hover:-translate-y-1 w-full sm:w-auto text-center flex items-center gap-2 justify-center"
                   >
-                    <span className="material-symbols-outlined text-[20px]">shield_person</span>
-                    <span>Join as Admin</span>
-                  </Link>
+                    <span>Learn More</span>
+                    <span className="material-symbols-outlined text-[20px]">expand_more</span>
+                  </button>
+                  {hasAdmin === false && (
+                    <Link
+                      to={getStartedHref}
+                      className="text-primary-container px-6 py-4 rounded-[14px] font-bold text-sm underline decoration-2 underline-offset-4 hover:opacity-80 transition-opacity w-full sm:w-auto text-center"
+                    >
+                      First time? Set up workspace →
+                    </Link>
+                  )}
                 </>
               )}
             </div>
@@ -79,7 +118,7 @@ export default function Landing() {
         </section>
 
         {/* ── Features ────────────────────────────────────────────────── */}
-        <section className="py-32 px-8 bg-surface">
+        <section id="features" className="py-32 px-8 bg-surface scroll-mt-20">
           <div className="max-w-7xl mx-auto">
             <div className="mb-20">
               <h2 className="font-headline font-extrabold text-4xl text-on-surface tracking-[-0.02em]">

@@ -16,7 +16,7 @@ export default function Unauthorized() {
 
   const goHome = (): void => {
     if (!token) {
-      navigate('/signin', { replace: true });
+      navigate('/', { replace: true });
       return;
     }
     navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
@@ -24,7 +24,7 @@ export default function Unauthorized() {
 
   const handleLogout = (): void => {
     logout();
-    navigate('/signin', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return (
