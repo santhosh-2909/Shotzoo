@@ -67,7 +67,7 @@ export default function Setup() {
       try {
         const res = await authApi.checkSetup() as { success: boolean; data: { hasAdmin: boolean } };
         if (!cancelled && res.data?.hasAdmin) {
-          navigate('/admin/signin', { replace: true });
+          navigate('/signin', { replace: true });
         }
       } catch { /* offline / backend hiccup — let the user try to submit anyway */ }
     })();
@@ -124,7 +124,7 @@ export default function Setup() {
       const msg = (err as Error).message || 'Setup failed.';
       if (/already exists/i.test(msg)) {
         setApiError('An admin account already exists. Redirecting to sign in…');
-        setTimeout(() => navigate('/admin/signin', { replace: true }), 1800);
+        setTimeout(() => navigate('/signin', { replace: true }), 1800);
       } else {
         setApiError(msg);
       }
@@ -306,8 +306,8 @@ export default function Setup() {
 
             <footer className="text-center pt-4">
               <p className="font-body text-sm font-medium text-surface-container-highest">
-                Already have an admin account?{' '}
-                <Link to="/admin/signin" className="text-primary-fixed-dim font-bold hover:underline ml-1">Admin Sign In</Link>
+                Already have an account?{' '}
+                <Link to="/signin" className="text-primary-fixed-dim font-bold hover:underline ml-1">Sign In</Link>
               </p>
             </footer>
           </form>

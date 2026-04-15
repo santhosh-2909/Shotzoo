@@ -6,7 +6,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 /**
  * Wraps all /admin/* routes.
  * - Redirects to /signin if no token is present.
- * - Redirects to /employee/dashboard if logged in but not admin.
+ * - Redirects to /unauthorized if logged in but not admin (hard denial
+ *   instead of silently bouncing employees to their own home).
  * - Applies the admin (light) CSS variable theme.
  */
 export default function AdminGuard() {
@@ -17,7 +18,7 @@ export default function AdminGuard() {
     setPortal('admin');
   }, [setPortal]);
 
-  if (!token)   return <Navigate to="/signin" replace />;
-  if (!isAdmin) return <Navigate to="/employee/dashboard" replace />;
+  if (!token)   return <Navigate to="/signin"        replace />;
+  if (!isAdmin) return <Navigate to="/unauthorized"  replace />;
   return <Outlet />;
 }

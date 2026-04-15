@@ -10,10 +10,11 @@ import AdminLayout    from '@/layouts/AdminLayout';
 // ── Auth / Public pages ───────────────────────────────────────────────────
 const Splash   = lazy(() => import('@/pages/Splash'));
 const Landing  = lazy(() => import('@/pages/Landing'));
-const SignIn      = lazy(() => import('@/pages/auth/SignIn'));
-const AdminSignIn = lazy(() => import('@/pages/auth/AdminSignIn'));
-const SignUp      = lazy(() => import('@/pages/auth/SignUp'));
-const Setup       = lazy(() => import('@/pages/auth/Setup'));
+const SignIn       = lazy(() => import('@/pages/auth/SignIn'));
+const SignUp       = lazy(() => import('@/pages/auth/SignUp'));
+const Setup        = lazy(() => import('@/pages/auth/Setup'));
+const Unauthorized = lazy(() => import('@/pages/Unauthorized'));
+const NotFound     = lazy(() => import('@/pages/NotFound'));
 
 // ── Employee pages ────────────────────────────────────────────────────────
 const Dashboard    = lazy(() => import('@/pages/employee/Dashboard'));
@@ -60,9 +61,9 @@ export default function App() {
           <Route path="/splash"  element={<Splash />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/signin"       element={<SignIn />} />
-          <Route path="/admin/signin" element={<AdminSignIn />} />
           <Route path="/signup"       element={<SignUp />} />
           <Route path="/setup"        element={<Setup />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* ── Employee (protected) ─────────────────────────────────── */}
           <Route element={<EmployeeGuard />}>
@@ -95,7 +96,7 @@ export default function App() {
           </Route>
 
           {/* ── Catch-all ────────────────────────────────────────────── */}
-          <Route path="*" element={<Navigate to="/splash" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </SetupGate>
       </Suspense>

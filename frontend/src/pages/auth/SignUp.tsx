@@ -243,8 +243,8 @@ export default function SignUp() {
 
             <footer className="text-center space-y-4 pt-4">
               <p className="font-body text-sm font-medium text-surface-container-highest">
-                Already have an admin account?{' '}
-                <Link to="/admin/signin" className="text-primary-fixed-dim font-bold hover:underline ml-1">Admin Sign In</Link>
+                Already have an account?{' '}
+                <Link to="/signin" className="text-primary-fixed-dim font-bold hover:underline ml-1">Sign In</Link>
               </p>
               <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-container-highest/5 rounded-full w-fit mx-auto">
                 <span className="material-symbols-outlined text-[16px] text-surface-container-highest">shield_person</span>

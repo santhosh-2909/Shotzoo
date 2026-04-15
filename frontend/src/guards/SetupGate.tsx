@@ -26,7 +26,7 @@ export default function SetupGate({ children }: Readonly<{ children: ReactNode }
         if (!hasAdmin && path !== '/setup') {
           navigate('/setup', { replace: true });
         } else if (hasAdmin && path === '/setup') {
-          navigate('/admin/signin', { replace: true });
+          navigate('/signin', { replace: true });
         }
       } catch {
         // Backend unreachable — don't block the app. The user may already
