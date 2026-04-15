@@ -34,7 +34,7 @@ export default function SignUp() {
   useEffect(() => { setPortal('auth'); }, [setPortal]);
 
   useEffect(() => {
-    if (token) navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+    if (token) navigate(isAdmin ? '/admin/attendance' : '/employee/dashboard', { replace: true });
   }, [token, isAdmin, navigate]);
 
   async function handleSubmit(e: FormEvent) {
@@ -69,7 +69,7 @@ export default function SignUp() {
 
       const data = await authApi.register(fd) as AuthResponse;
       login(data.user, data.token, data.user.isAdmin);
-      navigate(data.user.isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+      navigate(data.user.isAdmin ? '/admin/attendance' : '/employee/dashboard', { replace: true });
     } catch (err) {
       setError((err as Error).message || 'Registration failed.');
     } finally {

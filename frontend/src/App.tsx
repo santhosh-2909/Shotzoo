@@ -61,6 +61,7 @@ export default function App() {
           <Route path="/splash"  element={<Splash />} />
           <Route path="/landing" element={<Landing />} />
           <Route path="/signin"       element={<SignIn />} />
+          <Route path="/login"        element={<SignIn />} />
           <Route path="/signup"       element={<SignUp />} />
           <Route path="/setup"        element={<Setup />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
@@ -70,9 +71,11 @@ export default function App() {
             <Route element={<EmployeeLayout />}>
               <Route path="/employee/dashboard"     element={<Dashboard />} />
               <Route path="/employee/my-tasks"      element={<MyTask />} />
+              <Route path="/employee/tasks"         element={<MyTask />} />
               <Route path="/employee/add-task"      element={<AddTask />} />
               <Route path="/employee/attendance"    element={<Attendance />} />
               <Route path="/employee/daily-reports" element={<DailyReports />} />
+              <Route path="/employee/report"        element={<DailyReports />} />
               <Route path="/employee/notifications" element={<Notifications />} />
               <Route path="/employee/profile"       element={<Profile />} />
             </Route>
@@ -85,6 +88,7 @@ export default function App() {
               <Route path="/admin/analytics"     element={<Analytics />} />
               <Route path="/admin/employees"     element={<Employees />} />
               <Route path="/admin/all-tasks"     element={<AllTasks />} />
+              <Route path="/admin/tasks"         element={<AllTasks />} />
               <Route path="/admin/my-tasks"      element={<MyTaskAdmin />} />
               <Route path="/admin/add-task"      element={<AddTaskAdmin />} />
               <Route path="/admin/attendance"    element={<AdminAttendance />} />

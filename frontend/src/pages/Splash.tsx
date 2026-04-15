@@ -62,7 +62,7 @@ export default function Splash() {
       const tok     = localStorage.getItem('shotzoo_token');
       const isAdmin = localStorage.getItem('shotzoo_admin') === 'true';
       if (!tok)     navigate('/landing', { replace: true });
-      else if (isAdmin) navigate('/admin/dashboard', { replace: true });
+      else if (isAdmin) navigate('/admin/attendance', { replace: true });
       else          navigate('/employee/dashboard', { replace: true });
     }, 750);
   }, [navigate]);

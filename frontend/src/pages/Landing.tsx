@@ -23,7 +23,7 @@ export default function Landing() {
   // straight to their own dashboard.
   useEffect(() => {
     if (token) {
-      navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+      navigate(isAdmin ? '/admin/attendance' : '/employee/dashboard', { replace: true });
     }
   }, [token, isAdmin, navigate]);
 
@@ -40,7 +40,7 @@ export default function Landing() {
     return () => { cancelled = true; };
   }, []);
 
-  const dashboardHref  = token ? (isAdmin ? '/admin/dashboard' : '/employee/dashboard') : '/signin';
+  const dashboardHref  = token ? (isAdmin ? '/admin/attendance' : '/employee/dashboard') : '/signin';
   const getStartedHref = hasAdmin === false ? '/setup' : '/signin';
 
   const scrollToFeatures = (): void => {

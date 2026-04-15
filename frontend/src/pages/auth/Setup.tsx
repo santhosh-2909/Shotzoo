@@ -57,7 +57,7 @@ export default function Setup() {
 
   // If the user is already logged in (cached token) just send them away.
   useEffect(() => {
-    if (token) navigate('/admin/dashboard', { replace: true });
+    if (token) navigate('/admin/attendance', { replace: true });
   }, [token, navigate]);
 
   // Guard: if an admin already exists, kick to /signin.
@@ -119,7 +119,7 @@ export default function Setup() {
       }) as AuthResponse;
 
       login(data.user, data.token, data.user.isAdmin);
-      navigate('/admin/dashboard', { replace: true });
+      navigate('/admin/attendance', { replace: true });
     } catch (err) {
       const msg = (err as Error).message || 'Setup failed.';
       if (/already exists/i.test(msg)) {

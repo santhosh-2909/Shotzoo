@@ -19,7 +19,7 @@ export default function NotFound() {
       navigate('/signin', { replace: true });
       return;
     }
-    navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+    navigate(isAdmin ? '/admin/attendance' : '/employee/dashboard', { replace: true });
   };
 
   return (
