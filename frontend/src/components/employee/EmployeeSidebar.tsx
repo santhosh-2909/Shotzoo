@@ -20,9 +20,9 @@ export default function EmployeeSidebar() {
   return (
     <>
       <aside className="h-screen w-72 fixed left-0 top-0 bg-[#2A2A2A] shadow-[40px_0_40px_rgba(240,240,240,0.06)] z-50 flex flex-col p-6 font-headline tracking-tighter">
-        {/* Logo */}
+        {/* Logo — links home (employee dashboard), NOT the public landing page */}
         <div className="text-2xl font-bold text-[#add366] mb-8">
-          <NavLink to="/landing" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+          <NavLink to="/employee/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
             <img src="/company_logo.jpeg" alt="ShotZoo" className="w-8 h-8 object-contain" />
             <span>ShotZoo</span>
           </NavLink>

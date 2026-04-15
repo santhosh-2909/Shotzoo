@@ -20,9 +20,9 @@ export default function AdminSidebar() {
     <>
       <nav className="fixed left-0 top-0 h-screen w-72 bg-[#2A313D] z-50 shadow-[4px_0_20px_rgba(0,0,0,0.3)] overflow-y-auto">
         <div className="flex flex-col min-h-full py-8 px-6 gap-y-2">
-        {/* Brand */}
+        {/* Brand — links home (admin dashboard), NOT the public landing page */}
         <NavLink
-          to="/landing"
+          to="/admin/dashboard"
           className="mb-10 px-2 flex items-center gap-3 group hover:opacity-90 transition-opacity"
         >
           <div className="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center overflow-hidden">
