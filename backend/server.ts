@@ -8,9 +8,8 @@ import cron from 'node-cron';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import connectDB, * as db from './config/db';
-import Task from './models/Task';
-import Notification from './models/Notification';
+import connectDB, { state as db } from './config/db';
+import { supabase } from './config/supabase'; // used by cron job
 
 import authRoutes from './routes/auth';
 import taskRoutes from './routes/tasks';
@@ -130,8 +129,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status:  'ok',
     time:    new Date().toISOString(),
-    db:      db.dbReady ? 'connected' : (db.dbInitError ? 'error' : 'connecting'),
-    dbError: db.dbInitError,
+    db:      db.ready ? 'connected' : (db.initError ? 'error' : 'connecting'),
+    dbError: db.initError,
   });
 });
 
@@ -140,10 +139,10 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // return a clear JSON 503 with the actual reason so the frontend shows a
 // useful error instead of the generic "Server error (HTTP 500)".
 app.use('/api', (_req: Request, res: Response, next: NextFunction) => {
-  if (db.dbInitError) {
+  if (db.initError) {
     res.status(503).json({
       success: false,
-      message: db.dbInitError,
+      message: db.initError,
       hint:    'Check the server logs for details and redeploy after fixing.',
     });
     return;
@@ -183,41 +182,62 @@ if (isProd && !isServerless) {
 if (!isServerless) {
   cron.schedule('0 * * * *', async () => {
     try {
-      const overdue = await Task.find({
-        status: { $in: ['Pending', 'In Progress'] },
-        deadline: { $lt: new Date() },
-      });
-      for (const task of overdue) {
-        task.status = 'Overdue';
-        await task.save();
-        const exists = await Notification.findOne({ task: task._id, type: 'Overdue' });
-        if (!exists) {
-          await Notification.create({
-            user: task.user,
-            type: 'Overdue',
-            title: 'Task Overdue',
+      const now       = new Date().toISOString();
+      const inOneDay  = new Date(Date.now() + 86_400_000).toISOString();
+      const oneDayAgo = new Date(Date.now() - 86_400_000).toISOString();
+
+      // Mark past-deadline tasks as Overdue and notify once per task
+      const { data: overdueRows } = await supabase
+        .from('tasks')
+        .select('id, user_id, title')
+        .in('status', ['Pending', 'In Progress'])
+        .not('deadline', 'is', null)
+        .lt('deadline', now);
+
+      for (const task of overdueRows ?? []) {
+        await supabase.from('tasks').update({ status: 'Overdue' }).eq('id', task.id);
+
+        const { count } = await supabase
+          .from('notifications')
+          .select('id', { count: 'exact', head: true })
+          .eq('task_id', task.id)
+          .eq('type', 'Overdue');
+
+        if (!count) {
+          await supabase.from('notifications').insert({
+            user_id: task.user_id,
+            type:    'Overdue',
+            title:   'Task Overdue',
             message: '"' + task.title + '" has passed its deadline',
-            task: task._id,
+            task_id: task.id,
           });
         }
       }
-      const soon = await Task.find({
-        status: { $in: ['Pending', 'In Progress'] },
-        deadline: { $gt: new Date(), $lte: new Date(Date.now() + 86400000) },
-      });
-      for (const task of soon) {
-        const exists = await Notification.findOne({
-          task: task._id,
-          type: 'Deadline',
-          createdAt: { $gte: new Date(Date.now() - 86400000) },
-        });
-        if (!exists) {
-          await Notification.create({
-            user: task.user,
-            type: 'Deadline',
-            title: 'Deadline Approaching',
+
+      // Send a Deadline-approaching notification once per task per day
+      const { data: soonRows } = await supabase
+        .from('tasks')
+        .select('id, user_id, title')
+        .in('status', ['Pending', 'In Progress'])
+        .not('deadline', 'is', null)
+        .gt('deadline', now)
+        .lte('deadline', inOneDay);
+
+      for (const task of soonRows ?? []) {
+        const { count } = await supabase
+          .from('notifications')
+          .select('id', { count: 'exact', head: true })
+          .eq('task_id', task.id)
+          .eq('type', 'Deadline')
+          .gte('created_at', oneDayAgo);
+
+        if (!count) {
+          await supabase.from('notifications').insert({
+            user_id: task.user_id,
+            type:    'Deadline',
+            title:   'Deadline Approaching',
             message: '"' + task.title + '" is due within 24 hours',
-            task: task._id,
+            task_id: task.id,
           });
         }
       }

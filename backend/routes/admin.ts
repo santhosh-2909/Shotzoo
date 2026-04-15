@@ -1,10 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { protect, restrictTo } from '../middleware/auth';
-import User from '../models/User';
-import Task from '../models/Task';
-import Notification from '../models/Notification';
-import Attendance from '../models/Attendance';
-import { Types } from 'mongoose';
+import { supabase } from '../config/supabase';
+import {
+  UserRow,
+  TaskRow,
+  AttendanceRow,
+  NotificationRow,
+  userRowToPublic,
+  taskRowToPublic,
+  attendanceRowToPublic,
+} from '../types/db';
+import { randomUUID } from 'node:crypto';
 
 const router = Router();
 
@@ -14,14 +20,25 @@ router.use(protect, restrictTo('Admin'));
 // GET /api/admin/stats — dashboard summary numbers
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
-    const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
-    const [totalEmployees, openTasks, completedToday, overdueCount] = await Promise.all([
-      User.countDocuments(),
-      Task.countDocuments({ status: { $in: ['Pending', 'In Progress'] } }),
-      Task.countDocuments({ status: 'Completed', completedAt: { $gte: todayStart } }),
-      Task.countDocuments({ status: 'Overdue' }),
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const [empRes, openRes, completedRes, overdueRes] = await Promise.all([
+      supabase.from('users').select('id', { count: 'exact', head: true }),
+      supabase.from('tasks').select('id', { count: 'exact', head: true }).in('status', ['Pending', 'In Progress']),
+      supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('status', 'Completed').gte('completed_at', todayStart.toISOString()),
+      supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('status', 'Overdue'),
     ]);
-    res.json({ success: true, stats: { totalEmployees, openTasks, completedToday, overdueCount } });
+
+    res.json({
+      success: true,
+      stats: {
+        totalEmployees: empRes.count      ?? 0,
+        openTasks:      openRes.count     ?? 0,
+        completedToday: completedRes.count ?? 0,
+        overdueCount:   overdueRes.count  ?? 0,
+      },
+    });
   } catch (e) {
     res.status(500).json({ success: false, message: (e as Error).message });
   }
@@ -30,7 +47,16 @@ router.get('/stats', async (_req: Request, res: Response) => {
 // GET /api/admin/employees — all registered users
 router.get('/employees', async (_req: Request, res: Response) => {
   try {
-    const employees = await User.find().select('-password').sort({ createdAt: -1 });
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+    const employees = (data as UserRow[] ?? []).map(userRowToPublic);
     res.json({ success: true, count: employees.length, employees });
   } catch (e) {
     res.status(500).json({ success: false, message: (e as Error).message });
@@ -41,12 +67,41 @@ router.get('/employees', async (_req: Request, res: Response) => {
 router.get('/tasks', async (req: Request, res: Response) => {
   try {
     const { status, priority } = req.query as { status?: string; priority?: string };
-    const query: Record<string, unknown> = {};
-    if (status) query.status = status;
-    if (priority) query.priority = priority;
-    const tasks = await Task.find(query)
-      .populate('user', 'fullName employeeId photo role')
-      .sort({ createdAt: -1 });
+
+    let query = supabase.from('tasks').select('*').order('created_at', { ascending: false });
+    if (status)   query = query.eq('status', status);
+    if (priority) query = query.eq('priority', priority);
+
+    const { data: taskData, error: taskErr } = await query;
+    if (taskErr) {
+      res.status(500).json({ success: false, message: taskErr.message });
+      return;
+    }
+
+    const taskRows: TaskRow[] = taskData ?? [];
+    const userIds = [...new Set(taskRows.map((t) => t.user_id).filter(Boolean))];
+
+    let userMap: Record<string, { fullName: string; employeeId: string; photo: string; role: string }> = {};
+    if (userIds.length > 0) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id, full_name, employee_id, photo, role')
+        .in('id', userIds);
+      for (const u of userData ?? []) {
+        userMap[u.id] = {
+          fullName:   u.full_name,
+          employeeId: u.employee_id,
+          photo:      u.photo,
+          role:       u.role,
+        };
+      }
+    }
+
+    const tasks = taskRows.map((t) => ({
+      ...taskRowToPublic(t),
+      userInfo: userMap[t.user_id] ?? null,
+    }));
+
     res.json({ success: true, count: tasks.length, tasks });
   } catch (e) {
     res.status(500).json({ success: false, message: (e as Error).message });
@@ -57,35 +112,50 @@ router.get('/tasks', async (req: Request, res: Response) => {
 router.post('/tasks', async (req: Request, res: Response) => {
   try {
     const { userId, title, description, priority, deadline, tags, estimatedHours } = req.body as {
-      userId?: string;
-      title?: string;
-      description?: string;
-      priority?: string;
-      deadline?: string;
-      tags?: string[];
+      userId?:        string;
+      title?:         string;
+      description?:   string;
+      priority?:      string;
+      deadline?:      string;
+      tags?:          string[];
       estimatedHours?: number;
     };
+
     if (!userId || !title) {
       res.status(400).json({ success: false, message: 'userId and title are required.' });
       return;
     }
-    const task = await Task.create({
-      user: userId,
-      title,
-      description,
-      priority: priority || 'Medium',
-      deadline,
-      tags,
-      estimatedHours,
+
+    const { data: taskData, error: taskErr } = await supabase
+      .from('tasks')
+      .insert({
+        user_id:         userId,
+        title,
+        description:     description     ?? '',
+        priority:        priority        ?? 'Medium',
+        deadline:        deadline        ?? null,
+        tags:            tags            ?? [],
+        estimated_hours: estimatedHours  ?? 0,
+        status:          'Pending',
+        progress:        0,
+      })
+      .select('*')
+      .single();
+
+    if (taskErr || !taskData) {
+      res.status(500).json({ success: false, message: taskErr?.message ?? 'Failed to create task.' });
+      return;
+    }
+
+    await supabase.from('notifications').insert({
+      user_id: userId,
+      type:    'System',
+      title:   'New Task Assigned',
+      message: '"' + title + '" has been assigned to you',
+      task_id: (taskData as TaskRow).id,
     });
-    await Notification.create({
-      user: userId,
-      type: 'System',
-      title: 'New Task Assigned',
-      message: `"${title}" has been assigned to you`,
-      task: task._id,
-    });
-    res.status(201).json({ success: true, task });
+
+    res.status(201).json({ success: true, task: taskRowToPublic(taskData as TaskRow) });
   } catch (e) {
     res.status(500).json({ success: false, message: (e as Error).message });
   }
@@ -95,25 +165,26 @@ router.post('/tasks', async (req: Request, res: Response) => {
 router.post('/notify', async (req: Request, res: Response) => {
   try {
     const { userIds, title, message, type, urgent } = req.body as {
-      userIds?: string[];
-      title?: string;
-      message?: string;
-      type?: string;
-      urgent?: boolean;
+      userIds?:  string[];
+      title?:    string;
+      message?:  string;
+      type?:     string;
+      urgent?:   boolean;
     };
+
     if (!message) {
       res.status(400).json({ success: false, message: 'Message is required.' });
       return;
     }
 
-    let targets: unknown[];
+    let targets: string[];
     let audience: string;
     if (!userIds || userIds.length === 0) {
-      const all = await User.find().select('_id');
-      targets = all.map((u) => u._id);
+      const { data } = await supabase.from('users').select('id');
+      targets  = (data ?? []).map((u: { id: string }) => u.id);
       audience = 'All';
     } else {
-      targets = userIds;
+      targets  = userIds;
       audience = 'Selected';
     }
 
@@ -121,22 +192,26 @@ router.post('/notify', async (req: Request, res: Response) => {
       'Deadline', 'Overdue', 'Message', 'Completion', 'System',
       'Announcement', 'Reminder', 'Alert', 'Task Update',
     ];
-    const notiType = validTypes.includes(type || '') ? type : 'Announcement';
-    const groupId = new Types.ObjectId().toString();
-    const recipientCount = targets.length;
+    const notiType = validTypes.includes(type ?? '') ? type : 'Announcement';
+    const groupId  = randomUUID();
 
     const docs = targets.map((uid) => ({
-      user: uid,
-      type: notiType,
-      title: title || 'Admin Notification',
+      user_id:         uid,
+      type:            notiType,
+      title:           title ?? 'Admin Notification',
       message,
-      urgent: !!urgent,
-      groupId,
+      urgent:          !!urgent,
+      group_id:        groupId,
       audience,
-      recipientCount,
+      recipient_count: targets.length,
     }));
 
-    await Notification.insertMany(docs);
+    const { error } = await supabase.from('notifications').insert(docs);
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+
     res.json({ success: true, sent: targets.length, groupId });
   } catch (e) {
     res.status(500).json({ success: false, message: (e as Error).message });
@@ -146,42 +221,76 @@ router.post('/notify', async (req: Request, res: Response) => {
 // GET /api/admin/notifications/sent — aggregated history of sent broadcasts
 router.get('/notifications/sent', async (_req: Request, res: Response) => {
   try {
-    const groups = await Notification.aggregate([
-      { $match: { groupId: { $ne: null } } },
-      { $sort: { createdAt: -1 } },
-      {
-        $group: {
-          _id: '$groupId',
-          type: { $first: '$type' },
-          title: { $first: '$title' },
-          message: { $first: '$message' },
-          urgent: { $first: '$urgent' },
-          audience: { $first: '$audience' },
-          recipientCount: { $first: '$recipientCount' },
-          createdAt: { $first: '$createdAt' },
-          recipients: { $push: '$user' },
-        },
-      },
-      { $sort: { createdAt: -1 } },
-      { $limit: 50 },
-    ]);
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .not('group_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(500);
 
-    const userIds = [...new Set(groups.flatMap((g) => (g.recipients as Types.ObjectId[]).map((r) => r.toString())))];
-    const users = await User.find({ _id: { $in: userIds } }).select('fullName employeeId');
-    const userMap = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+
+    const rows: NotificationRow[] = data ?? [];
+
+    // Group by group_id in code (replaces the Mongoose $group aggregation)
+    const groupMap = new Map<string, {
+      groupId:        string;
+      type:           string;
+      title:          string;
+      message:        string;
+      urgent:         boolean;
+      audience:       string;
+      recipientCount: number;
+      createdAt:      string;
+      recipientIds:   string[];
+    }>();
+
+    for (const r of rows) {
+      if (!r.group_id) continue;
+      if (!groupMap.has(r.group_id)) {
+        groupMap.set(r.group_id, {
+          groupId:        r.group_id,
+          type:           r.type,
+          title:          r.title,
+          message:        r.message,
+          urgent:         r.urgent,
+          audience:       r.audience,
+          recipientCount: r.recipient_count,
+          createdAt:      r.created_at,
+          recipientIds:   [],
+        });
+      }
+      groupMap.get(r.group_id)!.recipientIds.push(r.user_id);
+    }
+
+    const groups = [...groupMap.values()].slice(0, 50);
+
+    // Fetch names for all unique recipient IDs
+    const allIds = [...new Set(groups.flatMap((g) => g.recipientIds))];
+    let nameMap: Record<string, string> = {};
+    if (allIds.length > 0) {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, full_name')
+        .in('id', allIds);
+      nameMap = Object.fromEntries(
+        (users ?? []).map((u: { id: string; full_name: string }) => [u.id, u.full_name]),
+      );
+    }
 
     const enriched = groups.map((g) => ({
-      groupId: g._id,
-      type: g.type,
-      title: g.title,
-      message: g.message,
-      urgent: g.urgent,
-      audience: g.audience,
+      groupId:        g.groupId,
+      type:           g.type,
+      title:          g.title,
+      message:        g.message,
+      urgent:         g.urgent,
+      audience:       g.audience,
       recipientCount: g.recipientCount,
-      createdAt: g.createdAt,
-      recipientNames: (g.recipients as Types.ObjectId[])
-        .map((r) => userMap[r.toString()]?.fullName)
-        .filter(Boolean),
+      createdAt:      g.createdAt,
+      recipientNames: g.recipientIds.map((id) => nameMap[id]).filter(Boolean),
     }));
 
     res.json({ success: true, groups: enriched });
@@ -193,113 +302,116 @@ router.get('/notifications/sent', async (_req: Request, res: Response) => {
 // GET /api/admin/activity — unified live activity feed for the dashboard
 router.get('/activity', async (req: Request, res: Response) => {
   try {
-    const limit = Math.min(parseInt((req.query.limit as string) || '10', 10), 50);
-    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const limit = Math.min(parseInt((req.query.limit as string) ?? '10', 10), 50);
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [createdTasks, completedTasks, attendanceRecs] = await Promise.all([
-      Task.find({ createdAt: { $gte: since } })
-        .sort({ createdAt: -1 })
-        .limit(limit * 2)
-        .populate<{ user: { fullName: string; employeeId: string } | null }>('user', 'fullName employeeId'),
-      Task.find({ status: 'Completed', completedAt: { $gte: since } })
-        .sort({ completedAt: -1 })
-        .limit(limit * 2)
-        .populate<{ user: { fullName: string; employeeId: string } | null }>('user', 'fullName employeeId'),
-      Attendance.find({ date: { $gte: since } })
-        .sort({ date: -1 })
-        .limit(limit * 2)
-        .populate<{ user: { fullName: string; employeeId: string } | null }>('user', 'fullName employeeId'),
+    const [createdRes, completedRes, attendanceRes] = await Promise.all([
+      supabase.from('tasks').select('id, user_id, title, created_at')
+        .gte('created_at', since).order('created_at', { ascending: false }).limit(limit * 2),
+      supabase.from('tasks').select('id, user_id, title, completed_at')
+        .eq('status', 'Completed').gte('completed_at', since)
+        .order('completed_at', { ascending: false }).limit(limit * 2),
+      supabase.from('attendance').select('user_id, sessions, date')
+        .gte('date', since.split('T')[0]).order('date', { ascending: false }).limit(limit * 2),
     ]);
 
+    // Gather unique user IDs across all result sets
+    const userIds = new Set<string>();
+    for (const t of createdRes.data   ?? []) userIds.add(t.user_id);
+    for (const t of completedRes.data ?? []) userIds.add(t.user_id);
+    for (const a of attendanceRes.data ?? []) userIds.add(a.user_id);
+
+    let userMap: Record<string, { fullName: string; employeeId: string }> = {};
+    if (userIds.size > 0) {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, full_name, employee_id')
+        .in('id', [...userIds]);
+      userMap = Object.fromEntries(
+        (users ?? []).map((u: { id: string; full_name: string; employee_id: string }) => [
+          u.id,
+          { fullName: u.full_name, employeeId: u.employee_id },
+        ]),
+      );
+    }
+
     const events: {
-      kind: string;
-      at: Date | undefined;
+      kind:     string;
+      at:       string;
       userName: string;
-      userId: string;
-      text: string;
+      userId:   string;
+      text:     string;
     }[] = [];
 
-    for (const t of createdTasks) {
-      if (!t.user) continue;
+    for (const t of createdRes.data ?? []) {
+      const u = userMap[t.user_id];
+      if (!u) continue;
       events.push({
-        kind: 'task_created',
-        at: t.createdAt,
-        userName: t.user.fullName,
-        userId: t.user.employeeId,
+        kind: 'task_created', at: t.created_at,
+        userName: u.fullName, userId: u.employeeId,
         text: 'created task "' + t.title + '"',
       });
     }
-    for (const t of completedTasks) {
-      if (!t.user) continue;
+    for (const t of completedRes.data ?? []) {
+      const u = userMap[t.user_id];
+      if (!u || !t.completed_at) continue;
       events.push({
-        kind: 'task_completed',
-        at: t.completedAt,
-        userName: t.user.fullName,
-        userId: t.user.employeeId,
+        kind: 'task_completed', at: t.completed_at,
+        userName: u.fullName, userId: u.employeeId,
         text: 'marked "' + t.title + '" as Completed',
       });
     }
-    for (const a of attendanceRecs) {
-      if (!a.user || !a.sessions) continue;
-      for (const s of a.sessions) {
+    for (const a of attendanceRes.data ?? []) {
+      const u = userMap[a.user_id];
+      if (!u || !a.sessions) continue;
+      for (const s of a.sessions as { checkInTime?: string; checkOutTime?: string }[]) {
         if (s.checkInTime && s.checkInTime >= since) {
-          events.push({
-            kind: 'check_in',
-            at: s.checkInTime,
-            userName: (a.user as unknown as { fullName: string }).fullName,
-            userId: (a.user as unknown as { employeeId: string }).employeeId,
-            text: 'checked in',
-          });
+          events.push({ kind: 'check_in', at: s.checkInTime, userName: u.fullName, userId: u.employeeId, text: 'checked in' });
         }
         if (s.checkOutTime && s.checkOutTime >= since) {
-          events.push({
-            kind: 'check_out',
-            at: s.checkOutTime,
-            userName: (a.user as unknown as { fullName: string }).fullName,
-            userId: (a.user as unknown as { employeeId: string }).employeeId,
-            text: 'checked out',
-          });
+          events.push({ kind: 'check_out', at: s.checkOutTime, userName: u.fullName, userId: u.employeeId, text: 'checked out' });
         }
       }
     }
 
-    events.sort((a, b) => new Date(b.at!).getTime() - new Date(a.at!).getTime());
+    events.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+
     res.json({
       success: true,
-      count: Math.min(events.length, limit),
-      events: events.slice(0, limit),
+      count:   Math.min(events.length, limit),
+      events:  events.slice(0, limit),
     });
   } catch (e) {
     res.status(500).json({ success: false, message: (e as Error).message });
   }
 });
 
-// GET /api/admin/attendance — all attendance records for today
+// GET /api/admin/attendance — all attendance records for a given date
 router.get('/attendance', async (req: Request, res: Response) => {
   try {
-    const { date } = req.query as { date?: string };
-    let start: Date, end: Date;
-    if (date) {
-      start = new Date(date);
-      start.setHours(0, 0, 0, 0);
-      end = new Date(date);
-      end.setHours(23, 59, 59, 999);
-    } else {
-      start = new Date();
-      start.setHours(0, 0, 0, 0);
-      end = new Date();
-      end.setHours(23, 59, 59, 999);
+    const dateStr = req.query.date
+      ? String(req.query.date).split('T')[0]
+      : new Date().toISOString().split('T')[0];
+
+    const [attRes, empRes] = await Promise.all([
+      supabase.from('attendance').select('*').eq('date', dateStr),
+      supabase.from('users').select('id', { count: 'exact', head: true }),
+    ]);
+
+    if (attRes.error) {
+      res.status(500).json({ success: false, message: attRes.error.message });
+      return;
     }
-    const records = await Attendance.find({ date: { $gte: start, $lte: end } })
-      .populate('user', 'fullName employeeId photo role')
-      .sort({ 'sessions.0.checkInTime': 1 });
-    const present = records.filter((r) => r.sessions && r.sessions.length > 0).length;
-    const totalEmp = await User.countDocuments();
+
+    const records = (attRes.data as AttendanceRow[] ?? []).map(attendanceRowToPublic);
+    const present   = records.filter((r) => (r.sessions ?? []).length > 0).length;
+    const totalEmp  = empRes.count ?? 0;
+
     res.json({
-      success: true,
-      count: records.length,
+      success:        true,
+      count:          records.length,
       present,
-      absent: totalEmp - present,
+      absent:         totalEmp - present,
       totalEmployees: totalEmp,
       records,
     });

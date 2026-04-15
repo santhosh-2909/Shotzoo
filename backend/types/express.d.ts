@@ -1,9 +1,10 @@
-import { IUser } from '../models/User';
+import { UserRow } from './db';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: IUser;
+      /** Populated by `protect` middleware — the authenticated user's DB row. */
+      user?: UserRow;
     }
   }
 }

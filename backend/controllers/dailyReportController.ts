@@ -1,11 +1,18 @@
 import { Request, Response } from 'express';
-import DailyReport, { ReportType } from '../models/DailyReport';
-import User from '../models/User';
+import { supabase } from '../config/supabase';
+import {
+  DailyReportRow,
+  UserRow,
+  dailyReportRowToPublic,
+  userRowToPublic,
+} from '../types/db';
 
-const getToday = (): Date => {
+type ReportType = 'BOD' | 'MOD' | 'EOD';
+
+const todayIso = (): string => {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
-  return d;
+  return d.toISOString().split('T')[0];
 };
 
 const WINDOWS: Record<ReportType, [number, number]> = {
@@ -32,9 +39,7 @@ const WINDOW_LABELS: Record<ReportType, string> = {
 export const submitReport = async (req: Request, res: Response): Promise<void> => {
   try {
     const { type, title, description } = req.body as {
-      type?: string;
-      title?: string;
-      description?: string;
+      type?: string; title?: string; description?: string;
     };
 
     if (!type || !['BOD', 'MOD', 'EOD'].includes(type)) {
@@ -47,62 +52,82 @@ export const submitReport = async (req: Request, res: Response): Promise<void> =
     }
 
     const reportType = type as ReportType;
-    const today = getToday();
-    const status = getWindowStatus(reportType);
+    const date       = todayIso();
+    const status     = getWindowStatus(reportType);
 
     if (status !== 'open') {
       res.status(400).json({ success: false, message: WINDOW_LABELS[reportType] });
       return;
     }
 
-    const existing = await DailyReport.findOne({ user: req.user!._id, date: today, type: reportType });
+    const { data: existing } = await supabase
+      .from('daily_reports')
+      .select('id')
+      .eq('user_id', req.user!.id)
+      .eq('date', date)
+      .eq('type', reportType)
+      .maybeSingle();
+
     if (existing) {
       res.status(400).json({ success: false, message: reportType + ' report already submitted today.' });
       return;
     }
 
-    const report = await DailyReport.create({
-      user: req.user!._id,
-      date: today,
-      type: reportType,
-      title: title.trim(),
-      description: (description || '').trim(),
-      isLate: false,
-      lateReason: '',
-      submittedAt: new Date(),
-    });
+    const { data, error } = await supabase
+      .from('daily_reports')
+      .insert({
+        user_id:      req.user!.id,
+        date,
+        type:         reportType,
+        title:        title.trim(),
+        description:  (description ?? '').trim(),
+        is_late:      false,
+        late_reason:  '',
+        submitted_at: new Date().toISOString(),
+      })
+      .select('*')
+      .single();
 
-    res.status(201).json({ success: true, report });
-  } catch (error) {
-    const err = error as { code?: number; message: string };
-    if (err.code === 11000) {
-      res.status(400).json({ success: false, message: 'Report already submitted for this period.' });
+    if (error || !data) {
+      res.status(500).json({ success: false, message: error?.message ?? 'Failed to submit report.' });
       return;
     }
-    res.status(500).json({ success: false, message: err.message });
+
+    res.status(201).json({ success: true, report: dailyReportRowToPublic(data as DailyReportRow) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
 
 export const getTodayReports = async (req: Request, res: Response): Promise<void> => {
   try {
-    const today = getToday();
-    const reports = await DailyReport.find({ user: req.user!._id, date: today }).sort({ type: 1 });
+    const { data, error } = await supabase
+      .from('daily_reports')
+      .select('*')
+      .eq('user_id', req.user!.id)
+      .eq('date', todayIso())
+      .order('type', { ascending: true });
+
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+
+    const rows: DailyReportRow[] = data ?? [];
+    const reports = rows.map(dailyReportRowToPublic);
 
     const statuses: Record<string, object> = {};
-    for (const type of ['BOD', 'MOD', 'EOD'] as ReportType[]) {
-      const report = reports.find((r) => r.type === type);
-      if (report) {
-        statuses[type] = {
-          submitted: true,
-          isLate: report.isLate,
-          submittedAt: report.submittedAt,
-          title: report.title,
+    for (const t of ['BOD', 'MOD', 'EOD'] as ReportType[]) {
+      const r = rows.find((x) => x.type === t);
+      if (r) {
+        statuses[t] = {
+          submitted:   true,
+          isLate:      r.is_late,
+          submittedAt: r.submitted_at,
+          title:       r.title,
         };
       } else {
-        statuses[type] = {
-          submitted: false,
-          windowStatus: getWindowStatus(type),
-        };
+        statuses[t] = { submitted: false, windowStatus: getWindowStatus(t) };
       }
     }
 
@@ -115,21 +140,35 @@ export const getTodayReports = async (req: Request, res: Response): Promise<void
 export const getHistory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { month } = req.query as { month?: string };
-    let start: Date, end: Date;
+    let startDate: string, endDate: string;
     if (month) {
-      start = new Date(month + '-01');
-      end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 23, 59, 59, 999);
+      const start = new Date(month + '-01');
+      const end   = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+      startDate = start.toISOString().split('T')[0];
+      endDate   = end.toISOString().split('T')[0];
     } else {
-      end = new Date();
-      start = new Date();
+      const end   = new Date();
+      const start = new Date();
       start.setDate(start.getDate() - 30);
-      start.setHours(0, 0, 0, 0);
+      startDate = start.toISOString().split('T')[0];
+      endDate   = end.toISOString().split('T')[0];
     }
-    const reports = await DailyReport.find({
-      user: req.user!._id,
-      date: { $gte: start, $lte: end },
-    }).sort({ date: -1, type: 1 });
 
+    const { data, error } = await supabase
+      .from('daily_reports')
+      .select('*')
+      .eq('user_id', req.user!.id)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false })
+      .order('type', { ascending: true });
+
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+    const rows: DailyReportRow[] = data ?? [];
+    const reports = rows.map(dailyReportRowToPublic);
     res.json({ success: true, count: reports.length, reports });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
@@ -139,9 +178,7 @@ export const getHistory = async (req: Request, res: Response): Promise<void> => 
 export const upsertReport = async (req: Request, res: Response): Promise<void> => {
   try {
     const { type, title, description } = req.body as {
-      type?: string;
-      title?: string;
-      description?: string;
+      type?: string; title?: string; description?: string;
     };
 
     if (!type || !['BOD', 'MOD', 'EOD'].includes(type)) {
@@ -154,14 +191,30 @@ export const upsertReport = async (req: Request, res: Response): Promise<void> =
     }
 
     const reportType = type as ReportType;
-    const today = getToday();
-    const report = await DailyReport.findOneAndUpdate(
-      { user: req.user!._id, date: today, type: reportType },
-      { $set: { title: title.trim(), description: (description || '').trim(), submittedAt: new Date() } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+    const date       = todayIso();
 
-    res.json({ success: true, report });
+    const { data, error } = await supabase
+      .from('daily_reports')
+      .upsert(
+        {
+          user_id:      req.user!.id,
+          date,
+          type:         reportType,
+          title:        title.trim(),
+          description:  (description ?? '').trim(),
+          submitted_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,date,type' },
+      )
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      res.status(500).json({ success: false, message: error?.message ?? 'Failed to save report.' });
+      return;
+    }
+
+    res.json({ success: true, report: dailyReportRowToPublic(data as DailyReportRow) });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
@@ -169,36 +222,49 @@ export const upsertReport = async (req: Request, res: Response): Promise<void> =
 
 export const getAllTodayReports = async (req: Request, res: Response): Promise<void> => {
   try {
-    const targetDate = req.query.date ? new Date(req.query.date as string) : getToday();
-    targetDate.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const date = req.query.date ? String(req.query.date).split('T')[0] : todayIso();
 
-    const [users, reports] = await Promise.all([
-      User.find().select('fullName employeeId photo role').sort({ createdAt: 1 }),
-      DailyReport.find({ date: { $gte: targetDate, $lte: endOfDay } }),
+    const [usersRes, reportsRes] = await Promise.all([
+      supabase
+        .from('users')
+        .select('id, full_name, employee_id, photo, role, email, phone, company, employee_type, bio, joining_date, gender, date_of_birth, linkedin_url, work_role, notifications, created_at, updated_at, password')
+        .order('created_at', { ascending: true }),
+      supabase
+        .from('daily_reports')
+        .select('*')
+        .eq('date', date),
     ]);
 
-    const reportMap: Record<string, Record<string, { title: string; description: string; isLate: boolean; submittedAt: Date }>> = {};
-    reports.forEach((r) => {
-      const uid = r.user.toString();
-      if (!reportMap[uid]) reportMap[uid] = {};
-      reportMap[uid][r.type] = {
-        title: r.title,
-        description: r.description,
-        isLate: r.isLate,
-        submittedAt: r.submittedAt,
-      };
-    });
+    if (usersRes.error) {
+      res.status(500).json({ success: false, message: usersRes.error.message });
+      return;
+    }
+    if (reportsRes.error) {
+      res.status(500).json({ success: false, message: reportsRes.error.message });
+      return;
+    }
 
-    const employees = users.map((u) => {
-      const uid = u._id.toString();
-      const bod = reportMap[uid]?.BOD ?? null;
-      const mod = reportMap[uid]?.MOD ?? null;
-      const eod = reportMap[uid]?.EOD ?? null;
+    const userRows:   UserRow[]        = usersRes.data   ?? [];
+    const reportRows: DailyReportRow[] = reportsRes.data ?? [];
+
+    const reportMap: Record<string, Record<string, { title: string; description: string; isLate: boolean; submittedAt: string }>> = {};
+    for (const r of reportRows) {
+      reportMap[r.user_id] ??= {};
+      reportMap[r.user_id][r.type] = {
+        title:       r.title,
+        description: r.description,
+        isLate:      r.is_late,
+        submittedAt: r.submitted_at,
+      };
+    }
+
+    const employees = userRows.map((u) => {
+      const bod = reportMap[u.id]?.BOD ?? null;
+      const mod = reportMap[u.id]?.MOD ?? null;
+      const eod = reportMap[u.id]?.EOD ?? null;
       const count = [bod, mod, eod].filter(Boolean).length;
       const status = count === 3 ? 'Completed' : count > 0 ? 'Partial' : 'Not Submitted';
-      return { user: u, bod, mod, eod, status };
+      return { user: userRowToPublic(u), bod, mod, eod, status };
     });
 
     res.json({ success: true, count: employees.length, employees });
@@ -209,16 +275,28 @@ export const getAllTodayReports = async (req: Request, res: Response): Promise<v
 
 export const getStats = async (req: Request, res: Response): Promise<void> => {
   try {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const reports = await DailyReport.find({ user: req.user!._id, date: { $gte: startOfMonth } });
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startDate = start.toISOString().split('T')[0];
 
+    const { data, error } = await supabase
+      .from('daily_reports')
+      .select('*')
+      .eq('user_id', req.user!.id)
+      .gte('date', startDate);
+
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+
+    const reports: DailyReportRow[] = data ?? [];
     const totalSubmitted = reports.length;
-    const onTime = reports.filter((r) => !r.isLate).length;
-    const late = reports.filter((r) => r.isLate).length;
-    const bod = reports.filter((r) => r.type === 'BOD').length;
-    const mod = reports.filter((r) => r.type === 'MOD').length;
-    const eod = reports.filter((r) => r.type === 'EOD').length;
+    const onTime = reports.filter((r) => !r.is_late).length;
+    const late   = reports.filter((r) =>  r.is_late).length;
+    const bod    = reports.filter((r) => r.type === 'BOD').length;
+    const mod    = reports.filter((r) => r.type === 'MOD').length;
+    const eod    = reports.filter((r) => r.type === 'EOD').length;
 
     res.json({ success: true, stats: { totalSubmitted, onTime, late, bod, mod, eod } });
   } catch (error) {

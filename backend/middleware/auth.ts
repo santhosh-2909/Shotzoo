@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import { supabase } from '../config/supabase';
+import { UserRow } from '../types/db';
 
 interface JwtPayload {
   id: string;
@@ -12,7 +13,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
   if (req.headers.authorization?.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies?.token) {
-    token = req.cookies.token as string;
+    token = req.cookies.token;
   }
 
   if (!token) {
@@ -22,14 +23,21 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-    const user = await User.findById(decoded.id);
-    if (!user) {
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', decoded.id)
+      .maybeSingle();
+
+    if (error || !user) {
       res.status(401).json({ success: false, message: 'User no longer exists.' });
       return;
     }
-    req.user = user;
+
+    req.user = user as UserRow;
     next();
-  } catch (_err) {
+  } catch {
     res.status(401).json({ success: false, message: 'Invalid or expired token.' });
   }
 };
