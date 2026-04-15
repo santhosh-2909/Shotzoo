@@ -39,18 +39,20 @@ app.use(
 );
 app.use(compression());
 
-// CORS — permissive in dev, strict in production.
+// CORS — permissive for known-safe origins, strict for everything else.
 //
-// Dev (default):
-//   - Any http://localhost:<port>
-//   - Any http://127.0.0.1:<port>
-//   - Any http://[::1]:<port>
-//   - Any http://<private-LAN-IP>:<port>  (192.168.x, 10.x, 172.16–31.x)
-//   - Plus anything explicitly in ALLOWED_ORIGINS
+// Dev (NODE_ENV != production):
+//   - Any http(s)://localhost:<port>
+//   - Any http(s)://127.0.0.1:<port>
+//   - Any http(s)://[::1]:<port>
+//   - Any http(s)://<private-LAN-IP>:<port>  (192.168.x, 10.x, 172.16–31.x)
+//   - Anything explicitly in ALLOWED_ORIGINS
+//   - Any *.vercel.app subdomain
 //
 // Production (NODE_ENV=production):
-//   - Only origins listed in ALLOWED_ORIGINS env var
-//   - Plus *.vercel.app preview deploys (so PR previews work automatically)
+//   - Anything explicitly in ALLOWED_ORIGINS env var (custom domain support)
+//   - Any *.vercel.app subdomain (canonical prod URL + every git/preview deploy)
+//   - Nothing else
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((o) => o.trim())
@@ -58,14 +60,16 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 
 const PRIVATE_LAN_RE = /^https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?::\d+)?$/;
 
+// Vercel hands out subdomains like:
+//   shotzoo-2026.vercel.app                             (canonical prod)
+//   shotzoo-2026-git-main-santhosh-ss-projects.vercel.app   (git branch preview)
+//   shotzoo-2026-abc123-santhosh-ss-projects.vercel.app     (deployment preview)
+// All of them share the .vercel.app suffix and use [a-z0-9-] in the host.
+const VERCEL_APP_RE = /^https:\/\/[a-z0-9][a-z0-9-]*\.vercel\.app$/i;
+
 const isAllowedOrigin = (origin: string): boolean => {
   if (allowedOrigins.includes(origin)) return true;
-  if (
-    allowedOrigins.some((o) => o.endsWith('.vercel.app')) &&
-    /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)
-  ) {
-    return true;
-  }
+  if (VERCEL_APP_RE.test(origin)) return true;
   if (!isProd && PRIVATE_LAN_RE.test(origin)) return true;
   return false;
 };
