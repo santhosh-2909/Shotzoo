@@ -8,7 +8,7 @@ import cron from 'node-cron';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import connectDB from './config/db';
+import connectDB, * as db from './config/db';
 import Task from './models/Task';
 import Notification from './models/Notification';
 
@@ -124,6 +124,33 @@ if (!isServerless) {
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 }
 
+// /api/health always answers, even when the DB isn't ready — so uptime
+// checks, Vercel warm-ups, and client health probes always succeed.
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({
+    status:  'ok',
+    time:    new Date().toISOString(),
+    db:      db.dbReady ? 'connected' : (db.dbInitError ? 'error' : 'connecting'),
+    dbError: db.dbInitError,
+  });
+});
+
+// Everything else under /api/* requires a working database. If connectDB
+// failed (most commonly: MONGODB_URI missing or wrong in production),
+// return a clear JSON 503 with the actual reason so the frontend shows a
+// useful error instead of the generic "Server error (HTTP 500)".
+app.use('/api', (_req: Request, res: Response, next: NextFunction) => {
+  if (db.dbInitError) {
+    res.status(503).json({
+      success: false,
+      message: db.dbInitError,
+      hint:    'Check the server logs for details and redeploy after fixing.',
+    });
+    return;
+  }
+  next();
+});
+
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/tasks', apiLimiter, taskRoutes);
 app.use('/api/attendance', apiLimiter, attendanceRoutes);
@@ -132,9 +159,13 @@ app.use('/api/profile', apiLimiter, profileRoutes);
 app.use('/api/daily-reports', apiLimiter, dailyReportRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 
-app.get('/api/health', (_req: Request, res: Response) =>
-  res.json({ status: 'ok', time: new Date().toISOString() })
-);
+// Any /api/* that didn't match above → JSON 404 (never HTML).
+app.use('/api', (req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found: ' + req.method + ' ' + req.originalUrl,
+  });
+});
 
 // Local-only SPA fallback. On Vercel, the frontend is served by Vercel's
 // static hosting — the serverless function only handles /api/*.

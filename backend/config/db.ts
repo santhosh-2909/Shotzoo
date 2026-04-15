@@ -1,17 +1,29 @@
 import mongoose from 'mongoose';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import seedDatabase from './seed';
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd       = process.env.NODE_ENV === 'production';
+const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+/** True once connectDB() has successfully opened a connection. */
+export let dbReady = false;
+
+/** Populated if the initial connectDB() attempt failed. Used by server.ts to
+ *  return a helpful JSON 503 on every /api/* request instead of crashing. */
+export let dbInitError: string | null = null;
 
 /**
- * Persistent dev DB using mongodb-memory-server with a fixed dbPath.
- * The mongod binary writes wiredTiger files under backend/data/ so data
- * survives process restarts — no external MongoDB install needed.
+ * Persistent in-memory Mongo for local dev. The wiredTiger files live
+ * OUTSIDE the workspace (os.homedir()/.shotzoo-dev-db by default) so
+ * VSCode's file watcher and extension analyzers never try to read the
+ * locked .lock files and produce EISDIR/EBUSY diagnostics. Override
+ * with MONGO_MEMORY_DB_PATH if you want the data elsewhere.
  */
 const startInMemory = async (reason: string): Promise<void> => {
-  const dbPath = path.resolve(__dirname, '..', '..', 'data');
+  const dbPath = process.env.MONGO_MEMORY_DB_PATH
+    ?? path.join(os.homedir(), '.shotzoo-dev-db');
   try {
     fs.mkdirSync(dbPath, { recursive: true });
   } catch {
@@ -51,54 +63,65 @@ const startInMemory = async (reason: string): Promise<void> => {
     console.log('  URI:     ' + memUri);
     console.log('  Data:    ' + dbPath + ' (persists across restarts)');
   } catch (memErr) {
+    const msg = (memErr as Error).message;
+    dbInitError = 'In-memory MongoDB failed to start: ' + msg;
     console.error('');
     console.error('  ✖ Failed to start in-memory MongoDB.');
-    console.error('  ' + (memErr as Error).message);
+    console.error('  ' + msg);
     console.error('  Install it: npm i -D mongodb-memory-server');
     console.error('  Or start a real MongoDB and set MONGODB_URI in .env.');
     console.error('');
-    process.exit(1);
+    // Only hard-exit in long-lived mode. In serverless, leave the flag set
+    // so the middleware can return a JSON error to the client.
+    if (!isServerless) process.exit(1);
   }
 };
 
 const connectDB = async (): Promise<void> => {
   const uri = process.env.MONGODB_URI;
 
-  // Production: REQUIRE a real MongoDB. Never fall back to in-memory.
-  // Serverless platforms (Vercel, Netlify, etc.) have a read-only filesystem,
-  // so mongodb-memory-server cannot run there. Even if it could, every
-  // cold start would lose all data.
+  // ── Production ─────────────────────────────────────────────────────────
+  // Require MONGODB_URI but NEVER crash the function at startup. Instead,
+  // set dbInitError so the API middleware returns a helpful JSON 503
+  // explaining exactly what to fix in the hosting provider's env vars.
   if (isProd) {
     if (!uri) {
-      console.error('');
-      console.error('  ✖ MONGODB_URI is required in production.');
-      console.error('  Sign up at https://www.mongodb.com/cloud/atlas');
-      console.error('  Create a free M0 cluster and set the connection string');
-      console.error('  as MONGODB_URI in your hosting provider\'s env vars.');
-      console.error('');
-      process.exit(1);
+      dbInitError =
+        'MONGODB_URI is not set. In Vercel → Settings → Environment Variables, ' +
+        'add MONGODB_URI with your MongoDB Atlas connection string ' +
+        '(mongodb+srv://user:pass@cluster.mongodb.net/dbname) and redeploy.';
+      console.error('  ✖ ' + dbInitError);
+      return;
     }
     try {
       await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
+      dbReady = true;
       console.log('  DB mode: real MongoDB (production)');
       console.log('  Host:    ' + mongoose.connection.host);
       console.log('  Name:    ' + mongoose.connection.name);
     } catch (err) {
-      console.error('');
-      console.error('  ✖ Failed to connect to MONGODB_URI in production.');
-      console.error('  ' + (err as Error).message);
-      console.error('  Verify the connection string, IP whitelist, and credentials.');
-      console.error('');
-      process.exit(1);
+      const msg = (err as Error).message;
+      dbInitError =
+        'Failed to connect to MongoDB: ' + msg +
+        '. Verify the MONGODB_URI credentials, the Atlas IP whitelist ' +
+        '(0.0.0.0/0 for Vercel), and that the database user has read/write access.';
+      console.error('  ✖ ' + dbInitError);
+      return;
     }
-    await seedDatabase();
+    try {
+      await seedDatabase();
+    } catch (seedErr) {
+      console.error('  ⚠ Seed failed (non-fatal):', (seedErr as Error).message);
+    }
     return;
   }
 
-  // Development: try real URI first, fall back to in-memory with a warning.
+  // ── Development ────────────────────────────────────────────────────────
+  // Try real URI first, fall back to persistent in-memory with a warning.
   if (uri) {
     try {
       await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
+      dbReady = true;
       console.log('  DB mode: real MongoDB');
       console.log('  Host:    ' + mongoose.connection.host);
       console.log('  Name:    ' + mongoose.connection.name);
@@ -107,12 +130,20 @@ const connectDB = async (): Promise<void> => {
       console.warn('  ⚠ ' + (err as Error).message);
       console.warn('  ⚠ Falling back to in-memory MongoDB.');
       await startInMemory('MONGODB_URI unreachable');
+      dbReady = !dbInitError;
     }
   } else {
     await startInMemory('MONGODB_URI not set');
+    dbReady = !dbInitError;
   }
 
-  await seedDatabase();
+  if (dbReady) {
+    try {
+      await seedDatabase();
+    } catch (seedErr) {
+      console.error('  ⚠ Seed failed (non-fatal):', (seedErr as Error).message);
+    }
+  }
 };
 
 export default connectDB;
