@@ -51,21 +51,31 @@ interface AttemptResult {
   rawText: string;
 }
 
+interface NetworkErrorResult {
+  networkError: true;
+  message:      string;
+}
+
 async function singleAttempt(
   endpoint: string,
   options: RequestInit,
   headers: Record<string, string>,
-): Promise<AttemptResult | { networkError: true }> {
+): Promise<AttemptResult | NetworkErrorResult> {
+  const url = apiUrl('/api' + endpoint);
   try {
-    const res = await fetch(apiUrl('/api' + endpoint), {
+    const res = await fetch(url, {
       ...options,
       headers,
       credentials: 'include',
     });
     const rawText = await res.text();
     return { res, rawText };
-  } catch {
-    return { networkError: true };
+  } catch (err) {
+    // Surface the real reason fetch failed (CORS, DNS, timeout, etc.)
+    // so the frontend can show something better than a generic message.
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[api] fetch failed for', (options.method ?? 'GET'), url, '→', message);
+    return { networkError: true, message };
   }
 }
 
@@ -92,15 +102,20 @@ async function request<T = unknown>(
   const method = (options.method ?? 'GET').toUpperCase();
   const maxRetries = method === 'GET' ? 2 : 1;
 
+  let lastNetworkMsg = '';
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const result = await singleAttempt(endpoint, options, headers);
 
     if ('networkError' in result) {
+      lastNetworkMsg = result.message;
       if (attempt < maxRetries) {
         await sleep(400 * (attempt + 1));
         continue;
       }
-      throw new Error('Cannot reach the server. Please check your connection and try again.');
+      // Include the underlying reason so CORS / timeout / DNS issues are
+      // visible instead of hidden behind a generic "cannot reach" string.
+      const suffix = lastNetworkMsg ? ' (' + lastNetworkMsg + ')' : '';
+      throw new Error('Cannot reach the server. Please check your connection and try again.' + suffix);
     }
 
     const { res, rawText } = result;
@@ -160,11 +175,14 @@ async function request<T = unknown>(
 // ─── Auth ──────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  login:    (email: string, password: string) =>
+  login:      (email: string, password: string) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  register: (formData: FormData) =>
+  register:   (formData: FormData) =>
     request('/auth/register', { method: 'POST', body: formData }),
-  me:       () => request('/auth/me'),
+  me:         () => request('/auth/me'),
+  checkSetup: () => request('/auth/check-setup'),
+  setup:      (body: unknown) =>
+    request('/auth/setup', { method: 'POST', body: JSON.stringify(body) }),
 };
 
 // ─── Tasks ─────────────────────────────────────────────────────────────────

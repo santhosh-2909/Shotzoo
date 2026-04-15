@@ -214,3 +214,128 @@ export const logout = (_req: Request, res: Response): void => {
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   res.status(200).json({ success: true, user: userRowToPublic(req.user!) });
 };
+
+// ─── Check whether any admin exists (public) ──────────────────────────────
+// Used by the frontend SetupGate on app load to decide whether to force
+// the user onto /setup (first-run) or let them hit /signin normally.
+export const checkSetup = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const { count, error } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'Admin');
+
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+    res.json({ success: true, data: { hasAdmin: (count ?? 0) > 0 } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+// Generate a unique SZ-ADM-XXXX employee ID.
+async function uniqueAdminId(): Promise<string> {
+  for (let i = 0; i < 10; i++) {
+    const n = Math.floor(1000 + Math.random() * 9000);
+    const cand = 'SZ-ADM-' + String(n);
+    const { data } = await supabase
+      .from('users')
+      .select('id')
+      .eq('employee_id', cand)
+      .maybeSingle();
+    if (!data) return cand;
+  }
+  return 'SZ-ADM-' + Date.now().toString().slice(-6);
+}
+
+// ─── First-admin-only setup (public, rejects if admin exists) ─────────────
+// Behaves like register BUT refuses once any Admin row exists. Accepts both
+// the spec's field names (name, companyName, workType) and the existing
+// app's names (fullName, company, employeeType) so both frontends work.
+export const setupAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { count: adminCount, error: countErr } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'Admin');
+
+    if (countErr) {
+      res.status(500).json({ success: false, message: countErr.message });
+      return;
+    }
+    if ((adminCount ?? 0) > 0) {
+      res.status(403).json({
+        success: false,
+        message: 'An admin account already exists. Please sign in instead.',
+      });
+      return;
+    }
+
+    const body = req.body as Record<string, string | undefined>;
+    const name     = (body.fullName ?? body.name ?? '').trim();
+    const company  = (body.company ?? body.companyName ?? '').trim();
+    const email    = (body.email ?? '').trim().toLowerCase();
+    const phone    = (body.phone ?? '').trim();
+    const password = body.password ?? '';
+    const confirm  = body.confirmPassword;
+
+    if (!name || !email || !password || !phone || !company) {
+      res.status(400).json({
+        success: false,
+        message: 'Name, email, phone, company and password are required.',
+      });
+      return;
+    }
+    if (password.length < 8) {
+      res.status(400).json({ success: false, message: 'Password must be at least 8 characters.' });
+      return;
+    }
+    if (confirm !== undefined && password !== confirm) {
+      res.status(400).json({ success: false, message: 'Passwords do not match.' });
+      return;
+    }
+
+    const wt = (body.workType ?? body.employeeType ?? 'office').toLowerCase();
+    const employee_type: UserRow['employee_type'] =
+      wt === 'home' || wt === 'remote' || wt === 'hybrid' ? 'Home' : 'Office';
+
+    const hash        = await bcrypt.hash(password, 12);
+    const employee_id = await uniqueAdminId();
+
+    const { data: inserted, error } = await supabase
+      .from('users')
+      .insert({
+        employee_id,
+        full_name:     name,
+        email,
+        company,
+        phone,
+        role:          'Admin',
+        password:      hash,
+        employee_type,
+        work_role:     body.workRole    ?? '',
+        joining_date:  body.joiningDate || null,
+        date_of_birth: body.dateOfBirth || null,
+        gender:        (body.gender ?? '') as UserRow['gender'],
+        linkedin_url:  body.linkedinUrl ?? '',
+        bio:           body.bio         ?? '',
+      })
+      .select('*')
+      .single();
+
+    if (error || !inserted) {
+      if (error?.code === '23505') {
+        res.status(400).json({ success: false, message: 'Email already in use.' });
+        return;
+      }
+      res.status(500).json({ success: false, message: error?.message ?? 'Failed to create admin.' });
+      return;
+    }
+
+    sendTokenResponse(inserted as UserRow, 201, res);
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};

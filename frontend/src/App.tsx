@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import EmployeeGuard from '@/guards/EmployeeGuard';
 import AdminGuard    from '@/guards/AdminGuard';
+import SetupGate     from '@/guards/SetupGate';
 import EmployeeLayout from '@/layouts/EmployeeLayout';
 import AdminLayout    from '@/layouts/AdminLayout';
 
@@ -11,6 +12,7 @@ const Splash   = lazy(() => import('@/pages/Splash'));
 const Landing  = lazy(() => import('@/pages/Landing'));
 const SignIn   = lazy(() => import('@/pages/auth/SignIn'));
 const SignUp   = lazy(() => import('@/pages/auth/SignUp'));
+const Setup    = lazy(() => import('@/pages/auth/Setup'));
 
 // ── Employee pages ────────────────────────────────────────────────────────
 const Dashboard    = lazy(() => import('@/pages/employee/Dashboard'));
@@ -50,6 +52,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <Suspense fallback={<PageSpinner />}>
+        <SetupGate>
         <Routes>
           {/* ── Public ───────────────────────────────────────────────── */}
           <Route path="/"        element={<Navigate to="/splash" replace />} />
@@ -57,6 +60,7 @@ export default function App() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/signin"  element={<SignIn />} />
           <Route path="/signup"  element={<SignUp />} />
+          <Route path="/setup"   element={<Setup />} />
 
           {/* ── Employee (protected) ─────────────────────────────────── */}
           <Route element={<EmployeeGuard />}>
@@ -91,6 +95,7 @@ export default function App() {
           {/* ── Catch-all ────────────────────────────────────────────── */}
           <Route path="*" element={<Navigate to="/splash" replace />} />
         </Routes>
+        </SetupGate>
       </Suspense>
     </ErrorBoundary>
   );
