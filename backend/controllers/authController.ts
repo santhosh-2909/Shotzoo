@@ -42,9 +42,28 @@ async function uniqueEmployeeId(): Promise<string> {
   return 'SZ-EMP-' + Date.now().toString().slice(-6);
 }
 
-// ─── Public admin self-registration ───────────────────────────────────────
+// ─── First-admin-only self-registration ───────────────────────────────────
+// Public, but rejected once any Admin row exists. Further admins must be
+// provisioned from inside the admin console.
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { count: adminCount, error: countErr } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'Admin');
+
+    if (countErr) {
+      res.status(500).json({ success: false, message: countErr.message });
+      return;
+    }
+    if ((adminCount ?? 0) > 0) {
+      res.status(403).json({
+        success: false,
+        message: 'Registration is closed. Contact your admin.',
+      });
+      return;
+    }
+
     const {
       fullName, email, company, password, confirmPassword,
       phone, workRole, joiningDate, employeeType, dateOfBirth, gender, linkedinUrl, bio,
