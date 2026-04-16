@@ -11,15 +11,15 @@ const TITLES: Record<ReportType, string> = {
 };
 
 const WINDOWS: Record<ReportType, [number, number]> = {
-  BOD: [9, 13],
+  BOD: [9, 11],
   MOD: [14, 18],
   EOD: [18, 21],
 };
 
 const WINDOW_LABELS: Record<ReportType, string> = {
-  BOD: 'BOD window is 9:00 AM – 1:00 PM',
-  MOD: 'MOD window is 2:00 PM – 6:00 PM',
-  EOD: 'EOD window is after 6:00 PM',
+  BOD: 'Upload window for BOD is 9:00 AM – 11:00 AM. Please try again during that time.',
+  MOD: 'Upload window for MOD is 2:00 PM – 6:00 PM. Please try again during that time.',
+  EOD: 'Upload window for EOD is 6:00 PM – 9:00 PM. Please try again during that time.',
 };
 
 interface ReportStatus {
@@ -102,6 +102,12 @@ export default function DailyReports() {
 
   useEffect(() => { loadTodayReports(); }, [loadTodayReports]);
 
+  useEffect(() => {
+    if (!formSuccess) return;
+    const t = setTimeout(() => setFormSuccess(''), 3500);
+    return () => clearTimeout(t);
+  }, [formSuccess]);
+
   // Switch tabs — clear form
   const handleTabSwitch = (tab: ReportType) => {
     setCurrentTab(tab);
@@ -125,7 +131,7 @@ export default function DailyReports() {
       await reportsApi.submit({ type: currentTab, title: reportTitle.trim(), description: reportBody.trim() });
       setReportTitle('');
       setReportBody('');
-      setFormSuccess(currentTab + ' Report submitted successfully!');
+      setFormSuccess('Updated successfully');
       await loadTodayReports();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Failed to submit report.');
@@ -167,8 +173,8 @@ export default function DailyReports() {
     return 'flex-1 flex items-center justify-center rounded-full text-on-surface-variant font-medium text-xs md:text-sm transition-all';
   };
 
-  const BAR_LABELS: Record<ReportType, string> = { BOD: 'BOD (9am-1pm)', MOD: 'MOD (2-6pm)', EOD: 'EOD (6-9pm)' };
-  const STATUS_WINDOWS: Record<ReportType, string> = { BOD: '9 AM - 1 PM', MOD: '2 PM - 6 PM', EOD: '6 PM - 9 PM' };
+  const BAR_LABELS: Record<ReportType, string> = { BOD: 'BOD (9-11am)', MOD: 'MOD (2-6pm)', EOD: 'EOD (6-9pm)' };
+  const STATUS_WINDOWS: Record<ReportType, string> = { BOD: '9 AM - 11 AM', MOD: '2 PM - 6 PM', EOD: '6 PM - 9 PM' };
 
   return (
     <div className="animate-fade-in">

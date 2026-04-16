@@ -16,7 +16,7 @@ const todayIso = (): string => {
 };
 
 const WINDOWS: Record<ReportType, [number, number]> = {
-  BOD: [9, 13],
+  BOD: [9, 11],
   MOD: [14, 18],
   EOD: [18, 21],
 };
@@ -31,9 +31,9 @@ function getWindowStatus(type: ReportType): 'open' | 'closed' | 'upcoming' | 'in
 }
 
 const WINDOW_LABELS: Record<ReportType, string> = {
-  BOD: 'BOD window is 9:00 AM – 1:00 PM',
-  MOD: 'MOD window is 2:00 PM – 6:00 PM',
-  EOD: 'EOD window is after 6:00 PM',
+  BOD: 'Upload window for BOD is 9:00 AM – 11:00 AM. Please try again during that time.',
+  MOD: 'Upload window for MOD is 2:00 PM – 6:00 PM. Please try again during that time.',
+  EOD: 'Upload window for EOD is 6:00 PM – 9:00 PM. Please try again during that time.',
 };
 
 export const submitReport = async (req: Request, res: Response): Promise<void> => {
