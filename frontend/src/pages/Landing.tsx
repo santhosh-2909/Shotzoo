@@ -78,6 +78,12 @@ export default function Landing() {
                   >
                     Employee Sign In
                   </Link>
+                  <Link
+                    to="/admin/signin"
+                    className="bg-primary-container text-on-primary-container px-8 py-4 rounded-[14px] font-bold text-lg shadow-[0_10px_20px_rgba(21,28,39,0.08)] transition-transform hover:-translate-y-1 w-full sm:w-auto text-center"
+                  >
+                    Admin Sign In
+                  </Link>
                   {hasAdmin === false && (
                     <Link
                       to="/signup"
