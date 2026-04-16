@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { authApi } from '@/utils/api';
 
 const FEATURES = [
   { icon: 'task_alt',              title: 'Structured Task Logging', desc: 'Log every task with precision and clarity.' },
@@ -14,20 +13,8 @@ const FEATURES = [
 export default function Landing() {
   const { token, isAdmin } = useAuth();
   const { setPortal } = useTheme();
-  const [hasAdmin, setHasAdmin] = useState<boolean | null>(null);
 
   useEffect(() => { setPortal('auth'); }, [setPortal]);
-
-  useEffect(() => {
-    let cancelled = false;
-    authApi.checkSetup()
-      .then(res => {
-        if (cancelled) return;
-        setHasAdmin(!!(res as { data?: { hasAdmin?: boolean } }).data?.hasAdmin);
-      })
-      .catch(() => { if (!cancelled) setHasAdmin(null); });
-    return () => { cancelled = true; };
-  }, []);
 
   const dashboardHref = token ? (isAdmin ? '/admin/dashboard' : '/employee/dashboard') : '/signin';
 
@@ -84,15 +71,6 @@ export default function Landing() {
                   >
                     Admin Sign In
                   </Link>
-                  {hasAdmin === false && (
-                    <Link
-                      to="/signup"
-                      className="border-2 border-primary-container text-on-surface px-8 py-4 rounded-[14px] font-bold text-lg transition-transform hover:-translate-y-1 w-full sm:w-auto text-center flex items-center gap-2 justify-center"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">shield_person</span>
-                      <span>Join as Admin</span>
-                    </Link>
-                  )}
                 </>
               )}
             </div>
