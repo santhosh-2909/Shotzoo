@@ -1,5 +1,4 @@
 import { supabase, getSupabase } from './supabase';
-import seedDatabase from './seed';
 
 /**
  * Mutable boot state, shared with server.ts via object export so we
@@ -52,11 +51,8 @@ const connectDB = async (): Promise<void> => {
     return;
   }
 
-  try {
-    await seedDatabase();
-  } catch (seedErr) {
-    console.error('  ⚠ Seed failed (non-fatal):', (seedErr as Error).message);
-  }
+  // Seed disabled: leave the users table empty so the /signup flow
+  // (first-run setup lock) stays open for self-registration.
 };
 
 export default connectDB;
