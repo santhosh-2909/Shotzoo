@@ -29,7 +29,7 @@ export default function Landing() {
             <div className="text-2xl font-extrabold tracking-tighter text-zinc-900 font-headline">ShotZoo</div>
           </div>
           <Link
-            to={dashboardHref}
+            to={token ? dashboardHref : '/signup'}
             className="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-95 duration-200 shadow-[0_10px_20px_rgba(21,28,39,0.08),inset_0_2px_2px_rgba(255,255,255,0.2)]"
           >
             {token ? 'Go to Dashboard' : 'Get Started'}
