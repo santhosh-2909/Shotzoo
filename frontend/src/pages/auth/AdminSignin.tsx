@@ -40,7 +40,7 @@ export default function AdminSignin() {
         return;
       }
       login(data.user, data.token, data.user.isAdmin);
-      navigate('/admin/dashboard', { replace: true });
+      navigate('/admin/attendance', { replace: true });
     } catch (err) {
       setError((err as Error).message || 'Login failed. Please check your credentials.');
     } finally {

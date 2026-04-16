@@ -37,7 +37,7 @@ export default function SignIn() {
         return;
       }
       login(data.user, data.token, data.user.isAdmin);
-      navigate('/employee/dashboard', { replace: true });
+      navigate('/employee/attendance', { replace: true });
     } catch (err) {
       setError((err as Error).message || 'Login failed. Please check your credentials.');
     } finally {
