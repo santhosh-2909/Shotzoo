@@ -9,8 +9,9 @@ import AdminLayout    from '@/layouts/AdminLayout';
 // ── Auth / Public pages ───────────────────────────────────────────────────
 const Splash   = lazy(() => import('@/pages/Splash'));
 const Landing  = lazy(() => import('@/pages/Landing'));
-const SignIn   = lazy(() => import('@/pages/auth/SignIn'));
-const SignUp   = lazy(() => import('@/pages/auth/SignUp'));
+const SignIn      = lazy(() => import('@/pages/auth/SignIn'));
+const AdminSignin = lazy(() => import('@/pages/auth/AdminSignin'));
+const SignUp      = lazy(() => import('@/pages/auth/SignUp'));
 
 // ── Employee pages ────────────────────────────────────────────────────────
 const Dashboard    = lazy(() => import('@/pages/employee/Dashboard'));
@@ -55,8 +56,9 @@ export default function App() {
           <Route path="/"        element={<Navigate to="/splash" replace />} />
           <Route path="/splash"  element={<Splash />} />
           <Route path="/landing" element={<Landing />} />
-          <Route path="/signin"  element={<SignIn />} />
-          <Route path="/signup"  element={<SignUp />} />
+          <Route path="/signin"        element={<SignIn />} />
+          <Route path="/admin/signin"  element={<AdminSignin />} />
+          <Route path="/signup"        element={<SignUp />} />
 
           {/* ── Employee (protected) ─────────────────────────────────── */}
           <Route element={<EmployeeGuard />}>

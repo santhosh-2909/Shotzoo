@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { authApi } from '@/utils/api';
 import type { AuthResponse } from '@/types';
 
-export default function SignIn() {
+export default function AdminSignin() {
   const navigate         = useNavigate();
   const { login, token, isAdmin } = useAuth();
   const { setPortal }    = useTheme();
@@ -32,12 +32,12 @@ export default function SignIn() {
     setError('');
     try {
       const data = await authApi.login(email.trim(), password) as AuthResponse;
-      if (data.user.isAdmin) {
-        setError('Please use the Admin portal');
+      if (!data.user.isAdmin) {
+        setError('Not authorized as admin');
         return;
       }
       login(data.user, data.token, data.user.isAdmin);
-      navigate('/employee/dashboard', { replace: true });
+      navigate('/admin/dashboard', { replace: true });
     } catch (err) {
       setError((err as Error).message || 'Login failed. Please check your credentials.');
     } finally {
@@ -67,18 +67,18 @@ export default function SignIn() {
             <div className="w-32 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent mt-2 mb-4" />
             <div className="text-3xl font-headline font-black text-white tracking-tighter">ShotZoo</div>
             <div className="text-[10px] font-bold text-white/50 uppercase tracking-[0.3em] mt-2">
-              Jungle of Ad Creation
+              Admin Portal
             </div>
           </div>
         </div>
 
         <div className="z-10">
           <h2 className="text-4xl md:text-5xl font-headline font-bold text-white tracking-tighter leading-none mb-4">
-            Track your work.<br />
-            <span className="text-primary-container">Own your time.</span>
+            Lead the team.<br />
+            <span className="text-primary-container">Run the workspace.</span>
           </h2>
           <p className="text-white/40 font-body text-lg max-w-xs">
-            The sculpted workspace for high-performance workforce management.
+            Administrator access to the ShotZoo workforce console.
           </p>
         </div>
       </section>
@@ -94,10 +94,13 @@ export default function SignIn() {
           </div>
 
           <header className="mb-10 text-left">
+            <span className="inline-block mb-3 rounded-full bg-primary-container/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary-container">
+              Admin Portal
+            </span>
             <h1 className="text-4xl font-headline font-bold text-surface-container-lowest tracking-tight mb-2">
-              Welcome Back
+              Admin Sign In
             </h1>
-            <p className="text-surface-variant font-body font-medium">Sign in to your workspace</p>
+            <p className="text-surface-variant font-body font-medium">Sign in to the admin console</p>
           </header>
 
           {error && (
@@ -120,7 +123,7 @@ export default function SignIn() {
                   type="text"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder="admin@company.com"
                   className="w-full pl-12 pr-4 py-4 bg-surface-container-high/10 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-body text-surface-container-lowest placeholder:text-surface-variant/50"
                 />
               </div>
@@ -172,10 +175,10 @@ export default function SignIn() {
 
           <div className="mt-6 text-center">
             <Link
-              to="/admin/signin"
+              to="/signin"
               className="text-sm font-bold text-primary-container hover:text-primary transition-colors font-label"
             >
-              Admin? Sign in here →
+              Employee? Sign in here →
             </Link>
           </div>
         </div>
