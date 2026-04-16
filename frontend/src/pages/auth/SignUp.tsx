@@ -15,6 +15,8 @@ export default function SignUp() {
   const { login, token, isAdmin } = useAuth();
   const { setPortal }    = useTheme();
 
+  const [setupChecked, setSetupChecked] = useState(false);
+
   const [fullName,        setFullName]        = useState('');
   const [email,           setEmail]           = useState('');
   const [phone,           setPhone]           = useState('');
@@ -36,6 +38,26 @@ export default function SignUp() {
   useEffect(() => {
     if (token) navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
   }, [token, isAdmin, navigate]);
+
+  // First-run setup lock: if an admin already exists, redirect to /admin/signin
+  useEffect(() => {
+    let cancelled = false;
+    authApi.checkSetup()
+      .then(res => {
+        if (cancelled) return;
+        const hasAdmin = !!(res as { data?: { hasAdmin?: boolean } }).data?.hasAdmin;
+        if (hasAdmin) {
+          navigate('/admin/signin', {
+            replace: true,
+            state: { flash: 'Admin account already set up. Please sign in.' },
+          });
+        } else {
+          setSetupChecked(true);
+        }
+      })
+      .catch(() => { if (!cancelled) setSetupChecked(true); });
+    return () => { cancelled = true; };
+  }, [navigate]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -80,6 +102,14 @@ export default function SignUp() {
   const inputCls = 'w-full h-[48px] px-4 rounded-[12px] bg-surface-container-highest/10 border-none ring-1 ring-surface-container-highest/20 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none font-body text-surface';
   const labelCls = 'text-xs font-bold font-headline uppercase tracking-wider text-surface-container-highest px-1';
   const sectionTitleCls = 'text-[10px] font-extrabold uppercase tracking-[0.2em] text-primary-container mt-2 mb-3';
+
+  if (!setupChecked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-container border-t-primary" />
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen flex flex-col md:flex-row bg-surface font-body text-on-surface overflow-x-hidden animate-fade-in">

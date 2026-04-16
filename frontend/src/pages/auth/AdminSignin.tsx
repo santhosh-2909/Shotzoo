@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { authApi } from '@/utils/api';
@@ -7,8 +7,11 @@ import type { AuthResponse } from '@/types';
 
 export default function AdminSignin() {
   const navigate         = useNavigate();
+  const location         = useLocation();
   const { login, token, isAdmin } = useAuth();
   const { setPortal }    = useTheme();
+
+  const flash = (location.state as { flash?: string } | null)?.flash ?? '';
 
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -102,6 +105,12 @@ export default function AdminSignin() {
             </h1>
             <p className="text-surface-variant font-body font-medium">Sign in to the admin console</p>
           </header>
+
+          {flash && !error && (
+            <div className="mb-4 rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-700 font-medium border border-blue-100">
+              {flash}
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 font-medium border border-red-100">
