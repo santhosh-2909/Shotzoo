@@ -274,6 +274,8 @@ export const adminApi = {
   employees:        () => request('/admin/employees'),
   createEmployee:   (body: unknown) =>
     request('/auth/create-employee', { method: 'POST', body: JSON.stringify(body) }),
+  createAdmin:      (body: unknown) =>
+    request('/auth/create-admin',    { method: 'POST', body: JSON.stringify(body) }),
   deleteEmployee:   (id: string) =>
     request('/admin/employees/' + id, { method: 'DELETE' }),
   attendance:       (date?: string) =>

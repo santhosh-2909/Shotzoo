@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { adminApi } from '@/utils/api';
 import type { User } from '@/types';
 import AddEmployeeModal from '@/components/admin/AddEmployeeModal';
+import AddAdminModal from '@/components/admin/AddAdminModal';
 
 interface AttendanceStats {
   present: number;
@@ -22,6 +23,7 @@ export default function Employees() {
   const [toastVisible, setToastVisible] = useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addAdminModalOpen, setAddAdminModalOpen] = useState(false);
 
   useEffect(() => { setPortal('admin'); }, [setPortal]);
 
@@ -29,6 +31,12 @@ export default function Employees() {
     setAllEmployees(prev => [newEmployee, ...prev]);
     setAddModalOpen(false);
     showToast('Employee account created');
+  }
+
+  function handleAdminCreated(newAdmin: User) {
+    setAllEmployees(prev => [newAdmin, ...prev]);
+    setAddAdminModalOpen(false);
+    showToast('Admin account created');
   }
 
   useEffect(() => {
@@ -138,6 +146,14 @@ export default function Employees() {
               type="text"
             />
           </div>
+          <button
+            type="button"
+            onClick={() => setAddAdminModalOpen(true)}
+            className="flex items-center gap-2 px-5 h-11 bg-white text-[#131F00] font-extrabold text-sm uppercase tracking-wider rounded-xl border-2 border-[#A8CD62] hover:bg-[#A8CD62]/10 active:scale-[0.98] transition-all"
+          >
+            <span className="material-symbols-outlined text-[18px]">shield_person</span>
+            <span>Add Admin</span>
+          </button>
           <button
             type="button"
             onClick={() => setAddModalOpen(true)}
@@ -305,6 +321,12 @@ export default function Employees() {
         isOpen={addModalOpen}
         onClose={() => setAddModalOpen(false)}
         onSuccess={handleEmployeeCreated}
+      />
+
+      <AddAdminModal
+        isOpen={addAdminModalOpen}
+        onClose={() => setAddAdminModalOpen(false)}
+        onSuccess={handleAdminCreated}
       />
     </div>
   );
