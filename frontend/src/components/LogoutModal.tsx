@@ -16,7 +16,7 @@ export default function LogoutModal({ onClose }: LogoutModalProps) {
 
   const handleConfirm = useCallback(() => {
     onClose();
-    navigate('/', { replace: true });
+    navigate('/landing', { replace: true });
     logout();
   }, [logout, navigate, onClose]);
 
