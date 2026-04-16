@@ -220,12 +220,13 @@ export const attendanceApi = {
 // ─── Daily Reports ─────────────────────────────────────────────────────────
 
 export const reportsApi = {
-  submit:  (body: unknown) =>
+  submit:   (body: unknown) =>
     request('/daily-reports/submit', { method: 'POST', body: JSON.stringify(body) }),
-  today:   () => request('/daily-reports/today'),
-  history: (month?: string) =>
+  today:    () => request('/daily-reports/today'),
+  allToday: (date?: string) => request('/daily-reports/all-today' + (date ? '?date=' + date : '')),
+  history:  (month?: string) =>
     request('/daily-reports/history' + (month ? '?month=' + month : '')),
-  stats:   () => request('/daily-reports/stats'),
+  stats:    () => request('/daily-reports/stats'),
 };
 
 // ─── Notifications ─────────────────────────────────────────────────────────

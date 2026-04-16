@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useTheme } from '@/contexts/ThemeContext';
-import { adminApi } from '@/utils/api';
+import { adminApi, reportsApi } from '@/utils/api';
 import type { Task, User } from '@/types';
 
 interface AdminStats {
@@ -11,6 +11,32 @@ interface AdminStats {
   overdueCount: number;
 }
 
+type ReportKey = 'bod' | 'mod' | 'eod';
+type ReportLabel = 'BOD' | 'MOD' | 'EOD';
+
+interface ReportCell {
+  title:       string;
+  description: string;
+  isLate:      boolean;
+  submittedAt: string;
+}
+
+interface ReportEmployee {
+  user:   User;
+  bod:    ReportCell | null;
+  mod:    ReportCell | null;
+  eod:    ReportCell | null;
+  status: 'Completed' | 'Partial' | 'Not Submitted';
+}
+
+type ReportFilter = 'All' | 'Submitted' | 'Partial' | 'Pending';
+
+interface ModalState {
+  employee: User;
+  type:     ReportLabel;
+  cell:     ReportCell | null;
+}
+
 export default function AdminDashboard() {
   const { setPortal } = useTheme();
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -18,6 +44,11 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+
+  const [reportEmployees, setReportEmployees] = useState<ReportEmployee[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportFilter, setReportFilter] = useState<ReportFilter>('All');
+  const [modal, setModal] = useState<ModalState | null>(null);
 
   useEffect(() => { setPortal('admin'); }, [setPortal]);
 
@@ -33,6 +64,30 @@ export default function AdminDashboard() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    reportsApi.allToday()
+      .then(res => {
+        const r = res as { success?: boolean; employees?: ReportEmployee[] };
+        if (r.success && r.employees) setReportEmployees(r.employees);
+      })
+      .catch(() => {})
+      .finally(() => setReportsLoading(false));
+  }, []);
+
+  const filteredEmployees = useMemo(() => {
+    if (reportFilter === 'All')       return reportEmployees;
+    if (reportFilter === 'Submitted') return reportEmployees.filter(e => e.status === 'Completed');
+    if (reportFilter === 'Partial')   return reportEmployees.filter(e => e.status === 'Partial');
+    return reportEmployees.filter(e => e.status === 'Not Submitted');
+  }, [reportEmployees, reportFilter]);
+
+  useEffect(() => {
+    if (!modal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setModal(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [modal]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -75,12 +130,36 @@ export default function AdminDashboard() {
     showToast('Excel exported successfully');
   }
 
-  const statusColor: Record<string, string> = {
-    Overdue: 'text-red-600 bg-red-50',
-    Completed: 'text-green-700 bg-green-50',
-    'In Progress': 'text-blue-600 bg-blue-50',
-    Pending: 'text-stone-600 bg-stone-50',
+  const reportStatusLabel: Record<ReportEmployee['status'], string> = {
+    Completed:        'Submitted',
+    Partial:          'Partial',
+    'Not Submitted':  'Not Submitted',
   };
+  const reportStatusColor: Record<ReportEmployee['status'], string> = {
+    Completed:        'text-green-700 bg-green-50',
+    Partial:          'text-amber-700 bg-amber-50',
+    'Not Submitted':  'text-red-600 bg-red-50',
+  };
+
+  function initialsFor(name?: string): string {
+    return (name || '?').split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  function formatSubmittedAt(iso: string): string {
+    const d = new Date(iso);
+    return d.toLocaleString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+  }
+
+  function cellPreview(cell: ReportCell | null): string {
+    if (!cell) return '–';
+    const s = cell.title?.trim() || cell.description?.trim() || 'Submitted';
+    return s.length > 36 ? s.slice(0, 36) + '…' : s;
+  }
+
+  const FILTERS: ReportFilter[] = ['All', 'Submitted', 'Partial', 'Pending'];
 
   return (
     <div className="animate-fade-in p-12">
@@ -159,33 +238,80 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </div>
+
+            <div className="flex items-center gap-2 mb-4">
+              {FILTERS.map(f => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setReportFilter(f)}
+                  className={
+                    reportFilter === f
+                      ? 'px-4 py-1.5 rounded-full bg-[#a8cd62] text-[#131F00] text-xs font-extrabold uppercase tracking-wider shadow-sm'
+                      : 'px-4 py-1.5 rounded-full bg-white text-stone-500 text-xs font-bold uppercase tracking-wider hover:bg-[#a8cd62]/10 transition-colors'
+                  }
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+
             <div className="bg-white rounded-xl overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-[#f0f3ff]">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500">Name / Role</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500">Title</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500 text-center">Deadline</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500">Employee</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500">BOD</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500">MOD</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500">EOD</th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-stone-500 text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
-                  {loading ? (
-                    <tr><td colSpan={4} className="px-6 py-8 text-center text-stone-400 text-sm">Loading task data…</td></tr>
-                  ) : tasks.length === 0 ? (
-                    <tr><td colSpan={4} className="px-6 py-8 text-center text-stone-400 text-sm">No tasks yet.</td></tr>
+                  {reportsLoading ? (
+                    <tr><td colSpan={5} className="px-6 py-8 text-center text-stone-400 text-sm">Loading reports…</td></tr>
+                  ) : filteredEmployees.length === 0 ? (
+                    <tr><td colSpan={5} className="px-6 py-8 text-center text-stone-400 text-sm">No employees match this filter.</td></tr>
                   ) : (
-                    tasks.slice(0, 8).map(t => {
-                      const emp = typeof t.user === 'object' ? (t.user as User).fullName : 'Unassigned';
-                      const dl = t.deadline ? new Date(t.deadline).toLocaleDateString() : '—';
-                      const sc = statusColor[t.status] ?? 'text-stone-600 bg-stone-50';
+                    filteredEmployees.map(emp => {
+                      const cells: { key: ReportKey; label: ReportLabel; cell: ReportCell | null }[] = [
+                        { key: 'bod', label: 'BOD', cell: emp.bod },
+                        { key: 'mod', label: 'MOD', cell: emp.mod },
+                        { key: 'eod', label: 'EOD', cell: emp.eod },
+                      ];
                       return (
-                        <tr key={t._id} className="hover:bg-[#a8cd62]/5 transition-colors">
-                          <td className="px-6 py-4"><span className="text-sm font-bold">{emp}</span></td>
-                          <td className="px-6 py-4 text-sm font-medium">{t.title}</td>
-                          <td className="px-6 py-4 text-sm text-center">{dl}</td>
+                        <tr key={emp.user._id} className="hover:bg-[#a8cd62]/5 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-[#a8cd62] flex items-center justify-center font-bold text-[#3c5600] text-xs">
+                                {initialsFor(emp.user.fullName)}
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-stone-900 leading-tight">{emp.user.fullName || '—'}</p>
+                                <p className="text-[11px] text-stone-400 font-mono mt-0.5">{emp.user.employeeId || '—'}</p>
+                              </div>
+                            </div>
+                          </td>
+                          {cells.map(({ key, label, cell }) => (
+                            <td key={key} className="px-6 py-4 text-sm">
+                              <button
+                                type="button"
+                                onClick={() => setModal({ employee: emp.user, type: label, cell })}
+                                className={
+                                  cell
+                                    ? 'text-left text-stone-700 font-medium hover:text-[#3c5600] hover:underline underline-offset-2 transition-colors'
+                                    : 'text-stone-300 hover:text-stone-500 transition-colors'
+                                }
+                                aria-label={`View ${label} report for ${emp.user.fullName || 'employee'}`}
+                              >
+                                {cellPreview(cell)}
+                              </button>
+                            </td>
+                          ))}
                           <td className="px-6 py-4 text-center">
-                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${sc}`}>{t.status}</span>
+                            <span className={`px-2.5 py-1 rounded text-xs font-bold ${reportStatusColor[emp.status]}`}>
+                              {reportStatusLabel[emp.status]}
+                            </span>
                           </td>
                         </tr>
                       );
@@ -196,6 +322,74 @@ export default function AdminDashboard() {
             </div>
           </section>
         </div>
+
+        {/* Report detail modal */}
+        {modal && (
+          <div
+            className="fixed inset-0 bg-black/45 z-[9998] flex items-center justify-center p-4"
+            onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="report-detail-title"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white flex items-center justify-between px-8 py-6 border-b border-stone-100 z-10">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a8cd62] mb-1">
+                    {modal.type} Report
+                  </p>
+                  <h3 id="report-detail-title" className="text-xl font-headline font-extrabold tracking-tight text-stone-900">
+                    {modal.employee.fullName || 'Employee'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-1 font-mono">{modal.employee.employeeId || '—'}</p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  onClick={() => setModal(null)}
+                  className="p-2 hover:bg-stone-100 rounded-full transition-colors"
+                >
+                  <span className="material-symbols-outlined text-stone-500">close</span>
+                </button>
+              </div>
+
+              <div className="p-8 space-y-5">
+                {!modal.cell ? (
+                  <div className="rounded-xl bg-stone-50 border border-stone-100 px-4 py-6 text-center text-sm font-semibold text-stone-500">
+                    No report submitted for this window.
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#a8cd62]/10 text-[#3c5600] font-bold uppercase tracking-wider">
+                        <span className="material-symbols-outlined text-[14px]">schedule</span>
+                        Submitted {formatSubmittedAt(modal.cell.submittedAt)}
+                      </span>
+                      {modal.cell.isLate && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-bold uppercase tracking-wider">
+                          <span className="material-symbols-outlined text-[14px]">warning</span>
+                          Late
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1.5">Task Title</p>
+                      <p className="text-base font-bold text-stone-900">{modal.cell.title || '—'}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1.5">Details</p>
+                      <div className="whitespace-pre-wrap text-sm text-stone-700 leading-relaxed bg-[#f8faf3] border border-[#a8cd62]/20 rounded-xl p-4">
+                        {modal.cell.description?.trim() || '—'}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Right Column: Urgent Deadlines */}
         <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
