@@ -11,15 +11,14 @@ interface LogoutModalProps {
  * Mirrors the vanilla JS confirmLogout() in the original api.js.
  */
 export default function LogoutModal({ onClose }: LogoutModalProps) {
-  const { logout, isAdmin } = useAuth();
+  const { logout } = useAuth();
   const navigate   = useNavigate();
 
   const handleConfirm = useCallback(() => {
-    const target = isAdmin ? '/admin/signin' : '/signin';
     onClose();
-    navigate(target, { replace: true });
+    navigate('/', { replace: true });
     logout();
-  }, [logout, navigate, onClose, isAdmin]);
+  }, [logout, navigate, onClose]);
 
   // Close on Escape key
   useEffect(() => {
