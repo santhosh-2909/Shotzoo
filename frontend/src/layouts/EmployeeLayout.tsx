@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import EmployeeSidebar from '@/components/employee/EmployeeSidebar';
+import NotificationToaster from '@/components/NotificationToaster';
 
 /**
  * Shell for all /employee/* pages.
@@ -12,6 +13,7 @@ export default function EmployeeLayout() {
       <main className="ml-72 min-h-screen p-10 relative overflow-x-hidden">
         <Outlet />
       </main>
+      <NotificationToaster />
     </div>
   );
 }
