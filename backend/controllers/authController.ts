@@ -214,7 +214,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const { data: user } = await query.maybeSingle();
 
-    if (!user || !(await bcrypt.compare(password, (user as UserRow).password))) {
+    if (!user) {
+      res.status(401).json({ success: false, message: 'Account not found. Contact your admin.' });
+      return;
+    }
+    if (!(await bcrypt.compare(password, (user as UserRow).password))) {
       res.status(401).json({ success: false, message: 'Invalid credentials.' });
       return;
     }

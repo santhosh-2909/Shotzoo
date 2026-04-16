@@ -22,6 +22,9 @@ export default function Employees() {
   const [toastVisible, setToastVisible] = useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => { setPortal('admin'); }, [setPortal]);
 
@@ -29,6 +32,26 @@ export default function Employees() {
     setAllEmployees(prev => [newEmployee, ...prev]);
     setAddModalOpen(false);
     showToast('Employee account created');
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const res = await adminApi.deleteEmployee(deleteTarget._id) as { success: boolean; message?: string };
+      if (!res.success) {
+        setDeleteError(res.message ?? 'Failed to remove employee');
+        return;
+      }
+      setAllEmployees(prev => prev.filter(e => e._id !== deleteTarget._id));
+      showToast(`Removed ${deleteTarget.fullName || 'employee'}`);
+      setDeleteTarget(null);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to remove employee');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   useEffect(() => {
@@ -224,13 +247,14 @@ export default function Employees() {
                       <th className="px-4 py-2 font-semibold">ID Code</th>
                       <th className="px-4 py-2 font-semibold text-center">Type</th>
                       <th className="px-4 py-2 font-semibold text-right">Joined</th>
+                      <th className="px-4 py-2 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
-                      <tr><td colSpan={4} className="px-4 py-12 text-center text-stone-400 text-sm">Loading…</td></tr>
+                      <tr><td colSpan={5} className="px-4 py-12 text-center text-stone-400 text-sm">Loading…</td></tr>
                     ) : filtered.length === 0 ? (
-                      <tr><td colSpan={4} className="px-4 py-12 text-center text-stone-400 text-sm">No employees found</td></tr>
+                      <tr><td colSpan={5} className="px-4 py-12 text-center text-stone-400 text-sm">No employees found</td></tr>
                     ) : (
                       filtered.map(emp => {
                         const initials = (emp.fullName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
@@ -252,8 +276,18 @@ export default function Employees() {
                             <td className="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors text-center">
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-tighter bg-[#A8CD62] text-stone-900">{emp.employeeType || 'Office'}</span>
                             </td>
-                            <td className="px-4 py-3 bg-[#F0F3FF]/50 rounded-r-xl group-hover:bg-[#F0F3FF] transition-colors text-right">
+                            <td className="px-4 py-3 bg-[#F0F3FF]/50 group-hover:bg-[#F0F3FF] transition-colors text-right">
                               <span className="font-mono text-sm font-bold text-stone-900">{joined}</span>
+                            </td>
+                            <td className="px-4 py-3 bg-[#F0F3FF]/50 rounded-r-xl group-hover:bg-[#F0F3FF] transition-colors text-right">
+                              <button
+                                type="button"
+                                onClick={() => { setDeleteError(''); setDeleteTarget(emp); }}
+                                aria-label={`Remove ${emp.fullName || 'employee'}`}
+                                className="p-2 rounded-full text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              >
+                                <span className="material-symbols-outlined text-[20px]">delete</span>
+                              </button>
                             </td>
                           </tr>
                         );
@@ -306,6 +340,54 @@ export default function Employees() {
         onClose={() => setAddModalOpen(false)}
         onSuccess={handleEmployeeCreated}
       />
+
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 bg-black/45 z-[9998] flex items-center justify-center p-4"
+          onClick={e => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-employee-title"
+        >
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+              <span className="material-symbols-outlined text-red-500 text-[28px]">delete</span>
+            </div>
+            <h3 id="delete-employee-title" className="text-center text-xl font-headline font-extrabold tracking-tight text-stone-900 mb-2">
+              Remove employee?
+            </h3>
+            <p className="text-center text-sm text-stone-500 mb-6 leading-relaxed">
+              Are you sure you want to remove <span className="font-bold text-stone-800">{deleteTarget.fullName || 'this employee'}</span>?
+              They will no longer be able to login.
+            </p>
+
+            {deleteError && (
+              <div className="mb-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm font-semibold text-red-600">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="flex-1 h-12 rounded-xl border-2 border-stone-200 text-stone-600 font-bold text-sm uppercase tracking-wider hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="flex-1 h-12 rounded-xl bg-red-500 text-white font-extrabold text-sm uppercase tracking-wider hover:bg-red-600 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Removing…' : 'Remove'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

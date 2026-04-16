@@ -63,6 +63,48 @@ router.get('/employees', async (_req: Request, res: Response) => {
   }
 });
 
+// DELETE /api/admin/employees/:id — remove a user permanently.
+// Cascades to tasks, attendance, daily_reports and notifications via
+// ON DELETE CASCADE in the schema. Admin-only (router-level guard above).
+router.delete('/employees/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ success: false, message: 'Employee id is required.' });
+      return;
+    }
+    if (req.user?.id === id) {
+      res.status(400).json({ success: false, message: 'You cannot delete your own account.' });
+      return;
+    }
+
+    const { data: existing, error: findErr } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (findErr) {
+      res.status(500).json({ success: false, message: findErr.message });
+      return;
+    }
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'Employee not found.' });
+      return;
+    }
+
+    const { error: delErr } = await supabase.from('users').delete().eq('id', id);
+    if (delErr) {
+      res.status(500).json({ success: false, message: delErr.message });
+      return;
+    }
+
+    res.json({ success: true, message: 'Employee removed.' });
+  } catch (e) {
+    res.status(500).json({ success: false, message: (e as Error).message });
+  }
+});
+
 // GET /api/admin/tasks — all tasks with employee info
 router.get('/tasks', async (req: Request, res: Response) => {
   try {
