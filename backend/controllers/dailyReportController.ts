@@ -21,8 +21,20 @@ const WINDOWS: Record<ReportType, [number, number]> = {
   EOD: [18, 21],
 };
 
+// Hour-of-day in Asia/Kolkata (IST, UTC+5:30). Vercel serverless runs
+// in UTC, so we cannot rely on the host clock for business-hour checks.
+function getISTHour(): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    hour:     'numeric',
+    hour12:   false,
+  }).formatToParts(new Date());
+  const h = Number(parts.find(p => p.type === 'hour')?.value ?? '0');
+  return h === 24 ? 0 : h;
+}
+
 function getWindowStatus(type: ReportType): 'open' | 'closed' | 'upcoming' | 'invalid' {
-  const h = new Date().getHours();
+  const h = getISTHour();
   const w = WINDOWS[type];
   if (!w) return 'invalid';
   if (h >= w[0] && h < w[1]) return 'open';

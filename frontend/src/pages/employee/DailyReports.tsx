@@ -29,8 +29,20 @@ interface ReportStatus {
   windowStatus?: 'open' | 'closed' | 'upcoming';
 }
 
+// Hour-of-day in Asia/Kolkata (IST, UTC+5:30). Keeps the window check
+// correct for users whose browser/OS clock is set to a different zone.
+function getISTHour(): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    hour:     'numeric',
+    hour12:   false,
+  }).formatToParts(new Date());
+  const h = Number(parts.find(p => p.type === 'hour')?.value ?? '0');
+  return h === 24 ? 0 : h;
+}
+
 function getWindowStatus(type: ReportType): 'open' | 'closed' | 'upcoming' {
-  const h = new Date().getHours();
+  const h = getISTHour();
   const [start, end] = WINDOWS[type];
   if (h >= start && h < end) return 'open';
   if (h >= end) return 'closed';
@@ -65,7 +77,7 @@ export default function DailyReports() {
     const now = new Date();
     setLiveDate(now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
     setLiveTime(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }));
-    const h = now.getHours();
+    const h = getISTHour();
     setBarStatus({
       BOD: h >= WINDOWS.BOD[0] && h < WINDOWS.BOD[1] ? 'active' : h >= WINDOWS.BOD[1] ? 'past' : 'future',
       MOD: h >= WINDOWS.MOD[0] && h < WINDOWS.MOD[1] ? 'active' : h >= WINDOWS.MOD[1] ? 'past' : 'future',
