@@ -19,7 +19,7 @@ export default function SignIn() {
   useEffect(() => { setPortal('auth'); }, [setPortal]);
 
   useEffect(() => {
-    if (token) navigate(isAdmin ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+    if (token) navigate(isAdmin ? '/admin/attendance' : '/employee/attendance', { replace: true });
   }, [token, isAdmin, navigate]);
 
   async function handleSubmit(e: FormEvent) {
