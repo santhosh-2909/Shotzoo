@@ -170,7 +170,8 @@ export default function AdminAttendance() {
         const byId: Record<string, Attendance> = {};
         (attRes.records || []).forEach(rec => {
           const u = rec.user;
-          if (typeof u === 'object' && u?._id) byId[u._id] = rec;
+          const uid = typeof u === 'object' ? u?._id : u;
+          if (uid) byId[uid] = rec;
         });
 
         const rows: TeamRow[] = (empRes.employees || []).map(emp => {
