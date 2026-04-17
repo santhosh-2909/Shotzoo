@@ -222,6 +222,8 @@ export const attendanceApi = {
 export const reportsApi = {
   submit:   (body: unknown) =>
     request('/daily-reports/submit', { method: 'POST', body: JSON.stringify(body) }),
+  upsert:   (body: unknown) =>
+    request('/daily-reports/submit', { method: 'PUT', body: JSON.stringify(body) }),
   today:    () => request('/daily-reports/today'),
   allToday: (date?: string) => request('/daily-reports/all-today' + (date ? '?date=' + date : '')),
   history:  (month?: string) =>

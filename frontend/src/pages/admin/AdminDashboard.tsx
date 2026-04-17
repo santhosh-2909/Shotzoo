@@ -50,6 +50,12 @@ export default function AdminDashboard() {
   const [reportFilter, setReportFilter] = useState<ReportFilter>('All');
   const [modal, setModal] = useState<ModalState | null>(null);
 
+  const [bodText, setBodText] = useState('');
+  const [modText, setModText] = useState('');
+  const [eodText, setEodText] = useState('');
+  const [dailyReportSubmitting, setDailyReportSubmitting] = useState(false);
+  const [mySubmitted, setMySubmitted] = useState<Record<string, boolean>>({});
+
   useEffect(() => { setPortal('admin'); }, [setPortal]);
 
   useEffect(() => {
@@ -75,6 +81,24 @@ export default function AdminDashboard() {
       .finally(() => setReportsLoading(false));
   }, []);
 
+  useEffect(() => {
+    reportsApi.today()
+      .then(res => {
+        const r = res as { success?: boolean; reports?: { type: string; title: string; description: string }[] };
+        if (r.success && r.reports) {
+          const sub: Record<string, boolean> = {};
+          for (const rpt of r.reports) {
+            sub[rpt.type] = true;
+            if (rpt.type === 'BOD') setBodText(rpt.title);
+            if (rpt.type === 'MOD') setModText(rpt.title);
+            if (rpt.type === 'EOD') setEodText(rpt.title);
+          }
+          setMySubmitted(sub);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const filteredEmployees = useMemo(() => {
     if (reportFilter === 'All')       return reportEmployees;
     if (reportFilter === 'Submitted') return reportEmployees.filter(e => e.status === 'Completed');
@@ -93,6 +117,65 @@ export default function AdminDashboard() {
     setToast(msg);
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2500);
+  }
+
+  function refreshReports() {
+    reportsApi.allToday()
+      .then(res => {
+        const r = res as { success?: boolean; employees?: ReportEmployee[] };
+        if (r.success && r.employees) setReportEmployees(r.employees);
+      })
+      .catch(() => {});
+  }
+
+  async function handleDailyReportSubmit() {
+    const entries = [
+      { type: 'BOD' as const, text: bodText },
+      { type: 'MOD' as const, text: modText },
+      { type: 'EOD' as const, text: eodText },
+    ].filter(e => e.text.trim());
+
+    if (!entries.length) return;
+    setDailyReportSubmitting(true);
+
+    try {
+      const results = await Promise.allSettled(
+        entries.map(({ type, text }) => {
+          const body = { type, title: text.trim(), description: '' };
+          return mySubmitted[type] ? reportsApi.upsert(body) : reportsApi.submit(body);
+        }),
+      );
+
+      const succeeded = results.filter(r => r.status === 'fulfilled').length;
+      const firstFail = results.find(r => r.status === 'rejected') as PromiseRejectedResult | undefined;
+
+      if (succeeded > 0) {
+        setBodText('');
+        setModText('');
+        setEodText('');
+        refreshReports();
+        reportsApi.today()
+          .then(res => {
+            const r = res as { success?: boolean; reports?: { type: string; title: string }[] };
+            if (r.success && r.reports) {
+              const sub: Record<string, boolean> = {};
+              for (const rpt of r.reports) sub[rpt.type] = true;
+              setMySubmitted(sub);
+            }
+          })
+          .catch(() => {});
+      }
+
+      if (firstFail) {
+        showToast(firstFail.reason instanceof Error ? firstFail.reason.message : 'Some reports failed');
+      } else {
+        showToast('Report submitted successfully');
+      }
+    } catch {
+      showToast('Failed to submit reports');
+    } finally {
+      setDailyReportSubmitting(false);
+    }
   }
 
   function exportCsv() {
@@ -208,6 +291,63 @@ export default function AdminDashboard() {
             <h3 className="text-3xl font-bold font-headline">{loading ? '—' : (stats?.totalEmployees ?? 0)}</h3>
           </div>
           <div className="text-xs font-bold text-stone-400">registered accounts</div>
+        </div>
+      </section>
+
+      {/* Daily Report */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold font-headline">Daily Report</h2>
+        <p className="text-stone-500 text-sm mt-1 mb-6">Submit your BOD, MOD, and EOD for today.</p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 block">
+              BOD — Beginning of Day
+            </label>
+            <textarea
+              value={bodText}
+              onChange={e => setBodText(e.target.value)}
+              placeholder="What are you focusing on today?"
+              className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200"
+              rows={4}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 block">
+              MOD — Middle of Day
+            </label>
+            <textarea
+              value={modText}
+              onChange={e => setModText(e.target.value)}
+              placeholder="Progress update / blockers"
+              className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200"
+              rows={4}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 block">
+              EOD — End of Day
+            </label>
+            <textarea
+              value={eodText}
+              onChange={e => setEodText(e.target.value)}
+              placeholder="What got shipped today?"
+              className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200"
+              rows={4}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            disabled={dailyReportSubmitting || (!bodText.trim() && !modText.trim() && !eodText.trim())}
+            onClick={handleDailyReportSubmit}
+            className="text-sm font-bold text-white bg-[#a8cd62] hover:brightness-110 flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-sm">send</span>
+            {dailyReportSubmitting ? 'Submitting…' : 'Submit Report'}
+          </button>
         </div>
       </section>
 
