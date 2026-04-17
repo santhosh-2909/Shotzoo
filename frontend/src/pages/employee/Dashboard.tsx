@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { tasksApi, attendanceApi, reportsApi, apiUrl } from '@/utils/api';
-import type { Task, Attendance, DailyReport } from '@/types';
+import { tasksApi, attendanceApi } from '@/utils/api';
+import type { Task, Attendance } from '@/types';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -115,13 +115,6 @@ export default function Dashboard() {
   const [startLoading, setStartLoading] = useState(false);
   // Upcoming
   const [upcoming,    setUpcoming]    = useState<Task[]>([]);
-  // Admin self-report
-  const [bod,         setBod]         = useState('');
-  const [mod,         setMod]         = useState('');
-  const [eod,         setEod]         = useState('');
-  const [reportStatus, setReportStatus] = useState<'Not Submitted' | 'Partial' | 'Completed'>('Not Submitted');
-  const [saveLoading, setSaveLoading] = useState(false);
-  const [saveError,   setSaveError]   = useState('');
   const [notifCount,  setNotifCount]  = useState(0);
 
   // ── Load task stats ────────────────────────────────────────────────────
@@ -174,25 +167,6 @@ export default function Dashboard() {
     });
   }, []);
 
-  // ── Load admin self-report ─────────────────────────────────────────────
-  const loadAdminReport = useCallback((date?: string) => {
-    reportsApi.today().then((d: unknown) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- runtime shape unknown
-      const reports = ((d as any)?.reports ?? []) as DailyReport[];
-      const bodR = reports.find(r => r.type === 'BOD');
-      const modR = reports.find(r => r.type === 'MOD');
-      const eodR = reports.find(r => r.type === 'EOD');
-      setBod(bodR ? bodR.description || bodR.title : '');
-      setMod(modR ? modR.description || modR.title : '');
-      setEod(eodR ? eodR.description || eodR.title : '');
-      const count = [bodR, modR, eodR].filter(Boolean).length;
-      setReportStatus(count === 3 ? 'Completed' : count > 0 ? 'Partial' : 'Not Submitted');
-    }).catch(() => {});
-    void date; // future: allow date param
-  }, []);
-
-  useEffect(() => { loadAdminReport(); }, [loadAdminReport]);
-
   // ── Handlers ──────────────────────────────────────────────────────────
   async function handleStartDay() {
     setStartLoading(true);
@@ -205,36 +179,6 @@ export default function Dashboard() {
     } finally {
       setStartLoading(false);
     }
-  }
-
-  async function handleSaveReport() {
-    if (!bod.trim() && !mod.trim() && !eod.trim()) {
-      setSaveError('Please fill in at least one report field.');
-      return;
-    }
-    setSaveLoading(true);
-    setSaveError('');
-    const errors: string[] = [];
-    const pairs: [string, string][] = [['BOD', bod], ['MOD', mod], ['EOD', eod]];
-    for (const [type, text] of pairs) {
-      if (!text.trim()) continue;
-      try {
-        await fetch(apiUrl('/api/daily-reports/submit'), {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + (localStorage.getItem('shotzoo_token') ?? ''),
-          },
-          credentials: 'include',
-          body: JSON.stringify({ type, title: text.trim(), description: text.trim() }),
-        });
-      } catch (e) {
-        errors.push(`${type}: ${(e as Error).message}`);
-      }
-    }
-    setSaveLoading(false);
-    if (errors.length) setSaveError(errors.join('\n'));
-    else { loadAdminReport(); }
   }
 
   const currentDate = new Date().toLocaleDateString('en-US', {
@@ -319,89 +263,28 @@ export default function Dashboard() {
         <StatCard icon="error_outline" label="Overdue"          value={stats.overdue}        color="text-error" />
       </section>
 
-      {/* Main content */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-        {/* Section C: Reports */}
-        <div className="xl:col-span-2 flex flex-col gap-6">
-          <h2 className="font-headline text-2xl font-bold">Report</h2>
-
-          {/* Admin self-report */}
-          <div className="bg-surface-container-lowest rounded-3xl clay-card p-8 flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <h3 className="font-headline text-lg font-bold tracking-tight">My Daily Report</h3>
-              <span className={`text-xs font-bold uppercase tracking-wider ${
-                reportStatus === 'Completed' ? 'text-primary' :
-                reportStatus === 'Partial' ? 'text-secondary' :
-                'text-on-surface-variant'
-              }`}>
-                {reportStatus}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {([
-                { id: 'bod', type: 'BOD', icon: 'wb_twilight', time: '9:00 AM – 1:00 PM', value: bod, setter: setBod, placeholder: 'What did you work on this morning?' },
-                { id: 'mod', type: 'MOD', icon: 'light_mode',  time: '2:00 PM – 6:00 PM', value: mod, setter: setMod, placeholder: 'What did you work on this afternoon?' },
-                { id: 'eod', type: 'EOD', icon: 'nightlight',  time: 'After 6:00 PM',     value: eod, setter: setEod, placeholder: 'What did you accomplish today?' },
-              ] as const).map(({ id, type, icon, time, value, setter, placeholder }) => (
-                <div key={id} className="bg-surface-container-highest/50 p-5 rounded-3xl flex flex-col gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-2xl">{icon}</span>
-                    <div>
-                      <h4 className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">{type}</h4>
-                      <p className="text-on-surface-variant text-xs">{time}</p>
-                    </div>
-                  </div>
-                  <textarea
-                    rows={3}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={e => setter(e.target.value)}
-                    className="bg-surface-container-high rounded-2xl px-4 py-3 w-full resize-none text-on-surface text-sm font-body border-0 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-on-surface-variant/60"
-                  />
-                </div>
-              ))}
-            </div>
-            {saveError && <p className="text-sm text-error">{saveError}</p>}
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleSaveReport}
-                disabled={saveLoading}
-                className="bg-primary-container text-on-primary-container px-8 py-3 rounded-2xl font-bold text-sm clay-button hover:translate-y-[-1px] transition-all active:scale-95 flex items-center gap-2 disabled:opacity-60"
-              >
-                <span className="material-symbols-outlined text-base">save</span>
-                {saveLoading ? 'Saving…' : reportStatus !== 'Not Submitted' ? 'Update Report' : 'Submit Report'}
-              </button>
-            </div>
-          </div>
-
+      {/* Upcoming Deadlines */}
+      <section>
+        <h2 className="font-headline text-2xl font-bold mb-6">Upcoming</h2>
+        <div className="flex flex-col gap-4 relative before:absolute before:left-4 before:top-4 before:bottom-4 before:w-[2px] before:bg-black/5">
+          {upcoming.length === 0 ? (
+            <p className="text-on-surface-variant text-sm pl-12">No upcoming deadlines</p>
+          ) : upcoming.map((task, i) => {
+            const opacity = i === 0 ? '' : i === 1 ? 'opacity-60' : 'opacity-40';
+            const dotBg   = i === 0 ? 'bg-primary' : 'bg-on-surface-variant/20';
+            const dl = task.deadline
+              ? new Date(task.deadline).toLocaleDateString('en-US', { weekday: 'long', hour: '2-digit', minute: '2-digit' })
+              : '';
+            return (
+              <div key={task._id} className={`relative pl-12 ${opacity}`}>
+                <div className={`absolute left-[13px] top-1 w-2.5 h-2.5 rounded-full ${dotBg} ring-4 ring-background`} />
+                <h4 className="font-bold text-sm">{task.title}</h4>
+                <p className="text-xs text-on-surface-variant mt-1">{dl}</p>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Section D: Upcoming Deadlines */}
-        <div className="flex flex-col gap-10">
-          <div className="flex flex-col gap-6">
-            <h2 className="font-headline text-2xl font-bold">Upcoming</h2>
-            <div className="flex flex-col gap-4 relative before:absolute before:left-4 before:top-4 before:bottom-4 before:w-[2px] before:bg-black/5">
-              {upcoming.length === 0 ? (
-                <p className="text-on-surface-variant text-sm pl-12">No upcoming deadlines</p>
-              ) : upcoming.map((task, i) => {
-                const opacity = i === 0 ? '' : i === 1 ? 'opacity-60' : 'opacity-40';
-                const dotBg   = i === 0 ? 'bg-primary' : 'bg-on-surface-variant/20';
-                const dl = task.deadline
-                  ? new Date(task.deadline).toLocaleDateString('en-US', { weekday: 'long', hour: '2-digit', minute: '2-digit' })
-                  : '';
-                return (
-                  <div key={task._id} className={`relative pl-12 ${opacity}`}>
-                    <div className={`absolute left-[13px] top-1 w-2.5 h-2.5 rounded-full ${dotBg} ring-4 ring-background`} />
-                    <h4 className="font-bold text-sm">{task.title}</h4>
-                    <p className="text-xs text-on-surface-variant mt-1">{dl}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }
