@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { tasksApi, attendanceApi, reportsApi, apiUrl } from '@/utils/api';
-import { escapeHtml } from '@/utils/api';
 import type { Task, Attendance, DailyReport } from '@/types';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -21,14 +20,6 @@ interface WeekDay {
   isPast: boolean;
   isFuture: boolean;
   present: boolean;
-}
-
-interface EmployeeReportRow {
-  user: { fullName: string; employeeId?: string };
-  bod?: DailyReport;
-  mod?: DailyReport;
-  eod?: DailyReport;
-  status: 'Completed' | 'Partial' | 'Not Submitted';
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -75,11 +66,6 @@ function buildWeekDays(records: Attendance[]): WeekDay[] {
   return days;
 }
 
-function truncate(str: string | undefined, len: number): string {
-  if (!str) return '—';
-  return str.length > len ? str.slice(0, len) + '…' : str;
-}
-
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function StatCard({ icon, label, value, color = 'text-primary' }: {
@@ -115,12 +101,6 @@ function WeekDot({ day }: { day: WeekDay }) {
   );
 }
 
-const REPORT_STATUS_CLS: Record<string, string> = {
-  Completed:     'bg-primary-container text-on-primary-container',
-  Partial:       'bg-secondary-container text-on-secondary-container',
-  'Not Submitted': 'bg-error-container text-on-error-container',
-};
-
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export default function Dashboard() {
@@ -142,12 +122,6 @@ export default function Dashboard() {
   const [reportStatus, setReportStatus] = useState<'Not Submitted' | 'Partial' | 'Completed'>('Not Submitted');
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveError,   setSaveError]   = useState('');
-  // Employee reports table
-  const [reportDate,  setReportDate]  = useState(new Date().toISOString().split('T')[0]);
-  const [empReports,  setEmpReports]  = useState<EmployeeReportRow[]>([]);
-  const [repFilter,   setRepFilter]   = useState<'All' | 'Completed' | 'Partial' | 'Not Submitted'>('All');
-  const [repSearch,   setRepSearch]   = useState('');
-  const [repLoading,  setRepLoading]  = useState(true);
   const [notifCount,  setNotifCount]  = useState(0);
 
   // ── Load task stats ────────────────────────────────────────────────────
@@ -217,23 +191,7 @@ export default function Dashboard() {
     void date; // future: allow date param
   }, []);
 
-  // ── Load employee reports table ────────────────────────────────────────
-  const loadEmpReports = useCallback((date: string) => {
-    setRepLoading(true);
-    fetch(apiUrl('/api/daily-reports/all-today' + (date ? '?date=' + date : '')), {
-      headers: { Authorization: 'Bearer ' + (localStorage.getItem('shotzoo_token') ?? '') },
-      credentials: 'include',
-    })
-      .then(r => r.json())
-      .then((d: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- runtime shape unknown
-        setEmpReports(((d as any)?.employees ?? []) as EmployeeReportRow[]);
-      })
-      .catch(() => setEmpReports([]))
-      .finally(() => setRepLoading(false));
-  }, []);
-
-  useEffect(() => { loadAdminReport(); loadEmpReports(reportDate); }, [loadAdminReport, loadEmpReports, reportDate]);
+  useEffect(() => { loadAdminReport(); }, [loadAdminReport]);
 
   // ── Handlers ──────────────────────────────────────────────────────────
   async function handleStartDay() {
@@ -276,15 +234,8 @@ export default function Dashboard() {
     }
     setSaveLoading(false);
     if (errors.length) setSaveError(errors.join('\n'));
-    else { loadAdminReport(); loadEmpReports(reportDate); }
+    else { loadAdminReport(); }
   }
-
-  // ── Derived ───────────────────────────────────────────────────────────
-  const filteredReports = empReports.filter(e => {
-    const matchFilter = repFilter === 'All' || e.status === repFilter;
-    const matchSearch = !repSearch || e.user.fullName.toLowerCase().includes(repSearch.toLowerCase());
-    return matchFilter && matchSearch;
-  });
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -372,17 +323,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
         {/* Section C: Reports */}
         <div className="xl:col-span-2 flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-headline text-2xl font-bold">Report</h2>
-            <input
-              id="report-date"
-              type="date"
-              title="Select report date"
-              value={reportDate}
-              onChange={e => { setReportDate(e.target.value); loadEmpReports(e.target.value); }}
-              className="bg-surface-container-high rounded-2xl px-4 py-2 text-sm font-body text-on-surface border-0 focus:ring-2 focus:ring-primary/20 outline-none"
-            />
-          </div>
+          <h2 className="font-headline text-2xl font-bold">Report</h2>
 
           {/* Admin self-report */}
           <div className="bg-surface-container-lowest rounded-3xl clay-card p-8 flex flex-col gap-6">
@@ -434,83 +375,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Employee reports table */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex-grow max-w-xs bg-surface-container-high rounded-full px-4 py-2.5 flex items-center gap-2">
-                <span className="material-symbols-outlined text-on-surface-variant text-base">search</span>
-                <input
-                  type="text"
-                  placeholder="Search employee…"
-                  value={repSearch}
-                  onChange={e => setRepSearch(e.target.value)}
-                  className="bg-transparent border-none focus:ring-0 text-on-surface text-sm w-full font-body placeholder:text-on-surface-variant outline-none"
-                />
-              </div>
-              <div className="flex gap-2">
-                {(['All', 'Completed', 'Partial', 'Not Submitted'] as const).map(f => (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => setRepFilter(f)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-colors ${
-                      repFilter === f
-                        ? 'bg-primary-container text-on-primary-container'
-                        : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-highest'
-                    }`}
-                  >
-                    {f === 'Not Submitted' ? 'Pending' : f}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="bg-surface-container-lowest rounded-3xl overflow-hidden clay-card">
-              <div className="overflow-x-auto max-h-80 overflow-y-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 z-10">
-                    <tr className="bg-surface-container-highest/30">
-                      {['Employee', 'BOD', 'MOD', 'EOD', 'Status'].map((h, i) => (
-                        <th key={h} className={`px-6 py-5 font-headline text-sm font-bold text-on-surface-variant${i === 4 ? ' text-right' : ''}`}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {repLoading ? (
-                      <tr><td colSpan={5} className="px-6 py-12 text-center text-on-surface-variant text-sm">Loading…</td></tr>
-                    ) : filteredReports.length === 0 ? (
-                      <tr><td colSpan={5} className="px-6 py-12 text-center text-on-surface-variant text-sm">No reports found.</td></tr>
-                    ) : filteredReports.map((e, i) => (
-                      <tr key={i} className={`border-t border-black/5 hover:bg-black/[0.03] transition-colors ${e.status === 'Not Submitted' ? 'bg-error-container/20' : ''}`}>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-xs font-bold text-primary">
-                              {(e.user.fullName || '?')[0].toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm">{escapeHtml(e.user.fullName)}</p>
-                              <p className="text-xs text-on-surface-variant">{escapeHtml(e.user.employeeId ?? '')}</p>
-                            </div>
-                          </div>
-                        </td>
-                        {(['bod', 'mod', 'eod'] as const).map(key => (
-                          <td key={key} className="px-6 py-4">
-                            <span className="text-sm font-medium" title={e[key]?.title ?? ''}>
-                              {truncate(e[key]?.title, 28)}
-                            </span>
-                          </td>
-                        ))}
-                        <td className="px-6 py-4 text-right">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ring-1 ring-black/10 ${REPORT_STATUS_CLS[e.status] ?? ''}`}>
-                            {e.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Section D: Upcoming Deadlines */}
