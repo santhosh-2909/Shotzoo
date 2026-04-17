@@ -37,6 +37,36 @@ interface ModalState {
   cell:     ReportCell | null;
 }
 
+const REPORT_WINDOWS: Record<ReportLabel, [number, number]> = {
+  BOD: [9, 11],
+  MOD: [14, 18],
+  EOD: [18, 21],
+};
+
+const WINDOW_TIMES: Record<ReportLabel, string> = {
+  BOD: '9 AM – 11 AM',
+  MOD: '2 PM – 6 PM',
+  EOD: '6 PM – 9 PM',
+};
+
+function getISTHour(): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    hour: 'numeric',
+    hour12: false,
+  }).formatToParts(new Date());
+  const h = Number(parts.find(p => p.type === 'hour')?.value ?? '0');
+  return h === 24 ? 0 : h;
+}
+
+function getWindowStatus(type: ReportLabel): 'open' | 'closed' | 'upcoming' {
+  const h = getISTHour();
+  const [start, end] = REPORT_WINDOWS[type];
+  if (h >= start && h < end) return 'open';
+  if (h >= end) return 'closed';
+  return 'upcoming';
+}
+
 export default function AdminDashboard() {
   const { setPortal } = useTheme();
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -55,8 +85,23 @@ export default function AdminDashboard() {
   const [eodText, setEodText] = useState('');
   const [dailyReportSubmitting, setDailyReportSubmitting] = useState(false);
   const [mySubmitted, setMySubmitted] = useState<Record<string, boolean>>({});
+  const [winStatus, setWinStatus] = useState<Record<ReportLabel, 'open' | 'closed' | 'upcoming'>>({
+    BOD: getWindowStatus('BOD'),
+    MOD: getWindowStatus('MOD'),
+    EOD: getWindowStatus('EOD'),
+  });
 
   useEffect(() => { setPortal('admin'); }, [setPortal]);
+
+  useEffect(() => {
+    const tick = () => setWinStatus({
+      BOD: getWindowStatus('BOD'),
+      MOD: getWindowStatus('MOD'),
+      EOD: getWindowStatus('EOD'),
+    });
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -133,7 +178,7 @@ export default function AdminDashboard() {
       { type: 'BOD' as const, text: bodText },
       { type: 'MOD' as const, text: modText },
       { type: 'EOD' as const, text: eodText },
-    ].filter(e => e.text.trim());
+    ].filter(e => e.text.trim() && winStatus[e.type] === 'open');
 
     if (!entries.length) return;
     setDailyReportSubmitting(true);
@@ -300,48 +345,44 @@ export default function AdminDashboard() {
         <p className="text-stone-500 text-sm mt-1 mb-6">Submit your BOD, MOD, and EOD for today.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 block">
-              BOD — Beginning of Day
-            </label>
-            <textarea
-              value={bodText}
-              onChange={e => setBodText(e.target.value)}
-              placeholder="What are you focusing on today?"
-              className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200"
-              rows={4}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 block">
-              MOD — Middle of Day
-            </label>
-            <textarea
-              value={modText}
-              onChange={e => setModText(e.target.value)}
-              placeholder="Progress update / blockers"
-              className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200"
-              rows={4}
-            />
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 block">
-              EOD — End of Day
-            </label>
-            <textarea
-              value={eodText}
-              onChange={e => setEodText(e.target.value)}
-              placeholder="What got shipped today?"
-              className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200"
-              rows={4}
-            />
-          </div>
+          {([
+            { type: 'BOD' as ReportLabel, label: 'BOD — Beginning of Day', value: bodText, set: setBodText, placeholder: 'What are you focusing on today?' },
+            { type: 'MOD' as ReportLabel, label: 'MOD — Middle of Day',    value: modText, set: setModText, placeholder: 'Progress update / blockers' },
+            { type: 'EOD' as ReportLabel, label: 'EOD — End of Day',       value: eodText, set: setEodText, placeholder: 'What got shipped today?' },
+          ]).map(f => {
+            const ws = winStatus[f.type];
+            const locked = ws !== 'open';
+            return (
+              <div key={f.type}>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-500">{f.label}</label>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                    ws === 'open' ? 'text-green-600' : ws === 'closed' ? 'text-red-500' : 'text-stone-400'
+                  }`}>
+                    {ws === 'open' ? '● Open now' : ws === 'closed' ? '● Closed' : '● ' + WINDOW_TIMES[f.type]}
+                  </span>
+                </div>
+                <textarea
+                  value={f.value}
+                  onChange={e => f.set(e.target.value)}
+                  disabled={locked}
+                  placeholder={locked ? WINDOW_TIMES[f.type] : f.placeholder}
+                  className="w-full bg-white rounded-xl p-4 text-sm text-stone-800 placeholder:text-stone-400 resize-none focus:ring-2 focus:ring-[#a8cd62] focus:outline-none border border-stone-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-stone-50"
+                  rows={4}
+                />
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-4 flex justify-end">
           <button
             type="button"
-            disabled={dailyReportSubmitting || (!bodText.trim() && !modText.trim() && !eodText.trim())}
+            disabled={dailyReportSubmitting || !(
+              (winStatus.BOD === 'open' && bodText.trim()) ||
+              (winStatus.MOD === 'open' && modText.trim()) ||
+              (winStatus.EOD === 'open' && eodText.trim())
+            )}
             onClick={handleDailyReportSubmit}
             className="text-sm font-bold text-white bg-[#a8cd62] hover:brightness-110 flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
