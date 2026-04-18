@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { tasksApi } from '@/utils/api';
 import type { Task, TaskStatus, TaskPriority } from '@/types';
+import TaskDetailModal from '@/components/tasks/TaskDetailModal';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -40,7 +41,7 @@ function formatDeadline(iso?: string): string | null {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function TaskCard({ task, onAction }: { task: Task; onAction: (id: string, next: TaskStatus) => void }) {
+function TaskCard({ task, onAction, onOpenDetail }: { task: Task; onAction: (id: string, next: TaskStatus) => void; onOpenDetail: (id: string) => void }) {
   const dlText      = formatDeadline(task.deadline);
   const pCls        = PRIORITY_CLS[task.priority] ?? PRIORITY_CLS.Medium;
   const isCompleted = task.status === 'Completed';
@@ -49,7 +50,13 @@ function TaskCard({ task, onAction }: { task: Task; onAction: (id: string, next:
   const next        = NEXT_STATUS[task.status];
 
   return (
-    <div className={`bg-white p-5 rounded-[1.25rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-shadow group ${borderCls}`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpenDetail(task._id)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenDetail(task._id); } }}
+      className={`bg-white p-5 rounded-[1.25rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-shadow cursor-pointer group ${borderCls}`}
+    >
       <div className="flex justify-between items-start mb-4">
         <span className={`px-3 py-1 rounded-full ${pCls} text-[10px] font-black font-body uppercase tracking-wider`}>
           {task.priority}
@@ -89,7 +96,7 @@ function TaskCard({ task, onAction }: { task: Task; onAction: (id: string, next:
       {next && (
         <button
           type="button"
-          onClick={() => onAction(task._id, next)}
+          onClick={e => { e.stopPropagation(); onAction(task._id, next); }}
           className="mt-3 w-full text-center text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 py-2 rounded-xl hover:bg-primary/20 transition-colors"
         >
           Move to {next}
@@ -99,14 +106,17 @@ function TaskCard({ task, onAction }: { task: Task; onAction: (id: string, next:
   );
 }
 
-function ListRow({ task, onAction }: { task: Task; onAction: (id: string, next: TaskStatus) => void }) {
+function ListRow({ task, onAction, onOpenDetail }: { task: Task; onAction: (id: string, next: TaskStatus) => void; onOpenDetail: (id: string) => void }) {
   const dlText = formatDeadline(task.deadline);
   const pCls   = PRIORITY_CLS[task.priority] ?? PRIORITY_CLS.Medium;
   const sCls   = STATUS_CLS[task.status] ?? '';
   const next   = NEXT_STATUS[task.status];
 
   return (
-    <tr className="hover:bg-black/[0.02] transition-colors">
+    <tr
+      onClick={() => onOpenDetail(task._id)}
+      className="hover:bg-black/[0.02] transition-colors cursor-pointer"
+    >
       <td className="px-6 py-4 font-bold text-on-surface">{task.title}</td>
       <td className="px-6 py-4">
         <span className={`px-3 py-1 rounded-full ${pCls} text-[10px] font-black uppercase`}>{task.priority}</span>
@@ -124,7 +134,7 @@ function ListRow({ task, onAction }: { task: Task; onAction: (id: string, next: 
         {next && (
           <button
             type="button"
-            onClick={() => onAction(task._id, next)}
+            onClick={e => { e.stopPropagation(); onAction(task._id, next); }}
             className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-xl hover:bg-primary/20 transition-colors"
           >
             {next}
@@ -146,6 +156,14 @@ export default function MyTask() {
   const [dateFilter,    setDateFilter]    = useState('');
   const [showPriorityDD,setShowPriorityDD] = useState(false);
   const priorityRef = useRef<HTMLDivElement>(null);
+
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isModalOpen,    setIsModalOpen]    = useState(false);
+
+  const openTaskDetail = useCallback((id: string) => {
+    setSelectedTaskId(id);
+    setIsModalOpen(true);
+  }, []);
 
   const loadTasks = useCallback(async () => {
     try {
@@ -310,13 +328,20 @@ export default function MyTask() {
               <tbody className="divide-y divide-black/5">
                 {filtered.length === 0
                   ? <tr><td colSpan={5} className="px-6 py-12 text-center text-on-surface-variant">No tasks match your filters</td></tr>
-                  : filtered.map(t => <ListRow key={t._id} task={t} onAction={handleAction} />)
+                  : filtered.map(t => <ListRow key={t._id} task={t} onAction={handleAction} onOpenDetail={openTaskDetail} />)
                 }
               </tbody>
             </table>
           </div>
         </div>
       )}
+
+      <TaskDetailModal
+        taskId={selectedTaskId}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStatusUpdate={() => { void loadTasks(); }}
+      />
 
       {/* Kanban Board View */}
       {view === 'board' && (
@@ -335,7 +360,7 @@ export default function MyTask() {
                 <div className="space-y-4">
                   {colTasks.length === 0
                     ? <p className="text-center text-on-surface-variant/60 py-8 text-sm">No tasks</p>
-                    : colTasks.map(t => <TaskCard key={t._id} task={t} onAction={handleAction} />)
+                    : colTasks.map(t => <TaskCard key={t._id} task={t} onAction={handleAction} onOpenDetail={openTaskDetail} />)
                   }
                 </div>
               </div>

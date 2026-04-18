@@ -189,6 +189,7 @@ export const authApi = {
 
 export const tasksApi = {
   list:         (params?: string) => request('/tasks' + (params ? '?' + params : '')),
+  get:          (id: string) => request('/tasks/' + id),
   today:        () => request('/tasks/today'),
   stats:        () => request('/tasks/stats'),
   upcoming:     () => request('/tasks/upcoming'),

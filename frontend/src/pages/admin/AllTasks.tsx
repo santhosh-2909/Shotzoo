@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { useTheme } from '@/contexts/ThemeContext';
 import { adminApi } from '@/utils/api';
 import type { Task, TaskStatus, User } from '@/types';
+import TaskDetailModal from '@/components/tasks/TaskDetailModal';
 
 type StatusFilter = '' | TaskStatus;
 
@@ -17,14 +18,20 @@ export default function AllTasks() {
   const [toast, setToast] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
 
-  useEffect(() => { setPortal('admin'); }, [setPortal]);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isModalOpen,    setIsModalOpen]    = useState(false);
 
-  useEffect(() => {
+  const loadTasks = useCallback(() => {
+    setLoading(true);
     (adminApi.tasks() as Promise<{ success: boolean; tasks: Task[] }>)
       .then(d => { if (d.success) setAllTasks(d.tasks || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { setPortal('admin'); }, [setPortal]);
+
+  useEffect(() => { loadTasks(); }, [loadTasks]);
 
   const applyFilters = useCallback(() => {
     let result = allTasks;
@@ -225,7 +232,11 @@ export default function AllTasks() {
                     const txtCls = PRIORITY_TEXT[t.priority] ?? 'text-stone-400';
                     const badgeCls = STATUS_BADGE[t.status] ?? 'bg-stone-100 text-stone-600';
                     return (
-                      <tr key={t._id} className={`hover:bg-[#f0f3ff] transition-colors border-l-4 ${isOverdue ? 'border-[#ba1a1a]' : 'border-transparent'}`}>
+                      <tr
+                        key={t._id}
+                        onClick={() => { setSelectedTaskId(t._id); setIsModalOpen(true); }}
+                        className={`hover:bg-[#f0f3ff] transition-colors cursor-pointer border-l-4 ${isOverdue ? 'border-[#ba1a1a]' : 'border-transparent'}`}
+                      >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-[#e7eefe] flex items-center justify-center text-xs font-bold text-[#444939]">
@@ -258,9 +269,21 @@ export default function AllTasks() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex justify-end gap-2">
-                            <button type="button" className="material-symbols-outlined text-stone-400 hover:text-[#496800] transition-colors p-1.5 rounded-md hover:bg-[#a8cd62]/10">visibility</button>
+                            <button
+                              type="button"
+                              onClick={e => { e.stopPropagation(); setSelectedTaskId(t._id); setIsModalOpen(true); }}
+                              className="material-symbols-outlined text-stone-400 hover:text-[#496800] transition-colors p-1.5 rounded-md hover:bg-[#a8cd62]/10"
+                            >
+                              visibility
+                            </button>
                             {isOverdue && (
-                              <button type="button" className="material-symbols-outlined text-[#ba1a1a] hover:scale-110 transition-transform p-1.5 rounded-md hover:bg-[#ba1a1a]/10">notifications_active</button>
+                              <button
+                                type="button"
+                                onClick={e => e.stopPropagation()}
+                                className="material-symbols-outlined text-[#ba1a1a] hover:scale-110 transition-transform p-1.5 rounded-md hover:bg-[#ba1a1a]/10"
+                              >
+                                notifications_active
+                              </button>
                             )}
                           </div>
                         </td>
@@ -273,6 +296,13 @@ export default function AllTasks() {
           </div>
         </div>
       </div>
+
+      <TaskDetailModal
+        taskId={selectedTaskId}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStatusUpdate={loadTasks}
+      />
     </div>
   );
 }

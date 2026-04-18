@@ -2,6 +2,34 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { TaskRow, taskRowToPublic } from '../types/db';
 
+interface AssigneeLite {
+  id:         string;
+  name:       string;
+  employeeId: string;
+}
+
+type TaskPublic = ReturnType<typeof taskRowToPublic>;
+type EnrichedTask = TaskPublic & { assignedTo: AssigneeLite | null };
+
+async function fetchAssigneeMap(userIds: string[]): Promise<Record<string, AssigneeLite>> {
+  const unique = [...new Set(userIds.filter(Boolean))];
+  if (unique.length === 0) return {};
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, full_name, employee_id')
+    .in('id', unique);
+  if (error || !data) return {};
+  const map: Record<string, AssigneeLite> = {};
+  for (const u of data as { id: string; full_name: string; employee_id: string }[]) {
+    map[u.id] = { id: u.id, name: u.full_name, employeeId: u.employee_id };
+  }
+  return map;
+}
+
+function enrichOne(row: TaskRow, map: Record<string, AssigneeLite>): EnrichedTask {
+  return { ...taskRowToPublic(row), assignedTo: map[row.user_id] ?? null };
+}
+
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
   try {
     const { status, priority, search, sort, page = '1', limit = '50' } = req.query as {
@@ -14,10 +42,10 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
     const from = (pg - 1) * lim;
     const to   = from + lim - 1;
 
-    let query = supabase
-      .from('tasks')
-      .select('*', { count: 'exact' })
-      .eq('user_id', req.user!.id);
+    const isAdmin = req.user!.role === 'Admin';
+
+    let query = supabase.from('tasks').select('*', { count: 'exact' });
+    if (!isAdmin) query = query.eq('user_id', req.user!.id);
 
     if (status)   query = query.eq('status', status);
     if (priority) query = query.eq('priority', priority);
@@ -36,7 +64,9 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const tasks = (data as TaskRow[] | null ?? []).map(taskRowToPublic);
+    const rows  = (data as TaskRow[] | null) ?? [];
+    const map   = await fetchAssigneeMap(rows.map(r => r.user_id));
+    const tasks = rows.map(r => enrichOne(r, map));
     const total = count ?? tasks.length;
 
     res.json({
@@ -124,11 +154,12 @@ export const getUpcomingDeadlines = async (req: Request, res: Response): Promise
 
 export const getTask = async (req: Request, res: Response): Promise<void> => {
   try {
+    const isAdmin = req.user!.role === 'Admin';
+
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
       .eq('id', req.params.id)
-      .eq('user_id', req.user!.id)
       .maybeSingle();
 
     if (error) {
@@ -139,7 +170,15 @@ export const getTask = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ success: false, message: 'Task not found.' });
       return;
     }
-    res.json({ success: true, task: taskRowToPublic(data as TaskRow) });
+
+    const row = data as TaskRow;
+    if (!isAdmin && row.user_id !== req.user!.id) {
+      res.status(403).json({ success: false, message: 'Forbidden.' });
+      return;
+    }
+
+    const map = await fetchAssigneeMap([row.user_id]);
+    res.json({ success: true, task: enrichOne(row, map) });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
@@ -253,6 +292,28 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
 export const updateTaskStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { status, progress } = req.body as { status?: string; progress?: number };
+    const isAdmin = req.user!.role === 'Admin';
+
+    // Pre-check: make sure caller can touch this row before issuing the UPDATE.
+    const { data: existing, error: findErr } = await supabase
+      .from('tasks')
+      .select('id, user_id')
+      .eq('id', req.params.id)
+      .maybeSingle();
+
+    if (findErr) {
+      res.status(500).json({ success: false, message: findErr.message });
+      return;
+    }
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'Task not found.' });
+      return;
+    }
+    if (!isAdmin && (existing as { user_id: string }).user_id !== req.user!.id) {
+      res.status(403).json({ success: false, message: 'Forbidden.' });
+      return;
+    }
+
     const update: Record<string, unknown> = { status };
     if (progress !== undefined) update.progress = progress;
     if (status === 'Completed') {
@@ -264,7 +325,6 @@ export const updateTaskStatus = async (req: Request, res: Response): Promise<voi
       .from('tasks')
       .update(update)
       .eq('id', req.params.id)
-      .eq('user_id', req.user!.id)
       .select('*')
       .maybeSingle();
 
@@ -276,14 +336,16 @@ export const updateTaskStatus = async (req: Request, res: Response): Promise<voi
       res.status(404).json({ success: false, message: 'Task not found.' });
       return;
     }
-    const task = taskRowToPublic(data as TaskRow);
+    const row  = data as TaskRow;
+    const map  = await fetchAssigneeMap([row.user_id]);
+    const task = enrichOne(row, map);
 
     if (status === 'Completed') {
       await supabase.from('notifications').insert({
-        user_id: req.user!.id,
+        user_id: row.user_id,
         type:    'Completion',
         title:   'Task Completed',
-        message: 'You completed "' + task.title + '"',
+        message: 'Task "' + task.title + '" completed.',
         task_id: task._id,
       });
     }
