@@ -216,7 +216,7 @@ export default function AllTasks() {
                   <tr><td colSpan={7} className="px-6 py-12 text-center text-stone-400 text-sm">No tasks match your filters.</td></tr>
                 ) : (
                   filtered.map(t => {
-                    const assignee = typeof t.user === 'object' ? (t.user as User).fullName : 'Unassigned';
+                    const assignee = typeof t.user === 'object' ? (t.user as User).fullName : 'Assigned';
                     const dl = t.deadline ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
                     const tr_ = timeRemaining(t.deadline);
                     const isOverdue = t.status === 'Overdue';
