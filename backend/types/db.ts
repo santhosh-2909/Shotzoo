@@ -50,6 +50,14 @@ export interface AttendanceSession {
   breaks:        AttendanceBreak[];
 }
 
+export type TaskStatus =
+  | 'Pending'
+  | 'In Progress'
+  | 'Completed'
+  | 'Overdue'
+  | 'Missed / Carried Forward'
+  | 'Incomplete';
+
 export interface TaskRow {
   id:                string;
   user_id:           string;
@@ -62,9 +70,13 @@ export interface TaskRow {
   estimated_hours:   number;
   estimated_minutes: number;
   deadline:          string | null;
-  status:            'Pending' | 'In Progress' | 'Completed' | 'Overdue';
+  status:            TaskStatus;
   progress:          number;
   completed_at:      string | null;
+  carried_from_task_id: string | null;
+  carried_from_date:    string | null;
+  carried_to_task_id:   string | null;
+  carried_to_date:      string | null;
   created_at:        string;
   updated_at:        string;
 }
@@ -148,9 +160,13 @@ export interface TaskPublic {
   estimatedHours:   number;
   estimatedMinutes: number;
   deadline:         string | null;
-  status:           'Pending' | 'In Progress' | 'Completed' | 'Overdue';
+  status:           TaskStatus;
   progress:         number;
   completedAt:      string | null;
+  carriedFromTaskId: string | null;
+  carriedFromDate:   string | null;
+  carriedToTaskId:   string | null;
+  carriedToDate:     string | null;
   createdAt:        string;
   updatedAt:        string;
 }
@@ -240,6 +256,10 @@ export function taskRowToPublic(r: TaskRow): TaskPublic {
     status:           r.status,
     progress:         r.progress,
     completedAt:      r.completed_at,
+    carriedFromTaskId: r.carried_from_task_id ?? null,
+    carriedFromDate:   r.carried_from_date ?? null,
+    carriedToTaskId:   r.carried_to_task_id ?? null,
+    carriedToDate:     r.carried_to_date ?? null,
     createdAt:        r.created_at,
     updatedAt:        r.updated_at,
   };

@@ -289,4 +289,15 @@ export const adminApi = {
   notifications:    () => request('/admin/notifications/sent'),
   reportsToday:     (date?: string) =>
     request('/admin/reports-today' + (date ? '?date=' + date : '')),
+  employeeDetail:   (idOrEmpId: string) =>
+    request('/admin/employees/' + encodeURIComponent(idOrEmpId)),
+  employeeTasks:    (idOrEmpId: string, date?: string) =>
+    request('/admin/employees/' + encodeURIComponent(idOrEmpId) + '/tasks' + (date ? '?date=' + date : '')),
+  carryForwardTask: (taskId: string, toDate: string) =>
+    request('/admin/tasks/' + taskId + '/carry-forward', {
+      method: 'POST',
+      body: JSON.stringify({ toDate }),
+    }),
+  markTaskIncomplete: (taskId: string) =>
+    request('/admin/tasks/' + taskId + '/mark-incomplete', { method: 'PATCH' }),
 };

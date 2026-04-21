@@ -13,10 +13,12 @@ const PRIORITY_CLS: Record<TaskPriority, string> = {
 };
 
 const STATUS_CLS: Record<TaskStatus, string> = {
-  Pending:       'bg-surface-container-highest text-on-surface-variant',
-  'In Progress': 'bg-secondary-container text-on-secondary-container',
-  Completed:     'bg-primary-container text-on-primary-container',
-  Overdue:       'bg-error-container text-on-error-container',
+  Pending:                    'bg-surface-container-highest text-on-surface-variant',
+  'In Progress':              'bg-secondary-container text-on-secondary-container',
+  Completed:                  'bg-primary-container text-on-primary-container',
+  Overdue:                    'bg-error-container text-on-error-container',
+  'Missed / Carried Forward': 'bg-surface-container-highest text-on-surface-variant',
+  Incomplete:                 'bg-surface-container-highest text-on-surface-variant',
 };
 
 const NEXT_STATUS: Partial<Record<TaskStatus, TaskStatus>> = {

@@ -31,7 +31,13 @@ export interface User {
 // ─── Task ──────────────────────────────────────────────────────────────────
 
 export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Urgent';
-export type TaskStatus   = 'Pending' | 'In Progress' | 'Completed' | 'Overdue';
+export type TaskStatus   =
+  | 'Pending'
+  | 'In Progress'
+  | 'Completed'
+  | 'Overdue'
+  | 'Missed / Carried Forward'
+  | 'Incomplete';
 
 export interface TaskAssignee {
   id:         string;
@@ -54,6 +60,10 @@ export interface Task {
   status: TaskStatus;
   progress: number;
   completedAt?: string;
+  carriedFromTaskId?: string | null;
+  carriedFromDate?: string | null;
+  carriedToTaskId?: string | null;
+  carriedToDate?: string | null;
   createdAt: string;
   updatedAt: string;
   assignedTo?: TaskAssignee | null;

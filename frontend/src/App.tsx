@@ -26,6 +26,7 @@ const Profile       = lazy(() => import('@/pages/employee/Profile'));
 const AdminDashboard     = lazy(() => import('@/pages/admin/AdminDashboard'));
 const Analytics          = lazy(() => import('@/pages/admin/Analytics'));
 const Employees          = lazy(() => import('@/pages/admin/Employees'));
+const EmployeeDetail     = lazy(() => import('@/pages/admin/EmployeeDetail'));
 const AllTasks           = lazy(() => import('@/pages/admin/AllTasks'));
 const MyTaskAdmin        = lazy(() => import('@/pages/admin/MyTaskAdmin'));
 const AddTaskAdmin       = lazy(() => import('@/pages/admin/AddTaskAdmin'));
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/admin/dashboard"     element={<AdminDashboard />} />
               <Route path="/admin/analytics"     element={<Analytics />} />
               <Route path="/admin/employees"     element={<Employees />} />
+              <Route path="/admin/employees/:id" element={<EmployeeDetail />} />
               <Route path="/admin/all-tasks"     element={<AllTasks />} />
               <Route path="/admin/my-tasks"      element={<MyTaskAdmin />} />
               <Route path="/admin/add-task"      element={<AddTaskAdmin />} />

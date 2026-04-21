@@ -469,4 +469,229 @@ router.get('/reports-today', async (req: Request, res: Response) => {
   await getAllTodayReports(req, res);
 });
 
+// ─── Employee detail + carry-forward workflow ────────────────────────────
+// The `:id` path param accepts EITHER the UUID primary key OR the
+// human-readable employee_id (e.g. "SZ-EMP-3417"). URL links from the
+// admin UI use employee_id for cleaner URLs.
+async function resolveEmployee(idOrEmpId: string): Promise<UserRow | null> {
+  const byEmpId = await supabase
+    .from('users')
+    .select('*')
+    .eq('employee_id', idOrEmpId)
+    .maybeSingle();
+  if (byEmpId.data) return byEmpId.data as UserRow;
+  const byId = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', idOrEmpId)
+    .maybeSingle();
+  return (byId.data as UserRow | null);
+}
+
+// GET /api/admin/employees/:id — profile + aggregate task stats + last activity
+router.get('/employees/:id', async (req: Request, res: Response) => {
+  try {
+    const employee = await resolveEmployee(req.params.id);
+    if (!employee) {
+      res.status(404).json({ success: false, message: 'Employee not found.' });
+      return;
+    }
+
+    const { data: allTasks, error: taskErr } = await supabase
+      .from('tasks')
+      .select('status, updated_at')
+      .eq('user_id', employee.id);
+
+    if (taskErr) {
+      res.status(500).json({ success: false, message: taskErr.message });
+      return;
+    }
+
+    const rows = (allTasks ?? []) as Array<{ status: string; updated_at: string }>;
+    const stats = {
+      total:              rows.length,
+      completed:          rows.filter((t) => t.status === 'Completed').length,
+      pendingInProgress:  rows.filter((t) => t.status === 'Pending' || t.status === 'In Progress').length,
+      overdue:            rows.filter((t) => t.status === 'Overdue').length,
+    };
+
+    const lastActivity = rows.length
+      ? rows.map((t) => t.updated_at).sort().slice(-1)[0]
+      : null;
+
+    res.json({
+      success:  true,
+      employee: userRowToPublic(employee),
+      stats,
+      lastActivity,
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: (e as Error).message });
+  }
+});
+
+// GET /api/admin/employees/:id/tasks?date=YYYY-MM-DD
+// Returns tasks for this employee where deadline falls on the given date.
+// Uses `deadline` as the date-bucket field per the feature spec.
+router.get('/employees/:id/tasks', async (req: Request, res: Response) => {
+  try {
+    const employee = await resolveEmployee(req.params.id);
+    if (!employee) {
+      res.status(404).json({ success: false, message: 'Employee not found.' });
+      return;
+    }
+
+    const dateStr = req.query.date
+      ? String(req.query.date).split('T')[0]
+      : new Date().toISOString().split('T')[0];
+
+    // Bracket the whole day in UTC-ish range so any deadline that falls on
+    // dateStr (in any timezone representation) is caught. We use the date
+    // boundaries inclusive-start, exclusive-end.
+    const start = dateStr + 'T00:00:00.000Z';
+    const end   = new Date(new Date(start).getTime() + 24 * 3600 * 1000).toISOString();
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', employee.id)
+      .gte('deadline', start)
+      .lt('deadline', end)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      res.status(500).json({ success: false, message: error.message });
+      return;
+    }
+
+    const tasks = (data as TaskRow[] ?? []).map(taskRowToPublic);
+    res.json({ success: true, date: dateStr, count: tasks.length, tasks });
+  } catch (e) {
+    res.status(500).json({ success: false, message: (e as Error).message });
+  }
+});
+
+// POST /api/admin/tasks/:taskId/carry-forward
+// Body: { toDate: 'YYYY-MM-DD' }
+// - Marks the original task as 'Missed / Carried Forward' and records
+//   carried_to_task_id / carried_to_date.
+// - Creates a duplicate task for toDate (deadline = end of that day)
+//   with status 'Pending' and carried_from_task_id / carried_from_date.
+router.post('/tasks/:taskId/carry-forward', async (req: Request, res: Response) => {
+  try {
+    const { toDate } = req.body as { toDate?: string };
+    if (!toDate || !/^\d{4}-\d{2}-\d{2}$/.test(toDate)) {
+      res.status(400).json({ success: false, message: 'toDate must be a YYYY-MM-DD string.' });
+      return;
+    }
+
+    const { data: orig, error: fetchErr } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('id', req.params.taskId)
+      .maybeSingle();
+
+    if (fetchErr) {
+      res.status(500).json({ success: false, message: fetchErr.message });
+      return;
+    }
+    if (!orig) {
+      res.status(404).json({ success: false, message: 'Task not found.' });
+      return;
+    }
+    const origTask = orig as TaskRow;
+
+    if (origTask.status === 'Completed') {
+      res.status(400).json({ success: false, message: 'Cannot carry forward a completed task.' });
+      return;
+    }
+    if (origTask.status === 'Missed / Carried Forward' || origTask.carried_to_task_id) {
+      res.status(400).json({ success: false, message: 'Task has already been carried forward.' });
+      return;
+    }
+
+    const origDate = origTask.deadline
+      ? origTask.deadline.split('T')[0]
+      : origTask.created_at.split('T')[0];
+
+    // New deadline = end of toDate in IST (UTC+5:30). Stored as UTC by Postgres.
+    const newDeadline = toDate + 'T23:59:59+05:30';
+
+    const { data: newTaskData, error: insertErr } = await supabase
+      .from('tasks')
+      .insert({
+        user_id:            origTask.user_id,
+        title:              origTask.title,
+        description:        origTask.description,
+        context:            origTask.context,
+        execution_steps:    origTask.execution_steps,
+        priority:           origTask.priority,
+        tags:               origTask.tags ?? [],
+        estimated_hours:    origTask.estimated_hours,
+        estimated_minutes:  origTask.estimated_minutes,
+        deadline:           newDeadline,
+        status:             'Pending',
+        progress:           0,
+        carried_from_task_id: origTask.id,
+        carried_from_date:    origDate,
+      })
+      .select('*')
+      .single();
+
+    if (insertErr || !newTaskData) {
+      res.status(500).json({ success: false, message: insertErr?.message ?? 'Failed to create carried-forward task.' });
+      return;
+    }
+
+    const newTask = newTaskData as TaskRow;
+
+    const { data: updatedOrigData, error: updateErr } = await supabase
+      .from('tasks')
+      .update({
+        status:             'Missed / Carried Forward',
+        carried_to_task_id: newTask.id,
+        carried_to_date:    toDate,
+      })
+      .eq('id', origTask.id)
+      .select('*')
+      .single();
+
+    if (updateErr || !updatedOrigData) {
+      // Roll back the inserted duplicate so the audit trail isn't half-written.
+      await supabase.from('tasks').delete().eq('id', newTask.id);
+      res.status(500).json({ success: false, message: updateErr?.message ?? 'Failed to update original task.' });
+      return;
+    }
+
+    res.json({
+      success:      true,
+      originalTask: taskRowToPublic(updatedOrigData as TaskRow),
+      newTask:      taskRowToPublic(newTask),
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: (e as Error).message });
+  }
+});
+
+// PATCH /api/admin/tasks/:taskId/mark-incomplete
+router.patch('/tasks/:taskId/mark-incomplete', async (req: Request, res: Response) => {
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update({ status: 'Incomplete' })
+      .eq('id', req.params.taskId)
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      res.status(500).json({ success: false, message: error?.message ?? 'Failed to mark task incomplete.' });
+      return;
+    }
+
+    res.json({ success: true, task: taskRowToPublic(data as TaskRow) });
+  } catch (e) {
+    res.status(500).json({ success: false, message: (e as Error).message });
+  }
+});
+
 export default router;

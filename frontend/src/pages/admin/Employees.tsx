@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { useTheme } from '@/contexts/ThemeContext';
 import { adminApi } from '@/utils/api';
@@ -13,6 +14,7 @@ interface AttendanceStats {
 
 export default function Employees() {
   const { setPortal } = useTheme();
+  const navigate = useNavigate();
   const [allEmployees, setAllEmployees] = useState<User[]>([]);
   const [filtered, setFiltered] = useState<User[]>([]);
   const [search, setSearch] = useState('');
@@ -260,7 +262,11 @@ export default function Employees() {
                         const initials = (emp.fullName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
                         const joined = emp.createdAt ? new Date(emp.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
                         return (
-                          <tr key={emp._id} className="group cursor-pointer">
+                          <tr
+                            key={emp._id}
+                            onClick={() => navigate('/admin/employees/' + encodeURIComponent(emp.employeeId || emp._id))}
+                            className="group cursor-pointer"
+                          >
                             <td className="px-4 py-3 bg-[#F0F3FF]/50 rounded-l-xl group-hover:bg-[#F0F3FF] transition-colors">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-lg bg-[#a8cd62] flex items-center justify-center font-bold text-[#3c5600] text-sm">{initials}</div>
@@ -282,7 +288,7 @@ export default function Employees() {
                             <td className="px-4 py-3 bg-[#F0F3FF]/50 rounded-r-xl group-hover:bg-[#F0F3FF] transition-colors text-right">
                               <button
                                 type="button"
-                                onClick={() => { setDeleteError(''); setDeleteTarget(emp); }}
+                                onClick={e => { e.stopPropagation(); setDeleteError(''); setDeleteTarget(emp); }}
                                 aria-label={`Remove ${emp.fullName || 'employee'}`}
                                 className="p-2 rounded-full text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                               >

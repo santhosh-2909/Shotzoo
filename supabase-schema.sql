@@ -71,9 +71,14 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   estimated_hours   numeric NOT NULL DEFAULT 0,
   estimated_minutes integer NOT NULL DEFAULT 0,
   deadline          timestamptz,
-  status            text NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending','In Progress','Completed','Overdue')),
+  status            text NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending','In Progress','Completed','Overdue','Missed / Carried Forward','Incomplete')),
   progress          integer NOT NULL DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
   completed_at      timestamptz,
+  -- Carry-forward audit trail (see supabase-migrations/001_carry_forward_tasks.sql)
+  carried_from_task_id uuid REFERENCES public.tasks(id) ON DELETE SET NULL,
+  carried_from_date    date,
+  carried_to_task_id   uuid REFERENCES public.tasks(id) ON DELETE SET NULL,
+  carried_to_date      date,
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now()
 );
@@ -83,6 +88,8 @@ CREATE INDEX IF NOT EXISTS tasks_user_deadline_idx  ON public.tasks (user_id, de
 CREATE INDEX IF NOT EXISTS tasks_status_deadline_idx ON public.tasks (status, deadline);
 CREATE INDEX IF NOT EXISTS tasks_created_idx         ON public.tasks (created_at DESC);
 CREATE INDEX IF NOT EXISTS tasks_tags_idx            ON public.tasks USING GIN (tags);
+CREATE INDEX IF NOT EXISTS tasks_carried_from_idx    ON public.tasks (carried_from_task_id);
+CREATE INDEX IF NOT EXISTS tasks_carried_to_idx      ON public.tasks (carried_to_task_id);
 
 DROP TRIGGER IF EXISTS tasks_set_updated_at ON public.tasks;
 CREATE TRIGGER tasks_set_updated_at
