@@ -46,12 +46,19 @@ export default function AllTasks() {
     const q = searchDebounced.trim().toLowerCase();
     if (q) {
       result = result.filter(t => {
-        const assigneeName = typeof t.user === 'object' ? ((t.user as User).fullName || '').toLowerCase() : '';
+        // Backend hydrates assignee on t.userInfo. t.user is a UUID string,
+        // so typeof === 'object' almost never holds — but we check both so
+        // the search survives any future backend shape change.
+        const nameFromUserInfo = (t.userInfo?.fullName ?? '').toLowerCase();
+        const nameFromUser     = typeof t.user === 'object' ? ((t.user as User).fullName || '').toLowerCase() : '';
+        const empId            = (t.userInfo?.employeeId ?? '').toLowerCase();
         return (
           t.title.toLowerCase().includes(q) ||
           (t.tags || []).some(tag => tag.toLowerCase().includes(q)) ||
           t._id.toLowerCase().includes(q) ||
-          assigneeName.includes(q)
+          nameFromUserInfo.includes(q) ||
+          nameFromUser.includes(q) ||
+          empId.includes(q)
         );
       });
     }
@@ -266,7 +273,10 @@ export default function AllTasks() {
                   </tr>
                 ) : (
                   filtered.map(t => {
-                    const assignee = typeof t.user === 'object' ? (t.user as User).fullName : 'Assigned';
+                    const assignee =
+                      t.userInfo?.fullName?.trim()
+                      || (typeof t.user === 'object' ? (t.user as User).fullName : '')
+                      || 'Unassigned';
                     const dl = t.deadline ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
                     const tr_ = timeRemaining(t.deadline);
                     const isOverdue = t.status === 'Overdue';

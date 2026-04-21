@@ -45,9 +45,17 @@ export interface TaskAssignee {
   employeeId: string;
 }
 
+export interface TaskUserInfo {
+  fullName:   string;
+  employeeId: string;
+  photo:      string;
+  role:       string;
+}
+
 export interface Task {
   _id: string;
   user: string | User;
+  userInfo?: TaskUserInfo | null;
   title: string;
   description: string;
   context: string;
