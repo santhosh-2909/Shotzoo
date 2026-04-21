@@ -462,4 +462,11 @@ router.get('/attendance', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/admin/reports-today — all employees with their daily report status
+// Delegates to the same controller used by /api/daily-reports/all-today.
+router.get('/reports-today', async (req: Request, res: Response) => {
+  const { getAllTodayReports } = await import('../controllers/dailyReportController');
+  await getAllTodayReports(req, res);
+});
+
 export default router;

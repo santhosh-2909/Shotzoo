@@ -117,7 +117,7 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    reportsApi.allToday()
+    adminApi.reportsToday()
       .then(res => {
         const r = res as { success?: boolean; employees?: ReportEmployee[] };
         if (r.success && r.employees) setReportEmployees(r.employees);
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
   }
 
   function refreshReports() {
-    reportsApi.allToday()
+    adminApi.reportsToday()
       .then(res => {
         const r = res as { success?: boolean; employees?: ReportEmployee[] };
         if (r.success && r.employees) setReportEmployees(r.employees);

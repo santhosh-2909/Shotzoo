@@ -287,4 +287,6 @@ export const adminApi = {
   notify:           (body: unknown) =>
     request('/admin/notify', { method: 'POST', body: JSON.stringify(body) }),
   notifications:    () => request('/admin/notifications/sent'),
+  reportsToday:     (date?: string) =>
+    request('/admin/reports-today' + (date ? '?date=' + date : '')),
 };
