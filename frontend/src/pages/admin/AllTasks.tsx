@@ -14,7 +14,13 @@ export default function AllTasks() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [searchDebounced, setSearchDebounced] = useState('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const id = setTimeout(() => setSearchDebounced(search), 250);
+    return () => clearTimeout(id);
+  }, [search]);
   const [toast, setToast] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
 
@@ -37,18 +43,29 @@ export default function AllTasks() {
     let result = allTasks;
     if (statusFilter) result = result.filter(t => t.status === statusFilter);
     if (priorityFilter) result = result.filter(t => t.priority === priorityFilter);
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(t =>
-        t.title.toLowerCase().includes(q) ||
-        (t.tags || []).some(tag => tag.toLowerCase().includes(q)) ||
-        t._id.toLowerCase().includes(q)
-      );
+    const q = searchDebounced.trim().toLowerCase();
+    if (q) {
+      result = result.filter(t => {
+        const assigneeName = typeof t.user === 'object' ? ((t.user as User).fullName || '').toLowerCase() : '';
+        return (
+          t.title.toLowerCase().includes(q) ||
+          (t.tags || []).some(tag => tag.toLowerCase().includes(q)) ||
+          t._id.toLowerCase().includes(q) ||
+          assigneeName.includes(q)
+        );
+      });
     }
     setFiltered(result);
-  }, [allTasks, statusFilter, priorityFilter, search]);
+  }, [allTasks, statusFilter, priorityFilter, searchDebounced]);
 
   useEffect(() => { applyFilters(); }, [applyFilters]);
+
+  function clearFilters() {
+    setSearch('');
+    setSearchDebounced('');
+    setStatusFilter('');
+    setPriorityFilter('');
+  }
 
   function showToast(msg: string) {
     setToast(msg);
@@ -197,11 +214,22 @@ export default function AllTasks() {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 bg-white border-none rounded-lg text-sm font-semibold text-on-surface focus:ring-2 focus:ring-[#A8CD62] py-2 px-3"
-              placeholder="ID, Title, or Tag…"
+              aria-label="Search tasks"
+              className="w-full pl-10 pr-9 bg-white border-none rounded-lg text-sm font-semibold text-on-surface focus:ring-2 focus:ring-[#A8CD62] py-2"
+              placeholder="Search by ID, Title, Tag, or Employee…"
               type="text"
             />
             <span className="material-symbols-outlined absolute left-3 top-[30px] text-stone-400 text-[20px]">search</span>
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                aria-label="Clear search"
+                className="absolute right-2 top-[28px] p-1 rounded-full text-stone-400 hover:text-[#444939] hover:bg-stone-100 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -220,7 +248,22 @@ export default function AllTasks() {
                 {loading ? (
                   <tr><td colSpan={7} className="px-6 py-12 text-center text-stone-400 text-sm">Loading…</td></tr>
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-12 text-center text-stone-400 text-sm">No tasks match your filters.</td></tr>
+                  <tr>
+                    <td colSpan={7} className="px-6 py-16">
+                      <div className="flex flex-col items-center justify-center text-center gap-3">
+                        <span className="material-symbols-outlined text-[48px] text-stone-300">person_search</span>
+                        <p className="text-base font-bold text-on-surface">No tasks found for this employee.</p>
+                        <p className="text-sm text-stone-500">Try a different name or clear your filters.</p>
+                        <button
+                          type="button"
+                          onClick={clearFilters}
+                          className="mt-2 bg-[#a8cd62] text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-[#96B856] transition-colors active:scale-95"
+                        >
+                          Clear filters
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ) : (
                   filtered.map(t => {
                     const assignee = typeof t.user === 'object' ? (t.user as User).fullName : 'Assigned';
