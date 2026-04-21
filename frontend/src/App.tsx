@@ -35,6 +35,7 @@ const SendNotification   = lazy(() => import('@/pages/admin/SendNotification'));
 const AdminProfile       = lazy(() => import('@/pages/admin/AdminProfile'));
 const CreateAccount      = lazy(() => import('@/pages/admin/CreateAccount'));
 const CompanyRegistration = lazy(() => import('@/pages/admin/CompanyRegistration'));
+const AdminDailyReports   = lazy(() => import('@/pages/admin/AdminDailyReports'));
 
 // ─── Spinner ────────────────────────────────────────────────────────────────
 
@@ -85,6 +86,7 @@ export default function App() {
               <Route path="/admin/my-tasks"      element={<MyTaskAdmin />} />
               <Route path="/admin/add-task"      element={<AddTaskAdmin />} />
               <Route path="/admin/attendance"    element={<AdminAttendance />} />
+              <Route path="/admin/daily-reports" element={<AdminDailyReports />} />
               <Route path="/admin/notifications" element={<SendNotification />} />
               <Route path="/admin/profile"       element={<AdminProfile />} />
               <Route path="/admin/create-account" element={<CreateAccount />} />

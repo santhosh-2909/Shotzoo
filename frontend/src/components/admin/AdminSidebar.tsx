@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/admin/add-task',       icon: 'add_task',       label: 'Add Task'           },
   { to: '/admin/my-tasks',       icon: 'task_alt',       label: 'My Tasks'           },
   { to: '/admin/all-tasks',      icon: 'assignment',     label: 'All Tasks'          },
+  { to: '/admin/daily-reports',  icon: 'assessment',     label: 'Daily Reports'      },
   { to: '/admin/employees',      icon: 'group',          label: 'Employees'          },
   { to: '/admin/analytics',      icon: 'analytics',      label: 'Analytics'          },
   { to: '/admin/dashboard',      icon: 'dashboard',      label: 'Dashboard'          },
